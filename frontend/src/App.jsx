@@ -13,6 +13,8 @@ import Profile from "./pages/Profile/Profile";
 import NotFound from "./pages/NotFound/NotFound";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AIScheduler from "./pages/Tasks/AIScheduler";
+import Teams from "./pages/Teams/Teams";
+import TeamDetails from "./pages/Teams/TeamDetails";
 
 function App() {
   return (
@@ -85,6 +87,24 @@ function App() {
           element={
             <ProtectedRoute>
               <AIScheduler />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Teams Collaboration */}
+        <Route
+          path="/teams"
+          element={
+            <ProtectedRoute>
+              <Teams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teams/:teamId"
+          element={
+            <ProtectedRoute>
+              <TeamDetails />
             </ProtectedRoute>
           }
         />

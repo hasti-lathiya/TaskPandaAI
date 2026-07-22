@@ -76,3 +76,39 @@ ${formattedTasks}
 
   return result.response.text();
 };
+
+export const recommendTeamAssignee = async (taskTitle, taskDesc, members, activeTasksCount) => {
+  const memberDetails = members
+    .map(
+      (member) => `
+- Email: ${member.email}
+  Role: ${member.role}
+  Active Tasks Count: ${activeTasksCount[member.email] || 0}
+`
+    )
+    .join("\n");
+
+  const prompt = `
+You are an AI workload balancer and assistant.
+Recommend the most suitable team member to assign the following task to.
+
+Task Title: ${taskTitle}
+Task Description: ${taskDesc}
+
+Team Members:
+${memberDetails}
+
+Guidelines:
+- Analyze active tasks count (prefer members with fewer active tasks to balance workload).
+- Align task title/description with the role (Internal vs External).
+- Return your recommendation in a clean, short, professional paragraph (max 3 sentences). Mention the recommended member's email, why they were chosen, and why it balances the workload.
+`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    console.error("AI recommendation error:", error);
+    return "Could not generate AI recommendation at this time.";
+  }
+};

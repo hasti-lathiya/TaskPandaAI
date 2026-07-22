@@ -6,6 +6,7 @@ import {
   PawPrint,
   FileText,
   User,
+  Users,
 } from "lucide-react";
 
 function Sidebar() {
@@ -21,9 +22,9 @@ function Sidebar() {
       path: "/tasks",
     },
     {
-    name: "AI Scheduler",
-    icon: "🤖",
-    path: "/ai-scheduler"
+      name: "AI Scheduler",
+      icon: "🤖",
+      path: "/ai-scheduler"
     },
     {
       name: "Internship",
@@ -31,14 +32,19 @@ function Sidebar() {
       path: "/internship",
     },
     {
-      name: "Panda Pet",
-      icon: <PawPrint size={20} />,
-      path: "/panda",
+      name: "Teams",
+      icon: <Users size={20} />,
+      path: "/teams",
     },
     {
       name: "PDF Manager",
       icon: <FileText size={20} />,
       path: "/pdf-manager",
+    },
+    {
+      name: "Panda Pet",
+      icon: <PawPrint size={20} />,
+      path: "/panda",
     },
     {
       name: "Profile",
