@@ -7,44 +7,66 @@ import {
   collection,
   query,
   where,
-  orderBy,
-  limit,
-  getDocs,
+  onSnapshot,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 
 function RecentTasks() {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+    let unsubscribeSnapshot = null;
 
-      try {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
         const q = query(
           collection(db, "tasks"),
-          where("userId", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(5)
+          where("userId", "==", user.uid)
         );
 
-        const snapshot = await getDocs(q);
-
-        const list = [];
-
-        snapshot.forEach((doc) => {
-          list.push({
-            id: doc.id,
-            ...doc.data(),
-          });
-        });
-
-        setTasks(list);
-      } catch (err) {
-        console.log(err);
+        unsubscribeSnapshot = onSnapshot(
+          q,
+          (snapshot) => {
+            const list = [];
+            snapshot.forEach((docSnap) => {
+              const data = docSnap.data();
+              let title = data.title || "";
+              if (title.includes("assigmment")) {
+                const correctedTitle = title.replace("assigmment", "assignment");
+                updateDoc(doc(db, "tasks", docSnap.id), { title: correctedTitle })
+                  .catch(err => console.error("Error correcting typo:", err));
+                title = correctedTitle;
+              }
+              list.push({
+                id: docSnap.id,
+                ...data,
+                title,
+              });
+            });
+            // Sort in memory by createdAt descending
+            list.sort((a, b) => {
+              const valA = a.createdAt?.seconds || (a.createdAt ? new Date(a.createdAt).getTime() / 1000 : 0);
+              const valB = b.createdAt?.seconds || (b.createdAt ? new Date(b.createdAt).getTime() / 1000 : 0);
+              return valB - valA;
+            });
+            setTasks(list.slice(0, 5));
+          },
+          (err) => {
+            console.error("Error loading recent tasks: ", err);
+          }
+        );
+      } else {
+        setTasks([]);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+      }
+    };
   }, []);
 
   const getPriorityColor = (priority) => {
@@ -80,21 +102,21 @@ function RecentTasks() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 transition-colors duration-300">
+    <div className="glass-premium rounded-[24px] p-6 shadow-sm">
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center gap-4 mb-6">
 
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
             📝 Recent Tasks
           </h2>
 
-          <p className="text-gray-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Your latest activity and priorities
           </p>
         </div>
 
-        <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300">
+        <div className="bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-indigo-500/10 dark:border-indigo-500/35 shadow-sm">
           {tasks.length} Tasks
         </div>
 
@@ -104,15 +126,15 @@ function RecentTasks() {
 
         <div className="text-center py-12">
 
-          <div className="text-6xl mb-4">
+          <div className="text-6xl mb-4 select-none">
             📭
           </div>
 
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200">
+          <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">
             No recent tasks
           </h3>
 
-          <p className="text-gray-500 dark:text-slate-400 mt-2">
+          <p className="text-slate-500 dark:text-slate-405 mt-1.5 text-sm">
             Create your first task to start tracking progress.
           </p>
 
@@ -120,27 +142,27 @@ function RecentTasks() {
 
       ) : (
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
 
           {tasks.map((task) => (
 
             <div
               key={task.id}
-              className="border border-gray-200 dark:border-slate-800 rounded-2xl p-4 hover:border-indigo-200 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-300 bg-white dark:bg-slate-900/60"
+              className="border border-slate-200/50 dark:border-slate-800/80 rounded-[20px] p-4 transition-all duration-300 bg-white/40 dark:bg-[#070b14]/30 hover:border-indigo-500/30 dark:hover:border-indigo-500/30 hover:shadow-md hover:-translate-y-0.5"
             >
 
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-4">
 
                 <div className="flex-1">
 
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-2.5">
 
-                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full text-sm">
+                    <span className="bg-slate-100 dark:bg-slate-850/80 text-slate-650 dark:text-slate-350 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200/10 dark:border-slate-800/20">
                       {getCategoryEmoji(task.category)} {task.category}
                     </span>
 
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(task.priority)}`}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${getPriorityColor(task.priority)}`}
                     >
                       {task.priority}
                     </span>
@@ -148,22 +170,22 @@ function RecentTasks() {
                   </div>
 
                   <h3
-                    className={`font-bold text-lg ${
+                    className={`font-bold text-base tracking-tight ${
                       task.completed
-                        ? "line-through text-gray-400 dark:text-slate-500"
-                        : "text-slate-800 dark:text-slate-100"
+                        ? "line-through text-slate-400 dark:text-slate-650"
+                        : "text-slate-850 dark:text-slate-100"
                     }`}
                   >
                     {task.title}
                   </h3>
 
-                  <p className="text-gray-500 dark:text-slate-400 mt-2 text-sm">
+                  <p className="text-slate-500 dark:text-slate-500 mt-2 text-xs font-semibold">
                     📅 {task.dueDate || "No due date"}
                   </p>
 
                 </div>
 
-                <div className="text-3xl ml-4">
+                <div className="text-2xl ml-4 select-none drop-shadow-sm">
                   {task.completed ? "✅" : "⏳"}
                 </div>
 

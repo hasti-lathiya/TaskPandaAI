@@ -5,7 +5,9 @@ import {
   collection,
   query,
   where,
-  getDocs,
+  onSnapshot,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 
 import { onAuthStateChanged } from "firebase/auth";
@@ -18,50 +20,67 @@ function useTaskStats() {
     completionRate: 0,
   });
 
-  const loadStats = async () => {
-    if (!auth.currentUser) return;
-
-    const q = query(
-      collection(db, "tasks"),
-      where("userId", "==", auth.currentUser.uid)
-    );
-
-    const snapshot = await getDocs(q);
-
-    let total = 0;
-    let completed = 0;
-
-    snapshot.forEach((doc) => {
-      total++;
-
-      if (doc.data().completed) {
-        completed++;
-      }
-    });
-
-    const pending = total - completed;
-
-    const completionRate =
-      total === 0
-        ? 0
-        : Math.round((completed / total) * 100);
-
-    setStats({
-      total,
-      completed,
-      pending,
-      completionRate,
-    });
-  };
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    let unsubscribeSnapshot = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
-        loadStats();
+        const q = query(
+          collection(db, "tasks"),
+          where("userId", "==", user.uid)
+        );
+
+        unsubscribeSnapshot = onSnapshot(
+          q,
+          (snapshot) => {
+            let total = 0;
+            let completed = 0;
+
+            snapshot.forEach((docSnap) => {
+              const data = docSnap.data();
+              let title = data.title || "";
+              if (title.includes("assigmment")) {
+                const correctedTitle = title.replace("assigmment", "assignment");
+                updateDoc(doc(db, "tasks", docSnap.id), { title: correctedTitle })
+                  .catch(err => console.error("Error correcting typo:", err));
+              }
+              total++;
+              if (data.completed) {
+                completed++;
+              }
+            });
+
+            const pending = total - completed;
+            const completionRate =
+              total === 0 ? 0 : Math.round((completed / total) * 100);
+
+            setStats({
+              total,
+              completed,
+              pending,
+              completionRate,
+            });
+          },
+          (err) => {
+            console.error("Error fetching tasks snapshot: ", err);
+          }
+        );
+      } else {
+        setStats({
+          total: 0,
+          completed: 0,
+          pending: 0,
+          completionRate: 0,
+        });
       }
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+      }
+    };
   }, []);
 
   return stats;

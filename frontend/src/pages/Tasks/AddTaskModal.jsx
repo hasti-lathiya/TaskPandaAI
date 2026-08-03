@@ -5,8 +5,10 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
+import { useNotifications } from "../../context/NotificationContext";
 
 function AddTaskModal({ isOpen, onClose }) {
+const { addNotification } = useNotifications();
 const [title, setTitle] = useState("");
 const [priority, setPriority] = useState("Medium");
 const [dueDate, setDueDate] = useState("");
@@ -22,8 +24,8 @@ const [description, setDescription] = useState("");
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title.trim()) {
-      alert("Please enter task title.");
+    if (title.trim().length < 3) {
+      alert("Task title must be at least 3 characters long.");
       return;
     }
 
@@ -41,7 +43,7 @@ const [description, setDescription] = useState("");
       createdAt: serverTimestamp(),
     });
 
-      alert("🎉 Task Added Successfully!");
+      await addNotification("Task Created 🎯", `Task Created: ${title}`, "task");
 
       setTitle("");
       setPriority("Medium");

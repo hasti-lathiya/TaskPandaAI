@@ -95,23 +95,23 @@ function ProductivityChart() {
   )[0];
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-8 transition-colors duration-300">
+    <div className="glass-premium rounded-[24px] p-8 shadow-sm">
 
       {/* Header */}
 
       <div className="flex justify-between items-start mb-8">
 
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
             📊 Productivity Analytics
           </h2>
 
-          <p className="text-gray-500 dark:text-slate-400 mt-2">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Your completed tasks during the week
           </p>
         </div>
 
-        <div className="bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-2xl font-semibold">
+        <div className="bg-indigo-500/10 dark:bg-indigo-500/25 text-indigo-700 dark:text-indigo-400 px-4.5 py-2 rounded-2xl font-bold text-sm border border-indigo-500/10 dark:border-indigo-500/30 shadow-sm">
           {totalCompleted} Completed
         </div>
 
@@ -166,25 +166,25 @@ function ProductivityChart() {
 
       <div className="grid grid-cols-2 gap-4 mt-8">
 
-        <div className="bg-green-50 dark:bg-green-950/40 border border-green-100 dark:border-green-800/40 rounded-2xl p-4">
+        <div className="bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/10 dark:border-emerald-900/30 rounded-[20px] p-4 transition-all duration-300 hover:border-emerald-500/30">
 
-          <p className="text-gray-500 dark:text-slate-400 text-sm">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             🏆 Best Day
           </p>
 
-          <h3 className="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">
-            {bestDay.day}
+          <h3 className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">
+            {bestDay ? bestDay.day : "N/A"}
           </h3>
 
         </div>
 
-        <div className="bg-orange-50 dark:bg-amber-950/40 border border-orange-100 dark:border-amber-800/40 rounded-2xl p-4">
+        <div className="bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/10 dark:border-amber-900/30 rounded-[20px] p-4 transition-all duration-300 hover:border-amber-500/30">
 
-          <p className="text-gray-500 dark:text-slate-400 text-sm">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             ✅ Weekly Total
           </p>
 
-          <h3 className="text-2xl font-bold text-orange-600 dark:text-amber-400 mt-2">
+          <h3 className="text-2xl font-black text-amber-650 dark:text-amber-400 mt-2">
             {totalCompleted}
           </h3>
 

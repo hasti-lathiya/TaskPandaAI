@@ -59,9 +59,9 @@ function HoursTracker({ todayHours, setTodayHours}) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-lg p-6 mt-8 transition-colors duration-300">
+    <div className="glass-premium rounded-[24px] p-6 shadow-sm">
 
-      <h2 className="text-2xl font-bold mb-5 text-slate-800 dark:text-slate-100">
+      <h2 className="text-xl font-bold mb-5 text-slate-800 dark:text-slate-100 tracking-tight">
         ⏰ Hours Tracker
       </h2>
 
@@ -74,12 +74,12 @@ function HoursTracker({ todayHours, setTodayHours}) {
           value={hours}
           onChange={(e) => setHours(e.target.value)}
           placeholder="Hours Worked"
-          className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 w-40 outline-none focus:ring-2 focus:ring-indigo-500"
+          className="bg-white dark:bg-[#0c1222] text-slate-800 dark:text-slate-105 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-3.5 w-40 outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm font-bold transition shadow-inner"
         />
 
         <button
           onClick={saveHours}
-          className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-6 rounded-xl transition cursor-pointer font-medium"
+          className="bg-emerald-605 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl transition cursor-pointer font-bold text-sm flex items-center justify-center shadow-sm hover:shadow-emerald-500/10 active:scale-95"
         >
           Save
         </button>

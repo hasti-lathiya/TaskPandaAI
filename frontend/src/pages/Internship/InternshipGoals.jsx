@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-
 import { auth, db } from "../../firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, collection, query, where, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 function InternshipGoals() {
@@ -12,24 +11,69 @@ function InternshipGoals() {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeUser = null;
+    let unsubscribeLogs = null;
+    let unsubscribeTasks = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (!user) return;
 
       const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
+      unsubscribeUser = onSnapshot(userRef, (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          const goalHours = (data.todayHours || 0) >= 8;
+          setGoals((prev) => ({ ...prev, hours: goalHours }));
+        }
+      });
 
-      if (snap.exists()) {
-        const data = snap.data();
+      // Daily work logs query to check if user added logs today
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
 
-        setGoals({
-          hours: (data.todayHours || 0) >= 8,
-          workLog: true,
-          tasks: true,
+      const logsQuery = query(
+        collection(db, "internshipLogs"),
+        where("userId", "==", user.uid)
+      );
+
+      unsubscribeLogs = onSnapshot(logsQuery, (logsSnap) => {
+        let loggedToday = false;
+        logsSnap.forEach((doc) => {
+          const data = doc.data();
+          if (data.createdAt) {
+            const dateVal = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+            if (dateVal >= startOfDay) {
+              loggedToday = true;
+            }
+          }
         });
-      }
+        setGoals((prev) => ({ ...prev, workLog: loggedToday }));
+      });
+
+      // Tasks query to check if user completed tasks today
+      const tasksQuery = query(
+        collection(db, "tasks"),
+        where("userId", "==", user.uid)
+      );
+
+      unsubscribeTasks = onSnapshot(tasksQuery, (tasksSnap) => {
+        let completedToday = false;
+        tasksSnap.forEach((doc) => {
+          const t = doc.data();
+          if (t.completed) {
+            completedToday = true;
+          }
+        });
+        setGoals((prev) => ({ ...prev, tasks: completedToday }));
+      });
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeUser) unsubscribeUser();
+      if (unsubscribeLogs) unsubscribeLogs();
+      if (unsubscribeTasks) unsubscribeTasks();
+    };
   }, []);
 
   const completed =

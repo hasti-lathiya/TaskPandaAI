@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
 
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 
 function Register() {
@@ -42,6 +43,23 @@ function Register() {
 
     await updateProfile(userCredential.user, {
       displayName: formData.fullName,
+    });
+
+    // Create user document in Firestore with default values
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      fullName: formData.fullName,
+      email: formData.email.toLowerCase(),
+      role: "Computer Science Student",
+      major: "Software Engineering",
+      bio: "Active productivity companion grower and student.",
+      xp: 1240,
+      level: 1,
+      coins: 1250,
+      streak: 7,
+      equippedCompanion: "Panda",
+      ownedCompanions: ["Panda"],
+      lastCompletedDate: "",
+      createdAt: new Date().toISOString(),
     });
 
     alert("🎉 Account Created Successfully!");

@@ -19,8 +19,8 @@
 }
 
 .dark {
-  --background: #0F172A;
-  --surface: #1E293B;
+  --background: #0B0F19;
+  --surface: #111827;
 
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
@@ -49,10 +49,215 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
+  background: var(--primary-accent, #6366f1);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5;
+  background: var(--primary-hover, #4f46e5);
+}
+
+/* Dynamic Accents overrides */
+:root {
+  --primary-accent: #4f46e5;
+  --primary-hover: #4338ca;
+  --bg-accent-light: #e0e7ff;
+  --primary-accent-light: #818cf8;
+  --secondary-accent: #7c3aed;
+}
+
+.bg-indigo-50 {
+  background-color: var(--bg-accent-light) !important;
+}
+.bg-indigo-600 {
+  background-color: var(--primary-accent) !important;
+}
+.hover\:bg-indigo-700:hover {
+  background-color: var(--primary-hover) !important;
+}
+.dark .hover\:bg-indigo-600:hover {
+  background-color: var(--primary-hover) !important;
+}
+.text-indigo-600 {
+  color: var(--primary-accent) !important;
+}
+.dark .text-indigo-400 {
+  color: var(--primary-accent-light) !important;
+}
+.text-indigo-750 {
+  color: var(--primary-accent) !important;
+}
+.text-indigo-700 {
+  color: var(--primary-accent) !important;
+}
+.dark .text-indigo-300 {
+  color: var(--primary-accent-light) !important;
+}
+.border-indigo-500 {
+  border-color: var(--primary-accent) !important;
+}
+.focus\:ring-indigo-500:focus {
+  --tw-ring-color: var(--primary-accent) !important;
+}
+
+/* Redefine gradient colors */
+.from-indigo-600 {
+  --tw-gradient-from: var(--primary-accent) !important;
+  --tw-gradient-to: var(--primary-accent) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+.to-purple-650 {
+  --tw-gradient-to: var(--secondary-accent) !important;
+}
+.to-purple-600 {
+  --tw-gradient-to: var(--secondary-accent) !important;
+}
+.to-purple-700 {
+  --tw-gradient-to: var(--secondary-accent) !important;
+}
+.bg-indigo-950\/70 {
+  background-color: color-mix(in srgb, var(--primary-accent) 20%, transparent) !important;
+}
+.text-indigo-605 {
+  color: var(--primary-accent) !important;
+}
+.text-indigo-650 {
+  color: var(--primary-accent) !important;
+}
+.text-indigo-405 {
+  color: var(--primary-accent-light) !important;
+}
+.text-indigo-400 {
+  color: var(--primary-accent-light) !important;
+}
+
+/* Premium Visual Design Systems */
+
+/* Animated Background Blobs */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(40px, -60px) scale(1.15);
+  }
+  66% {
+    transform: translate(-35px, 35px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 20s infinite alternate ease-in-out;
+}
+
+.animation-delay-2000 {
+  animation-delay: 3s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 6s;
+}
+
+/* Floating Animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 4s infinite ease-in-out;
+}
+
+/* Smooth Fade In Transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Frosted Glassmorphism Utility */
+.glass-premium {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .glass-premium {
+  background-color: rgba(17, 24, 39, 0.65);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.45);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Hover elevation with subtle glow */
+.glass-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-hover:hover {
+  transform: translateY(-5px);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 20px 35px rgba(99, 102, 241, 0.08);
+}
+
+.dark .glass-hover:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 20px rgba(99, 102, 241, 0.1);
+}
+
+/* Glow highlights for navigation active states */
+.glow-active {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.45) !important;
+}
+
+.dark .glow-active {
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
+  border-color: rgba(99, 102, 241, 0.55) !important;
+}
+
+/* Accessibility: Reduce motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob,
+  .animate-float,
+  .animate-fade-in,
+  .glass-hover {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Global Dark Mode Utility Overrides */
+.dark .dark\:bg-slate-900 {
+  background-color: #111827 !important;
+}
+
+.dark .dark\:bg-slate-850 {
+  background-color: #1E293B !important;
+}
+
+.dark .dark\:bg-slate-950 {
+  background-color: #0B0F19 !important;
 }

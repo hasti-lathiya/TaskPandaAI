@@ -8,7 +8,6 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
   serverTimestamp,
 } from "firebase/firestore";
 
@@ -25,8 +24,7 @@ function DailyWorkLog() {
 
       const q = query(
         collection(db, "internshipLogs"),
-        where("userId", "==", auth.currentUser.uid),
-        orderBy("createdAt", "desc")
+        where("userId", "==", auth.currentUser.uid)
       );
 
       const snapshot = await getDocs(q);
@@ -38,6 +36,13 @@ function DailyWorkLog() {
           id: doc.id,
           ...doc.data(),
         });
+      });
+
+      // Sort in-memory by createdAt descending
+      workList.sort((a, b) => {
+        const valA = a.createdAt?.seconds || (a.createdAt ? new Date(a.createdAt).getTime() / 1000 : 0);
+        const valB = b.createdAt?.seconds || (b.createdAt ? new Date(b.createdAt).getTime() / 1000 : 0);
+        return valB - valA;
       });
 
       setWorks(workList);
@@ -80,11 +85,11 @@ function DailyWorkLog() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-lg p-6 mt-8 transition-colors duration-300">
+    <div className="glass-premium rounded-[24px] p-6 shadow-sm">
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 gap-4">
 
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
           📝 Daily Work Log
         </h2>
 

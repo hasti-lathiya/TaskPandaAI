@@ -6,7 +6,7 @@ import Register from "./pages/Register/Register";
 import ForgotPassword from "./pages/Forgotpassword/ForgotPassword";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Tasks from "./pages/Tasks/Tasks";
-import Panda from "./pages/Panda/Panda";
+import Companion from "./pages/Companion/Companion";
 import Internship from "./pages/Internship/Internship";
 import PDFManager from "./pages/PDFManager/PDFManager";
 import Profile from "./pages/Profile/Profile";
@@ -51,7 +51,15 @@ function App() {
           path="/panda"
           element={
             <ProtectedRoute>
-              <Panda />
+              <Companion />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/companion"
+          element={
+            <ProtectedRoute>
+              <Companion />
             </ProtectedRoute>
           }
         />

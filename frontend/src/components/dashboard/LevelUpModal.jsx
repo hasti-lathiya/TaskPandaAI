@@ -1,44 +1,38 @@
-function LevelUpModal({
-  isOpen,
-  level,
-  onClose,
-}) {
+function LevelUpModal({ isOpen, level, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-      <div className="bg-white rounded-3xl p-10 w-[420px] text-center shadow-2xl">
-
-        <div className="text-7xl mb-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300">
+      <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[32px] p-8 md:p-10 w-full max-w-[440px] text-center shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="text-7xl mb-4 animate-bounce">
           🎉
         </div>
 
-        <h2 className="text-4xl font-bold text-indigo-600">
+        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent tracking-tight">
           LEVEL UP!
         </h2>
 
-        <p className="mt-5 text-xl">
-          🐼 Your Panda reached
+        <p className="mt-5 text-lg font-semibold text-slate-700 dark:text-slate-300">
+          🐼 Your Panda companion reached
         </p>
 
-        <p className="text-3xl font-bold mt-2">
-          Level {level}
-        </p>
+        <div className="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100/40 dark:border-indigo-900/40 rounded-2xl py-3 px-6 inline-block mt-3 shadow-inner">
+          <p className="text-2xl font-black text-indigo-700 dark:text-indigo-400">
+            Level {level}
+          </p>
+        </div>
 
-        <p className="mt-5 text-gray-500">
-          Keep completing tasks to grow your Panda!
+        <p className="mt-6 text-sm text-gray-500 dark:text-slate-400 font-medium">
+          Keep completing tasks and leveling up to grow your Panda companion!
         </p>
 
         <button
           onClick={onClose}
-          className="mt-8 bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 transition"
+          className="mt-8 w-full bg-gradient-to-r from-indigo-600 to-purple-650 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-900/30 transition transform hover:-translate-y-0.5 cursor-pointer"
         >
           Awesome!
         </button>
-
       </div>
-
     </div>
   );
 }
