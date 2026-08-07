@@ -37,7 +37,7 @@ function WelcomeCard({ userStats }) {
       <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 dark:bg-pink-600/3 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto flex flex-col xl:flex-row justify-between items-center gap-8 xl:gap-16 w-full">
+      <div className="max-w-7xl mx-auto flex flex-col xl:flex-row justify-between items-center gap-8 xl:gap-16 w-full">
         {/* Left Side: Welcome and motivation */}
         <div className="flex-grow max-w-xl flex flex-col gap-6">
           <div>
@@ -104,10 +104,10 @@ function WelcomeCard({ userStats }) {
         </div>
 
         {/* Right Side: Interactive Frosted Panda Companion */}
-        <div className="w-full xl:w-[420px] flex-shrink-0 bg-white/60 dark:bg-[#070b14]/50 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-[32px] p-6 shadow-md flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden glass-hover group">
+        <div className="w-full xl:w-[620px] min-h-[300px] flex-shrink-0 bg-white/60 dark:bg-[#070b14]/50 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-[32px] p-10 shadow-md flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden glass-hover group">
           <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 dark:via-indigo-500/2 dark:to-indigo-500/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700" />
           
-          <div className="flex-shrink-0 bg-gradient-to-tr from-indigo-500/5 to-pink-500/5 dark:from-slate-850 dark:to-slate-800 p-5 rounded-[24px] border border-white/60 dark:border-slate-800 shadow-inner animate-float select-none">
+          <div className="flex-shrink-0 bg-gradient-to-tr from-indigo-500/5 to-pink-500/5 dark:from-slate-850 dark:to-slate-800 p-6 rounded-[28px] border border-white/60 dark:border-slate-800 shadow-inner animate-float select-none">
             <PandaAvatar level={level} companion={equippedCompanion} />
           </div>
 
@@ -121,12 +121,12 @@ function WelcomeCard({ userStats }) {
               </span>
             </div>
             
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 font-semibold">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4.5 font-semibold">
               Help your companion grow by completing tasks
             </p>
 
             {/* Progress Bar */}
-            <div className="mb-4">
+            <div className="mb-5">
               <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 font-bold mb-1.5">
                 <span>Growth Progress</span>
                 <span>{progress}/100 XP</span>
@@ -140,14 +140,14 @@ function WelcomeCard({ userStats }) {
             </div>
 
             {/* Gamification Stats badges */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 dark:from-amber-950/20 dark:to-amber-950/30 rounded-2xl p-3.5 border border-amber-500/10 dark:border-amber-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-amber-500/30 shadow-sm">
+            <div className="grid grid-cols-2 gap-3.5">
+              <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 dark:from-amber-950/20 dark:to-amber-950/30 rounded-2xl py-4 px-3 border border-amber-500/10 dark:border-amber-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-amber-500/30 shadow-sm">
                 <p className="text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">🪙 Coins</p>
                 <p className="text-xl font-black text-amber-700 dark:text-amber-300 mt-1">{coins}</p>
               </div>
-              <div className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 dark:from-rose-950/20 dark:to-rose-950/30 rounded-2xl p-3.5 border border-rose-500/10 dark:border-rose-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-rose-500/30 shadow-sm">
-                <p className="text-[11px] text-rose-650 dark:text-rose-450 font-bold uppercase tracking-wider">🔥 Streak</p>
-                <p className="text-xl font-black text-rose-700 dark:text-rose-450 mt-1">{streak} Days</p>
+              <div className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 dark:from-rose-950/20 dark:to-rose-950/30 rounded-2xl py-4 px-3 border border-rose-500/10 dark:border-rose-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-rose-500/30 shadow-sm">
+                <p className="text-[11px] text-rose-650 dark:text-rose-455 font-bold uppercase tracking-wider">🔥 Streak</p>
+                <p className="text-xl font-black text-rose-700 dark:text-rose-455 mt-1">{streak} Days</p>
               </div>
             </div>
           </div>

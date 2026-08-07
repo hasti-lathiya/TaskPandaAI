@@ -3,7 +3,7 @@ import Topbar from "../components/Topbar/Topbar";
 
 function MainLayout({ children }) {
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 transition-colors duration-500 relative overflow-hidden">
+    <div className="flex h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 transition-colors duration-500 relative overflow-hidden">
 
       {/* Premium Glow Blobs Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
