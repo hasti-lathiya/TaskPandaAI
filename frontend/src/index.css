@@ -98,6 +98,9 @@ body {
 }
 .focus\:ring-indigo-500:focus {
   --tw-ring-color: var(--primary-accent) !important;
+  /* Match the border to the ring so focus reads as one stroke,
+     not a grey border sandwiched inside an accent ring. */
+  border-color: var(--primary-accent) !important;
 }
 
 /* Redefine gradient colors */

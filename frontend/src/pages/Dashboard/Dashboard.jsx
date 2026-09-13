@@ -5,6 +5,7 @@ import MainLayout from "../../layouts/MainLayout";
 import useTaskStats from "../../hooks/useTaskStats";
 import useUserStats from "../../hooks/useUserStats";
 import WelcomeCard from "../../components/dashboard/WelcomeCard";
+import StreakRepairCard from "../../components/dashboard/StreakRepairCard";
 import RecentTasks from "../../components/dashboard/RecentTasks";
 import LevelUpModal from "../../components/dashboard/LevelUpModal";
 
@@ -40,6 +41,8 @@ function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 space-y-8 animate-fade-in">
         {/* Welcome Hero Panel (Consolidated Welcome and Panda Companion Growth stats) */}
         <WelcomeCard userStats={userStats} />
+
+        <StreakRepairCard userStats={userStats} />
 
         {/* Dynamic Statistics Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
