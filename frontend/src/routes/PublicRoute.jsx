@@ -20,6 +20,11 @@ function PublicRoute({ children }) {
     return <h2 className="text-center mt-10">Loading...</h2>;
   }
 
+  // If user is actively registering, do not redirect to dashboard
+  if (sessionStorage.getItem("registering_in_progress") === "true") {
+    return children;
+  }
+
   return user ? <Navigate to="/dashboard" replace /> : children;
 }
 

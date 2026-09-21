@@ -13,6 +13,7 @@ import Home from "./pages/Home/Home";
 
 const Login = lazy(() => import("./pages/Login/Login"));
 const Register = lazy(() => import("./pages/Register/Register"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/Forgotpassword/ForgotPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard/Dashboard"));
 const Tasks = lazy(() => import("./pages/Tasks/Tasks"));
@@ -60,6 +61,10 @@ function App() {
             <Route
               path="/forgot-password"
               element={<ForgotPassword />}
+            />
+            <Route
+              path="/verify-email"
+              element={<VerifyEmail />}
             />
 
             {/* Protected Routes */}

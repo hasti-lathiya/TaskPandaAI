@@ -17,7 +17,7 @@ test.describe('Authentication Flow', () => {
     email = uniqueEmail();
   });
 
-  test('Register a new user and land on the dashboard', async ({ page }) => {
+  test('Register a new user and land on the verify email page', async ({ page }) => {
     await page.goto('/register');
     await expect(page).toHaveURL(/\/register/);
 
@@ -27,15 +27,9 @@ test.describe('Authentication Flow', () => {
     await page.fill('#register-confirm', validPassword);
     await page.click('button:has-text("Create Account")');
 
-    // Firebase signs the new user in, so sending them to /login would ask an
-    // already-authenticated user to log in again.
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 20000 });
-
-    // The URL changes before the lazily-loaded Dashboard chunk has compiled, and
-    // the banner auto-dismisses 6s after it mounts. Wait for the page to be up
-    // first so the assertion isn't racing a cold dev-server compile.
-    await expect(page.getByRole('heading', { name: /Total Tasks/ })).toBeVisible({ timeout: 40000 });
-    await expect(page.getByRole('status')).toContainText('Registration Successful');
+    // Secure flow: unverified user is redirected to /verify-email
+    await expect(page).toHaveURL(/\/verify-email/, { timeout: 20000 });
+    await expect(page.getByRole('heading', { name: /Verify Your Email/ })).toBeVisible({ timeout: 10000 });
   });
 
   test('Register rejects a short password before calling Firebase', async ({ page }) => {
@@ -61,15 +55,15 @@ test.describe('Authentication Flow', () => {
     await expect(page.locator('#confirm-mismatch')).toHaveCount(0);
   });
 
-  test('Login with valid credentials', async ({ page }) => {
+  test('Login rejects unverified user with verification prompt', async ({ page }) => {
     await page.goto('/login');
     await page.fill('#login-email', email);
     await page.fill('#login-password', validPassword);
     await page.click('button:has-text("Login")');
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 20000 });
-    await expect(page.getByRole('heading', { name: /Total Tasks/ })).toBeVisible({ timeout: 40000 });
-    await expect(page.getByRole('status')).toContainText('Login Successful');
+    const alert = page.getByRole('alert');
+    await expect(alert).toContainText('Your email has not been verified yet');
+    await expect(page).toHaveURL(/\/login/);
   });
 
   test('Login with a wrong password shows a friendly message, not a Firebase code', async ({ page }) => {

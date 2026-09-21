@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import aiRouter from "./ai.js";
+import authRouter from "./auth.js";
 
 // The Express app is built here and exported without listening, so the same
 // code can run as a long-lived server locally (src/server.js) and as a
@@ -33,6 +34,9 @@ app.use(express.json({ limit: "1mb" }));
 
 // AI generation runs server-side so the provider key never reaches the browser.
 app.use("/api/ai", aiRouter);
+
+// Authentication & email verification OTP endpoints
+app.use("/api/auth", authRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });

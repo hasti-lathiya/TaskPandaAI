@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../../firebase/firebase";
 import { getAuthErrorMessage } from "../../utils/authErrors";
 import { setFlashMessage } from "../../utils/flashMessage";
+import { checkEmailVerified, requestVerificationOtp } from "../../services/authService";
 
 function Login() {
   const navigate = useNavigate();
@@ -14,10 +16,11 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(location.state?.successMessage || "");
   const [error, setError] = useState("");
+  const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    email: "",
+    email: location.state?.prefillEmail || "",
     password: "",
   });
 
@@ -26,6 +29,21 @@ function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleVerifyNow = async () => {
+    if (!unverifiedEmail) return;
+    try {
+      setLoading(true);
+      await requestVerificationOtp(unverifiedEmail);
+    } catch {
+      // Continue to verification page even if background send fails
+    } finally {
+      setLoading(false);
+      navigate("/verify-email", {
+        state: { email: unverifiedEmail },
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -43,13 +61,42 @@ function Login() {
     try {
       setError("");
       setSuccess("");
+      setUnverifiedEmail("");
       setLoading(true);
 
-      await signInWithEmailAndPassword(
+      const userCredential = await signInWithEmailAndPassword(
         auth,
         formData.email.trim(),
         formData.password
       );
+
+      const cleanEmail = formData.email.trim().toLowerCase();
+      const userDocRef = doc(db, "users", userCredential.user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      let isVerified = true;
+      if (userDocSnap.exists()) {
+        const data = userDocSnap.data();
+        if (data.isVerified === false) {
+          // Verify against backend status
+          const verifiedOnBackend = await checkEmailVerified(cleanEmail);
+          if (verifiedOnBackend) {
+            await updateDoc(userDocRef, { isVerified: true });
+            isVerified = true;
+          } else {
+            isVerified = false;
+          }
+        }
+      }
+
+      if (!isVerified) {
+        // Strict security: destroy session immediately for unverified users
+        await signOut(auth);
+        setError("Your email has not been verified yet. Please verify your email before logging in.");
+        setUnverifiedEmail(cleanEmail);
+        setLoading(false);
+        return;
+      }
 
       setFlashMessage("🎉 Login Successful!");
 
@@ -82,9 +129,18 @@ function Login() {
           <div
             role="alert"
             aria-live="assertive"
-            className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6 font-bold text-sm text-center animate-fade-in shadow-sm"
+            className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6 font-medium text-sm text-center animate-fade-in shadow-sm"
           >
-            {error}
+            <div>{error}</div>
+            {unverifiedEmail && (
+              <button
+                type="button"
+                onClick={handleVerifyNow}
+                className="mt-2.5 font-bold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                Verify Email Now &rarr;
+              </button>
+            )}
           </div>
         )}
 

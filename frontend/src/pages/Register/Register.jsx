@@ -6,11 +6,13 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   deleteUser,
+  signOut,
 } from "firebase/auth";
 import { auth, db } from "../../firebase/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { getAuthErrorMessage } from "../../utils/authErrors";
 import { setFlashMessage } from "../../utils/flashMessage";
+import { requestVerificationOtp } from "../../services/authService";
 
 
 const MIN_PASSWORD_LENGTH = 6;
@@ -68,6 +70,9 @@ function Register() {
 
     let createdUser;
 
+    // Flag to prevent PublicRoute from prematurely redirecting to /dashboard
+    sessionStorage.setItem("registering_in_progress", "true");
+
     try {
       setError("");
       setLoading(true);
@@ -79,13 +84,8 @@ function Register() {
       );
 
       createdUser = userCredential.user;
-
-      // Stored here, not after the profile writes below: Firebase signs the
-      // user in the instant the account exists, so PublicRoute redirects to
-      // /dashboard while this handler is still awaiting updateProfile/setDoc.
-      // Anything after those awaits can arrive too late to be seen.
-      setFlashMessage("🎉 Registration Successful!");
     } catch (err) {
+      sessionStorage.removeItem("registering_in_progress");
       setError(getAuthErrorMessage(err));
       setLoading(false);
       return;
@@ -96,7 +96,7 @@ function Register() {
         displayName: formData.fullName,
       });
 
-      // Create user document in Firestore with default values
+      // Create user document in Firestore with isVerified: false
       await setDoc(doc(db, "users", createdUser.uid), {
         fullName: formData.fullName,
         email: normalisedEmail,
@@ -110,12 +110,24 @@ function Register() {
         equippedCompanion: "Panda",
         ownedCompanions: ["Panda"],
         lastCompletedDate: "",
+        isVerified: false,
         createdAt: new Date().toISOString(),
       });
-    } catch {
-      // The auth account exists now but has no profile document behind it.
-      // Leaving it would lock this email out of registering again while the
-      // account itself stays unusable, so undo it and let them retry.
+
+      // Request secure 6-digit OTP code to be sent to user's email
+      await requestVerificationOtp(normalisedEmail, formData.fullName);
+
+      // Sign out immediately so unverified users have NO active session or JWT
+      await signOut(auth);
+      sessionStorage.removeItem("registering_in_progress");
+
+      // Redirect to Email Verification page
+      navigate("/verify-email", {
+        replace: true,
+        state: { email: normalisedEmail, fullName: formData.fullName },
+      });
+    } catch (otpErr) {
+      sessionStorage.removeItem("registering_in_progress");
       let rolledBack = true;
 
       try {
@@ -125,20 +137,14 @@ function Register() {
       }
 
       setError(
-        rolledBack
-          ? "We couldn't finish setting up your profile. Please try again."
-          : "Your account was created but setup did not finish. Please contact support."
+        otpErr.message ||
+          (rolledBack
+            ? "We couldn't complete your registration. Please try again."
+            : "Registration failed. Please contact support.")
       );
       setLoading(false);
       return;
     }
-
-    // createUserWithEmailAndPassword already signs this user in, so sending
-    // them to /login would ask an authenticated user to log in again.
-    navigate("/dashboard", {
-      replace: true,
-      state: { successMessage: "🎉 Registration Successful!" },
-    });
   };
 
   return (
