@@ -85,7 +85,7 @@ function Topbar() {
   return (
     <header className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl px-6 py-4 flex items-center justify-between w-full shadow-sm transition-colors duration-300 mb-6">
       {/* Left Section - Date Badge */}
-      <div className="flex items-center gap-2 text-slate-650 dark:text-slate-350 text-sm font-bold">
+      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm font-bold">
         <CalendarDays size={16} className="text-indigo-500" />
         <span>{today}</span>
       </div>
@@ -106,7 +106,7 @@ function Topbar() {
           {/* Bell Button */}
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className={`relative w-11 h-11 flex items-center justify-center rounded-2xl hover:bg-gray-150 dark:hover:bg-slate-800 transition cursor-pointer text-slate-700 dark:text-slate-200 ${
+            className={`relative w-11 h-11 flex items-center justify-center rounded-2xl hover:bg-gray-100 dark:hover:bg-slate-800 transition cursor-pointer text-slate-700 dark:text-slate-200 ${
               notificationsOpen ? "bg-gray-100 dark:bg-slate-800 ring-2 ring-indigo-500" : ""
             }`}
           >

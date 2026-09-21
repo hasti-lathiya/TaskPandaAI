@@ -5,18 +5,20 @@ import { useTheme } from "../../context/ThemeContext";
 import { db, auth } from "../../firebase/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useNotifications } from "../../context/NotificationContext";
+import useAchievements from "../../hooks/useAchievements";
 
 function WelcomeCard({ userStats }) {
   const { user: appContextUser, tasks } = useApp();
   const { equippedCompanion } = useTheme();
   const { addNotification } = useNotifications();
-  
+  const { unlockedCount, totalCount } = useAchievements();
+
   const progress = (userStats?.xp || 0) % 100;
   const level = userStats?.level || 1;
   const coins = userStats?.coins || 0;
   const streak = userStats?.streak || 0;
 
-  const displayName = appContextUser?.fullName || "HASTI LATHIYA";
+  const displayName = appContextUser?.fullName || "Student";
   const nameToShow = displayName.trim().split(" ")[0].toUpperCase();
 
   const headline = useMemo(() => {
@@ -52,7 +54,7 @@ function WelcomeCard({ userStats }) {
               </div>
             </div>
 
-            <p className="text-slate-650 dark:text-slate-400 text-base font-medium leading-relaxed max-w-lg">
+            <p className="text-slate-600 dark:text-slate-400 text-base font-medium leading-relaxed max-w-lg">
               Small daily improvements build massive long-term success. What's your top priority right now?
             </p>
           </div>
@@ -87,7 +89,7 @@ function WelcomeCard({ userStats }) {
                   }
                 }
               }}
-              className="bg-slate-900 hover:bg-slate-850 dark:bg-slate-800/80 dark:hover:bg-slate-700/85 hover:shadow-lg dark:hover:shadow-indigo-500/10 border border-slate-800 dark:border-slate-700 px-5 py-3 rounded-2xl text-sm font-bold text-white dark:text-slate-100 transition duration-300 transform active:scale-95 cursor-pointer flex items-center gap-2 shadow-sm"
+              className="bg-slate-900 hover:bg-slate-800 dark:bg-slate-800/80 dark:hover:bg-slate-700/85 hover:shadow-lg dark:hover:shadow-indigo-500/10 border border-slate-800 dark:border-slate-700 px-5 py-3 rounded-2xl text-sm font-bold text-white dark:text-slate-100 transition duration-300 transform active:scale-95 cursor-pointer flex items-center gap-2 shadow-sm"
             >
               ➕ Quick Task
             </button>
@@ -107,7 +109,7 @@ function WelcomeCard({ userStats }) {
         <div className="w-full xl:w-[620px] min-h-[300px] flex-shrink-0 bg-white/60 dark:bg-[#070b14]/50 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-[32px] p-10 shadow-md flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden glass-hover group">
           <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 dark:via-indigo-500/2 dark:to-indigo-500/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700" />
           
-          <div className="flex-shrink-0 bg-gradient-to-tr from-indigo-500/5 to-pink-500/5 dark:from-slate-850 dark:to-slate-800 p-6 rounded-[28px] border border-white/60 dark:border-slate-800 shadow-inner animate-float select-none">
+          <div className="flex-shrink-0 bg-gradient-to-tr from-indigo-500/5 to-pink-500/5 dark:from-slate-800 dark:to-slate-800 p-6 rounded-[28px] border border-white/60 dark:border-slate-800 shadow-inner animate-float select-none">
             <PandaAvatar level={level} companion={equippedCompanion} />
           </div>
 
@@ -131,7 +133,7 @@ function WelcomeCard({ userStats }) {
                 <span>Growth Progress</span>
                 <span>{progress}/100 XP</span>
               </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-850 rounded-full h-3 overflow-hidden shadow-inner border border-slate-200/20 dark:border-slate-800/40">
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden shadow-inner border border-slate-200/20 dark:border-slate-800/40">
                 <div
                   className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-700"
                   style={{ width: `${progress}%` }}
@@ -140,14 +142,18 @@ function WelcomeCard({ userStats }) {
             </div>
 
             {/* Gamification Stats badges */}
-            <div className="grid grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-3 gap-3.5">
               <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 dark:from-amber-950/20 dark:to-amber-950/30 rounded-2xl py-4 px-3 border border-amber-500/10 dark:border-amber-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-amber-500/30 shadow-sm">
                 <p className="text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">🪙 Coins</p>
                 <p className="text-xl font-black text-amber-700 dark:text-amber-300 mt-1">{coins}</p>
               </div>
               <div className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 dark:from-rose-950/20 dark:to-rose-950/30 rounded-2xl py-4 px-3 border border-rose-500/10 dark:border-rose-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-rose-500/30 shadow-sm">
-                <p className="text-[11px] text-rose-650 dark:text-rose-455 font-bold uppercase tracking-wider">🔥 Streak</p>
-                <p className="text-xl font-black text-rose-700 dark:text-rose-455 mt-1">{streak} Days</p>
+                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider">🔥 Streak</p>
+                <p className="text-xl font-black text-rose-700 dark:text-rose-400 mt-1">{streak} Days</p>
+              </div>
+              <div className="bg-gradient-to-br from-indigo-500/5 to-indigo-500/10 dark:from-indigo-950/20 dark:to-indigo-950/30 rounded-2xl py-4 px-3 border border-indigo-500/10 dark:border-indigo-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-indigo-500/30 shadow-sm">
+                <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">🏆 Badges</p>
+                <p className="text-xl font-black text-indigo-700 dark:text-indigo-300 mt-1">{unlockedCount}/{totalCount}</p>
               </div>
             </div>
           </div>

@@ -51,7 +51,7 @@ function Features() {
   return (
     <section
       id="features"
-      className="py-24 bg-gradient-to-b from-white to-slate-100 dark:from-slate-900 dark:to-slate-950 transition-colors duration-300"
+      className="scroll-mt-24 py-24 bg-gradient-to-b from-white to-slate-100 dark:from-slate-900 dark:to-slate-950 transition-colors duration-300"
     >
       <div className="max-w-7xl mx-auto px-6">
 

@@ -3,9 +3,20 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "npm run dev --prefix frontend",
+    "test:rules": "firebase emulators:exec --only firestore,storage --project demo-taskpanda \"node scripts/rules.test.mjs && node scripts/storage-rules.test.mjs\"",
+    "dev": "concurrently -n backend,frontend -c yellow,cyan \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
     "build": "npm run build --prefix frontend",
     "lint": "npm run lint --prefix frontend",
-    "preview": "npm run preview --prefix frontend"
+    "preview": "npm run preview --prefix frontend",
+    "test": "firebase emulators:exec --only auth,firestore --project demo-taskpanda \"npm run test:e2e --prefix frontend\"",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:rules": "firebase deploy --only firestore:rules,storage",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "concurrently": "^9.1.0"
   }
 }

@@ -1,199 +1,57 @@
 import { useEffect, useState, useMemo } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, runTransaction } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coins, Sparkles, BedDouble, Play, CheckCircle, Heart, Zap, Award } from "lucide-react";
 import { db, auth } from "../../firebase/firebase";
 import { useTheme } from "../../context/ThemeContext";
 import { useNotifications } from "../../context/NotificationContext";
 import MainLayout from "../../layouts/MainLayout";
+import { ANIMALS, RARITY_BADGES, TIER_BADGES } from "../../data/companions";
+import useUserStats from "../../hooks/useUserStats";
+
+const RARITY_FILTERS = ["All", "Common", "Rare", "Epic", "Legendary"];
+
+const DEFAULT_HAPPINESS = 80;
+const DEFAULT_ENERGY = 70;
+
+// Firestore can return a missing or non-numeric field; coercing here stops a
+// bad value reaching arithmetic and being written back as NaN.
+const toSafeNumber = (value, fallback = 0) =>
+  typeof value === "number" && Number.isFinite(value) ? value : fallback;
+
+const clampStat = (value) => Math.max(0, Math.min(100, Math.round(value)));
 
 function Companion() {
   const { equippedCompanion, changeCompanion } = useTheme();
   const { addNotification } = useNotifications();
-  
-  const [userData, setUserData] = useState({
-    coins: 0,
-    level: 1,
-    xp: 0,
-  });
 
-  const [ownedCompanions, setOwnedCompanions] = useState(["Panda"]);
-  const [loading, setLoading] = useState(true);
-  
+  const userStats = useUserStats();
+  const loading = userStats.loading;
+
+  const coins = toSafeNumber(userStats.coins);
+  const ownedCompanions = userStats.ownedCompanions || ["Panda"];
+
+  // Happiness/energy live on the user document so they survive a refresh
+  // instead of resetting to a hardcoded default on every mount.
+  const happiness = toSafeNumber(userStats.companionHappiness, DEFAULT_HAPPINESS);
+  const energy = toSafeNumber(userStats.companionEnergy, DEFAULT_ENERGY);
+
   // Companion Interactive Stats
   const [companionMood, setCompanionMood] = useState("idle"); // idle, playing, happy, sleeping, eating, trick
-  const [happiness, setHappiness] = useState(80);
-  const [energy, setEnergy] = useState(70);
+  const [pendingAnimal, setPendingAnimal] = useState(null);
+  const [error, setError] = useState("");
 
-  const animals = useMemo(() => [
-    {
-      name: "Panda",
-      tier: "Cute",
-      description: "A lazy, bamboo-loving giant panda that enjoys cozy naps.",
-      avatar: "🐼",
-      price: 0,
-      behaviors: {
-        idle: "is sitting comfortably, chewing on a sweet bamboo branch.",
-        playing: "is rolling around doing clumsy somersaults!",
-        happy: "is doing a happy dance and giving you a warm panda hug!",
-        sleeping: "is snoozing peacefully on a soft bamboo mattress.",
-        eating: "is munching hungrily on fresh green bamboo leaves.",
-        trick: "does a perfect backward roll and waves its paws at you! 🎋",
-      }
-    },
-    {
-      name: "Cat",
-      tier: "Cute",
-      description: "A sassy, playful calico cat that loves chasing yarn balls.",
-      avatar: "🐱",
-      price: 300,
-      behaviors: {
-        idle: "is sitting gracefully and licking its paw.",
-        playing: "is batting a bright blue yarn ball back and forth!",
-        happy: "is purring loudly and rubbing its head against your hand.",
-        sleeping: "is curled up in a tiny ball, taking a warm sun-drenched nap.",
-        eating: "is happily nibbling on a fresh tuna fish snack.",
-        trick: "leaps high into the air, does a graceful twist, and lands perfectly! 🐾",
-      }
-    },
-    {
-      name: "Dog",
-      tier: "Cute",
-      description: "A loyal, energetic golden retriever always ready to play fetch.",
-      avatar: "🐶",
-      price: 300,
-      behaviors: {
-        idle: "is sitting attentively and wagging its tail with excitement.",
-        playing: "is chasing after a tennis ball, tail wagging at lightspeed!",
-        happy: "is barking joyfully and running in happy circles!",
-        sleeping: "is lying down, snoring softly while dreaming of bones.",
-        eating: "is chewing enthusiastically on a big juicy bone.",
-        trick: "rolls over onto its back, wags its paws, and plays dead! 🦴",
-      }
-    },
-    {
-      name: "Bear",
-      tier: "Cute",
-      description: "A gentle brown bear who is always searching for sweet honey.",
-      avatar: "🐻",
-      price: 400,
-      behaviors: {
-        idle: "is standing tall, watching over you with a warm smile.",
-        playing: "is scratch-massaging its back against a wooden log!",
-        happy: "is roaring happily, covered in sweet golden honey!",
-        sleeping: "is hibernating cozily under a pile of soft autumn leaves.",
-        eating: "is scooping mouthfulls of honey out of a large clay jar.",
-        trick: "stands on its hind legs and waves a giant, friendly bear greeting! 🍯",
-      }
-    },
-    {
-      name: "Dolphin",
-      tier: "Aquatic",
-      description: "A brilliant aquatic genius who leaps through water loops.",
-      avatar: "🐬",
-      price: 500,
-      behaviors: {
-        idle: "is floating gently on water currents, chirping happily.",
-        playing: "is bouncing a colorful beachball on its snout!",
-        happy: "leaps out of the water, creating a sparkling splash!",
-        sleeping: "is floating half-asleep, drifting with the ocean tide.",
-        eating: "is snapping up small, delicious silver fish.",
-        trick: "performs a double backflip through a rings-of-water hoop! 🌊",
-      }
-    },
-    {
-      name: "Lion",
-      tier: "Apex",
-      description: "The king of companions, displaying noble stances and playful roars.",
-      avatar: "🦁",
-      price: 600,
-      behaviors: {
-        idle: "is pacing back and forth majestically, guarding your workspace.",
-        playing: "is batting around a giant round toy boulder!",
-        happy: "is rubbing against you like a giant friendly housecat.",
-        sleeping: "is napping lazily under the golden sun's rays.",
-        eating: "is enjoying a large royal steak platter.",
-        trick: "lets out a mighty, rumbling roar that shakes the dashboard! 👑",
-      }
-    },
-    {
-      name: "Tiger",
-      tier: "Apex",
-      description: "A bengal tiger who prowls gracefully with sunset amber stripes.",
-      avatar: "🐅",
-      price: 650,
-      behaviors: {
-        idle: "is prowling gracefully, ears twitching at every sound.",
-        playing: "is pouncing on a moving laser pointer light!",
-        happy: "lets out a soft chuffing noise and stretches its paws.",
-        sleeping: "is sprawled out flat, yawning and stretching.",
-        eating: "is chewing hungrily on prime meat snacks.",
-        trick: "does a stealthy leap forward and shows a playful tiger strike! ⚡",
-      }
-    },
-    {
-      name: "Rabbit",
-      tier: "Cute",
-      description: "An ultra-fluffy rabbit who hops around and munches carrots.",
-      avatar: "🐰",
-      price: 350,
-      behaviors: {
-        idle: "is wiggling its nose and twitching its long ears.",
-        playing: "is hopping happily in zigzag patterns!",
-        happy: "is doing a high-speed bunny hop and binkying in mid-air!",
-        sleeping: "is nestled down, eyes closed, breathing softly.",
-        eating: "is munching quickly on a sweet crunchy carrot.",
-        trick: "does a swift mid-air spin and hops right up to groom itself! 🥕",
-      }
-    },
-    {
-      name: "Fox",
-      tier: "Cute",
-      description: "A mystical forest fox who curls up in its tail and trots around.",
-      avatar: "🦊",
-      price: 350,
-      behaviors: {
-        idle: "is sitting quietly, wrapping its fluffy orange tail around its paws.",
-        playing: "is diving headfirst into a pile of autumn leaves!",
-        happy: "is yip-barking happily, eyes narrowed in joy.",
-        sleeping: "is curled up asleep, hidden snugly under its fluffy tail.",
-        eating: "is happily nibbling on a bunch of sweet forest berries.",
-        trick: "does a high leap, catches a floating autumn leaf, and lands safely! 🍂",
-      }
-    }
-  ], []);
+  // Marketplace filter
+  const [rarityFilter, setRarityFilter] = useState("All");
 
+  const animals = useMemo(() => ANIMALS, []);
+
+  // Keep the theme's companion in step with whatever the user document says.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-      try {
-        setLoading(true);
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          setUserData(data);
-          
-          // Load owned companions
-          const owned = data.ownedCompanions || ["Panda"];
-          setOwnedCompanions(owned);
-          
-          // Sync equipped companion
-          if (data.equippedCompanion) {
-            changeCompanion(data.equippedCompanion);
-          }
-        }
-      } catch (error) {
-        console.error("Error loading companion data:", error);
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [changeCompanion]);
+    if (userStats.equippedCompanion) {
+      changeCompanion(userStats.equippedCompanion);
+    }
+  }, [userStats.equippedCompanion, changeCompanion]);
 
   // Compute status text dynamically
   const currentAnimal = useMemo(() => {
@@ -204,102 +62,159 @@ function Companion() {
 
   // Handle purchasing workflow
   const handlePurchase = async (animal) => {
-    if (ownedCompanions.includes(animal.name)) return;
-    
-    if (userData.coins < animal.price) {
-      alert("Not enough coins! Complete more tasks to earn coins. 🪙");
-      return;
-    }
+    if (pendingAnimal || ownedCompanions.includes(animal.name)) return;
+
+    setError("");
+    setPendingAnimal(animal.name);
 
     try {
       const current = auth.currentUser;
       if (!current) return;
 
-      const newCoins = userData.coins - animal.price;
-      const newOwned = [...ownedCompanions, animal.name];
-
       const userRef = doc(db, "users", current.uid);
-      await updateDoc(userRef, {
-        coins: newCoins,
-        ownedCompanions: newOwned,
+
+      // Balance is read inside the transaction; reading it from rendered state
+      // would let two quick clicks spend the same coins twice.
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(userRef);
+        if (!snap.exists()) throw new Error("NO_USER");
+
+        const data = snap.data();
+        const owned = data.ownedCompanions || ["Panda"];
+        if (owned.includes(animal.name)) throw new Error("ALREADY_OWNED");
+
+        const currentCoins = toSafeNumber(data.coins);
+        if (currentCoins < animal.price) throw new Error("INSUFFICIENT_COINS");
+
+        transaction.update(userRef, {
+          coins: currentCoins - animal.price,
+          ownedCompanions: [...owned, animal.name],
+        });
       });
 
-      setUserData(prev => ({ ...prev, coins: newCoins }));
-      setOwnedCompanions(newOwned);
-      alert(`🎉 Congratulations! You unlocked the ${animal.name} companion.`);
-    } catch (error) {
-      console.error("Error buying companion:", error);
-      alert("Failed to complete purchase.");
+      await addNotification(
+        "Companion Unlocked! 🎉",
+        `${animal.name} joined your collection. Spent ${animal.price} coins.`,
+        "gamification"
+      );
+    } catch (err) {
+      if (err.message === "ALREADY_OWNED") {
+        setError("You already own that companion.");
+      } else if (err.message === "INSUFFICIENT_COINS") {
+        setError("Not enough coins yet — complete more tasks to earn some. 🪙");
+      } else {
+        console.error("Error buying companion:", err);
+        setError("Purchase failed. Please try again.");
+      }
+    } finally {
+      setPendingAnimal(null);
     }
   };
 
   // Handle activation/equip workflow
   const handleEquip = async (animalName) => {
-    if (!ownedCompanions.includes(animalName)) return;
+    if (pendingAnimal) return;
+
+    setError("");
+    setPendingAnimal(animalName);
 
     try {
       const current = auth.currentUser;
       if (!current) return;
 
       const userRef = doc(db, "users", current.uid);
-      await updateDoc(userRef, {
-        equippedCompanion: animalName,
+
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(userRef);
+        if (!snap.exists()) throw new Error("NO_USER");
+
+        // Check ownership against stored data rather than the rendered list.
+        const owned = snap.data().ownedCompanions || ["Panda"];
+        if (!owned.includes(animalName)) throw new Error("NOT_OWNED");
+
+        transaction.update(userRef, {
+          equippedCompanion: animalName,
+          companionHappiness: 85,
+          companionEnergy: 75,
+        });
       });
 
       changeCompanion(animalName);
       await addNotification("Companion Equipped! 🐾", `Equipped ${animalName} theme!`, "system");
       setCompanionMood("idle");
-      setHappiness(85);
-      setEnergy(75);
-    } catch (error) {
-      console.error("Error equipping companion:", error);
-      alert("Failed to equip companion.");
+    } catch (err) {
+      if (err.message === "NOT_OWNED") {
+        setError("You need to unlock that companion first.");
+      } else {
+        console.error("Error equipping companion:", err);
+        setError("Could not equip that companion. Please try again.");
+      }
+    } finally {
+      setPendingAnimal(null);
+    }
+  };
+
+  // Persist a happiness/energy change. Applying the delta inside a transaction
+  // keeps rapid clicks from each overwriting the other's result.
+  const applyCompanionStats = async ({ happinessDelta = 0, energyDelta = 0 }) => {
+    const current = auth.currentUser;
+    if (!current) return;
+
+    try {
+      const userRef = doc(db, "users", current.uid);
+
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(userRef);
+        if (!snap.exists()) return;
+
+        const data = snap.data();
+
+        transaction.update(userRef, {
+          companionHappiness: clampStat(
+            toSafeNumber(data.companionHappiness, DEFAULT_HAPPINESS) + happinessDelta
+          ),
+          companionEnergy: clampStat(
+            toSafeNumber(data.companionEnergy, DEFAULT_ENERGY) + energyDelta
+          ),
+        });
+      });
+    } catch (err) {
+      console.error("Could not save companion stats:", err);
     }
   };
 
   // Interaction triggers (play, feed, sleep, trick)
+  const runInteraction = ({ mood, duration, happinessDelta = 0, energyDelta = 0 }) => {
+    setError("");
+    setCompanionMood(mood);
+    applyCompanionStats({ happinessDelta, energyDelta });
+    setTimeout(() => setCompanionMood("idle"), duration);
+  };
+
   const triggerPlay = () => {
     if (energy < 15) {
-      alert(`${equippedCompanion} is too tired to play! Put them to sleep first. 💤`);
+      setError(`${equippedCompanion} is too tired to play — try a nap first. 💤`);
       return;
     }
-    setCompanionMood("playing");
-    setHappiness(prev => Math.min(prev + 15, 100));
-    setEnergy(prev => Math.max(prev - 10, 0));
-    setTimeout(() => setCompanionMood("idle"), 2500);
+    runInteraction({ mood: "playing", duration: 2500, happinessDelta: 15, energyDelta: -10 });
   };
 
-  const triggerFeed = () => {
-    setCompanionMood("eating");
-    setEnergy(prev => Math.min(prev + 20, 100));
-    setHappiness(prev => Math.min(prev + 5, 100));
-    setTimeout(() => setCompanionMood("idle"), 2000);
-  };
+  const triggerFeed = () =>
+    runInteraction({ mood: "eating", duration: 2000, happinessDelta: 5, energyDelta: 20 });
 
-  const triggerNap = () => {
-    setCompanionMood("sleeping");
-    setEnergy(prev => Math.min(prev + 30, 100));
-    setTimeout(() => setCompanionMood("idle"), 5000);
-  };
+  const triggerNap = () =>
+    runInteraction({ mood: "sleeping", duration: 5000, energyDelta: 30 });
 
   const triggerTrick = () => {
     if (energy < 25) {
-      alert(`${equippedCompanion} doesn't have enough energy for a trick! ⚡`);
+      setError(`${equippedCompanion} doesn't have enough energy for a trick. ⚡`);
       return;
     }
-    setCompanionMood("trick");
-    setHappiness(prev => Math.min(prev + 20, 100));
-    setEnergy(prev => Math.max(prev - 20, 0));
-    setTimeout(() => setCompanionMood("idle"), 3000);
+    runInteraction({ mood: "trick", duration: 3000, happinessDelta: 20, energyDelta: -20 });
   };
 
-  const triggerInteraction = (mood, duration = 3000) => {
-    setCompanionMood(mood);
-    setHappiness(prev => Math.min(prev + 10, 100));
-    setTimeout(() => {
-      setCompanionMood("idle");
-    }, duration);
-  };
+  const triggerPet = () =>
+    runInteraction({ mood: "happy", duration: 3000, happinessDelta: 10 });
 
   // Animation variants mapping based on mood
   const getAvatarAnimation = () => {
@@ -362,10 +277,25 @@ function Companion() {
 
   const equippedEmoji = animals.find(a => a.name === equippedCompanion)?.avatar || "🐼";
 
+  const filteredAnimals = useMemo(() => {
+    if (rarityFilter === "All") return animals;
+    return animals.filter((a) => a.rarity === rarityFilter);
+  }, [animals, rarityFilter]);
+
   return (
     <MainLayout>
+
+      {error && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6 font-bold text-sm text-center shadow-sm"
+        >
+          {error}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 transition-all duration-300">
-        
+
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
@@ -380,13 +310,13 @@ function Companion() {
           <div className="flex items-center gap-2.5 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/25 px-5 py-3 rounded-2xl">
             <Coins className="text-amber-500 dark:text-amber-400" size={20} />
             <span className="font-extrabold text-amber-700 dark:text-amber-300 text-lg">
-              {userData.coins} 🪙
+              {coins} 🪙
             </span>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-850 rounded-[32px] p-8 shadow-sm">
+          <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[32px] p-8 shadow-sm">
             <div className="text-4xl animate-bounce">🐾</div>
             <p className="text-gray-500 dark:text-slate-400 ml-3 text-lg font-semibold">
               Opening companion marketplace...
@@ -395,24 +325,34 @@ function Companion() {
         ) : (
           /* 2-Column Split Grid (8/12 Left, 4/12 Right) */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
+
             {/* Left Column - Marketplace List (8/12) */}
             <div className="lg:col-span-8 space-y-6">
-              <h3 className="text-xl font-bold text-slate-850 dark:text-slate-200 border-b border-gray-150 dark:border-slate-800/80 pb-2">
-                Available Companions
-              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-slate-800/80 pb-2">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                  Available Companions
+                </h3>
+                <div className="flex gap-2 flex-wrap">
+                  {RARITY_FILTERS.map((rarity) => (
+                    <button
+                      key={rarity}
+                      onClick={() => setRarityFilter(rarity)}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition cursor-pointer ${
+                        rarityFilter === rarity
+                          ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400"
+                          : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      {rarity}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {animals.map((animal) => {
+                {filteredAnimals.map((animal) => {
                   const isOwned = ownedCompanions.includes(animal.name);
                   const isActive = equippedCompanion === animal.name;
-
-                  // Define badge tags based on tier
-                  const tierColors = {
-                    Cute: "bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200",
-                    Aquatic: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200",
-                    Apex: "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200",
-                  };
 
                   return (
                     <div
@@ -427,21 +367,26 @@ function Companion() {
                         {/* Animal Card Header */}
                         <div className="flex justify-between items-start mb-4">
                           <span className="text-5xl select-none">{animal.avatar}</span>
-                          <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${tierColors[animal.tier]}`}>
-                            {animal.tier}
-                          </span>
+                          <div className="flex flex-col items-end gap-1">
+                            <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${TIER_BADGES[animal.tier]}`}>
+                              {animal.tier}
+                            </span>
+                            <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${RARITY_BADGES[animal.rarity]}`}>
+                              {animal.rarity}
+                            </span>
+                          </div>
                         </div>
 
-                        <h4 className="text-lg font-black text-slate-850 dark:text-slate-50">
+                        <h4 className="text-lg font-black text-slate-800 dark:text-slate-50">
                           {animal.name}
                         </h4>
-                        
-                        <p className="text-slate-505 dark:text-slate-400 text-xs mt-2 leading-relaxed h-12 overflow-hidden font-medium">
+
+                        <p className="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed h-12 overflow-hidden font-medium">
                           {animal.description}
                         </p>
-                        
+
                         <div className="mt-4 flex items-center gap-2">
-                          <span className="text-[9px] bg-slate-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 px-2 py-0.5 rounded-md font-semibold text-slate-500">
+                          <span className="text-[9px] bg-slate-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 px-2 py-0.5 rounded-md font-semibold text-slate-500">
                             Base Level 1
                           </span>
                           {!isOwned && (
@@ -457,23 +402,30 @@ function Companion() {
                         {isActive ? (
                           <button
                             disabled
-                            className="w-full bg-slate-50/50 dark:bg-slate-850 text-slate-400 dark:text-slate-655 font-bold py-2 rounded-xl text-xs cursor-default flex items-center justify-center gap-1.5"
+                            className="w-full bg-slate-50/50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold py-2 rounded-xl text-xs cursor-default flex items-center justify-center gap-1.5"
                           >
                             <CheckCircle size={12} /> Equipped ✅
                           </button>
                         ) : isOwned ? (
                           <button
                             onClick={() => handleEquip(animal.name)}
-                            className="w-full bg-indigo-650 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs shadow-sm transition hover:-translate-y-0.5 cursor-pointer"
+                            disabled={Boolean(pendingAnimal)}
+                            aria-busy={pendingAnimal === animal.name}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs shadow-sm transition hover:-translate-y-0.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                           >
-                            Equip & Apply Theme
+                            {pendingAnimal === animal.name ? "Equipping..." : "Equip & Apply Theme"}
                           </button>
                         ) : (
                           <button
                             onClick={() => handlePurchase(animal)}
-                            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm transition hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-1"
+                            disabled={Boolean(pendingAnimal) || coins < animal.price}
+                            aria-busy={pendingAnimal === animal.name}
+                            title={coins < animal.price ? "Not enough coins yet" : undefined}
+                            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm transition hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                           >
-                            Unlock ({animal.price} 🪙)
+                            {pendingAnimal === animal.name
+                              ? "Unlocking..."
+                              : `Unlock (${animal.price} 🪙)`}
                           </button>
                         )}
                       </div>
@@ -485,12 +437,12 @@ function Companion() {
 
             {/* Right Column - Equipped Preview (4/12) */}
             <div className="lg:col-span-4 space-y-6">
-              <h3 className="text-xl font-bold text-slate-850 dark:text-slate-200 border-b border-gray-150 dark:border-slate-800/80 pb-2">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 border-b border-gray-100 dark:border-slate-800/80 pb-2">
                 Active Companion
               </h3>
 
               <div className="glass-premium rounded-[32px] p-6 shadow-sm text-center relative overflow-hidden flex flex-col justify-between">
-                
+
                 <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/10 to-transparent dark:from-indigo-950/5 pointer-events-none select-none" />
 
                 <div>
@@ -585,15 +537,15 @@ function Companion() {
                     <motion.div
                       animate={getAvatarAnimation()}
                       className="text-8xl select-none cursor-pointer z-10"
-                      onClick={() => triggerInteraction("happy")}
+                      onClick={triggerPet}
                     >
                       {equippedEmoji}
                     </motion.div>
                   </div>
 
                   {/* Dynamic Status Text */}
-                  <div className="bg-slate-50/50 dark:bg-slate-850 border border-gray-100 dark:border-slate-800 rounded-2xl p-4 min-h-[64px] flex items-center justify-center">
-                    <p className="text-xs text-slate-700 dark:text-slate-350 leading-relaxed font-semibold">
+                  <div className="bg-slate-50/50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 rounded-2xl p-4 min-h-[64px] flex items-center justify-center">
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
                       {statusText}
                     </p>
                   </div>
@@ -604,7 +556,7 @@ function Companion() {
                   <button
                     onClick={triggerPlay}
                     disabled={companionMood !== "idle"}
-                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
+                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
                   >
                     <Play size={12} className="text-indigo-600" />
                     Play Ball
@@ -613,7 +565,7 @@ function Companion() {
                   <button
                     onClick={triggerFeed}
                     disabled={companionMood !== "idle"}
-                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
+                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
                   >
                     <Sparkles size={12} className="text-amber-500" />
                     Feed Snack
@@ -622,7 +574,7 @@ function Companion() {
                   <button
                     onClick={triggerNap}
                     disabled={companionMood !== "idle"}
-                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
+                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
                   >
                     <BedDouble size={12} className="text-blue-500" />
                     Cozy Nap
@@ -631,7 +583,7 @@ function Companion() {
                   <button
                     onClick={triggerTrick}
                     disabled={companionMood !== "idle"}
-                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
+                    className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-40 cursor-pointer text-xs font-bold text-gray-600 dark:text-slate-300"
                   >
                     <Award size={12} className="text-purple-500" />
                     Special Trick

@@ -8,8 +8,6 @@ import {
   query,
   where,
   onSnapshot,
-  doc,
-  updateDoc,
 } from "firebase/firestore";
 
 function RecentTasks() {
@@ -31,13 +29,7 @@ function RecentTasks() {
             const list = [];
             snapshot.forEach((docSnap) => {
               const data = docSnap.data();
-              let title = data.title || "";
-              if (title.includes("assigmment")) {
-                const correctedTitle = title.replace("assigmment", "assignment");
-                updateDoc(doc(db, "tasks", docSnap.id), { title: correctedTitle })
-                  .catch(err => console.error("Error correcting typo:", err));
-                title = correctedTitle;
-              }
+              const title = (data.title || "").replace(/assigmment/g, "assignment");
               list.push({
                 id: docSnap.id,
                 ...data,
@@ -134,7 +126,7 @@ function RecentTasks() {
             No recent tasks
           </h3>
 
-          <p className="text-slate-500 dark:text-slate-405 mt-1.5 text-sm">
+          <p className="text-slate-500 dark:text-slate-400 mt-1.5 text-sm">
             Create your first task to start tracking progress.
           </p>
 
@@ -157,7 +149,7 @@ function RecentTasks() {
 
                   <div className="flex items-center gap-2 mb-2.5">
 
-                    <span className="bg-slate-100 dark:bg-slate-850/80 text-slate-650 dark:text-slate-350 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200/10 dark:border-slate-800/20">
+                    <span className="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200/10 dark:border-slate-800/20">
                       {getCategoryEmoji(task.category)} {task.category}
                     </span>
 
@@ -172,8 +164,8 @@ function RecentTasks() {
                   <h3
                     className={`font-bold text-base tracking-tight ${
                       task.completed
-                        ? "line-through text-slate-400 dark:text-slate-650"
-                        : "text-slate-850 dark:text-slate-100"
+                        ? "line-through text-slate-400 dark:text-slate-600"
+                        : "text-slate-800 dark:text-slate-100"
                     }`}
                   >
                     {task.title}

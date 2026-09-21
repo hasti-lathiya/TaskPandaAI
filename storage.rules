@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// TaskPanda AI — Cloud Storage security rules.
+//
+// Uploads live at pdfs/{userId}/{fileName}, so ownership is decided by the
+// path itself. Nothing is readable or writable without authentication, and a
+// user can only reach their own folder.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /pdfs/{userId}/{fileName} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      allow read, delete: if isOwner();
+
+      // Uploads are constrained to real PDFs under 10MB, mirroring the
+      // client-side check in pdfService.validatePdfFile. The client check is
+      // for fast feedback; this one is the check that actually holds.
+      allow write: if isOwner()
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType == 'application/pdf';
+    }
+
+    // Anything outside the per-user PDF folder is locked.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

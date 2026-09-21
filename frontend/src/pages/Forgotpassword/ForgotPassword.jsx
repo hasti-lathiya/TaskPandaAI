@@ -3,27 +3,33 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
+import { getAuthErrorMessage } from "../../utils/authErrors";
 
 function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Guard against a second submit while the first request is still in flight.
+    if (loading) return;
+
     if (!email.trim()) {
-      alert("Please enter your email address.");
+      setError("Please enter your email address.");
       return;
     }
 
     try {
+      setError("");
       setLoading(true);
       await sendPasswordResetEmail(auth, email.trim());
       setSuccess(true);
-      alert("📧 Password reset email sent! Please check your inbox.");
-    } catch (error) {
-      alert(error.message);
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -36,7 +42,7 @@ function ForgotPassword() {
         {/* Back button */}
         <Link
           to="/login"
-          className="inline-flex items-center gap-1 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-405 text-sm font-bold mb-6 transition"
+          className="inline-flex items-center gap-1 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 text-sm font-bold mb-6 transition"
         >
           <ArrowLeft size={16} /> Back to Login
         </Link>
@@ -52,7 +58,11 @@ function ForgotPassword() {
         </div>
 
         {success ? (
-          <div className="bg-green-50 dark:bg-green-950/65 border border-green-200 dark:border-green-900/50 rounded-2xl p-5 text-center mb-6 animate-in fade-in duration-300">
+          <div
+            role="status"
+            aria-live="polite"
+            className="bg-green-50 dark:bg-green-950/65 border border-green-200 dark:border-green-900/50 rounded-2xl p-5 text-center mb-6 animate-in fade-in duration-300"
+          >
             <CheckCircle className="text-green-600 dark:text-green-400 mx-auto mb-3" size={32} />
             <h3 className="font-bold text-green-800 dark:text-green-300 text-sm">Reset Email Sent</h3>
             <p className="text-xs text-green-700 dark:text-green-400 mt-1 max-w-xs mx-auto">
@@ -67,17 +77,32 @@ function ForgotPassword() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-5 font-bold text-sm text-center animate-fade-in shadow-sm"
+              >
+                {error}
+              </div>
+            )}
             <div>
-              <label className="block mb-2 font-medium text-slate-700 dark:text-slate-200 text-sm">
+              <label
+                htmlFor="forgot-email"
+                className="block mb-2 font-medium text-slate-700 dark:text-slate-200 text-sm"
+              >
                 Email Address
               </label>
 
               <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-xl px-4 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-indigo-500 transition duration-150">
                 <Mail className="text-gray-400 dark:text-slate-400" size={20} />
                 <input
+                  id="forgot-email"
                   type="email"
                   name="email"
+                  autoComplete="email"
                   required
+                  aria-invalid={Boolean(error)}
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

@@ -9,7 +9,10 @@ const stats = [
 
 function Stats() {
   return (
-    <section className="py-20 bg-white dark:bg-slate-900 transition-colors duration-300">
+    <section
+      id="about"
+      className="scroll-mt-24 py-20 bg-white dark:bg-slate-900 transition-colors duration-300"
+    >
       <div className="max-w-7xl mx-auto px-6">
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">

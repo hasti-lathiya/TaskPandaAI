@@ -35,3 +35,16 @@ dist-ssr/
 # Agent Config / Config directories
 .agents/
 .gemini/
+.claude/
+
+# Firebase cache
+.firebase/
+
+# Test reports
+frontend/playwright-report/
+frontend/test-results/
+frontend/modal-backdrop-before-after.png
+
+# Locally uploaded user files (served from frontend/public/uploads)
+frontend/public/uploads/pdfs/*
+!frontend/public/uploads/pdfs/.gitkeep

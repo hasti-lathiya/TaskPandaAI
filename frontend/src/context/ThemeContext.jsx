@@ -66,6 +66,69 @@ const companionThemes = {
     accentLight: "#fdd6b5",
     secondary: "#9c4221",
   },
+  Squirrel: {
+    primary: "#f59e0b", // Warm amber
+    hover: "#d97706",
+    bgLight: "#fffbeb",
+    accentLight: "#fde68a",
+    secondary: "#b45309",
+  },
+  Deer: {
+    primary: "#f472b6", // Soft pink
+    hover: "#ec4899",
+    bgLight: "#fdf2f8",
+    accentLight: "#fbcfe8",
+    secondary: "#db2777",
+  },
+  Penguin: {
+    primary: "#0ea5e9", // Cool blue
+    hover: "#0284c7",
+    bgLight: "#f0f9ff",
+    accentLight: "#bae6fd",
+    secondary: "#075985",
+  },
+  Koala: {
+    primary: "#6b8f71", // Soft green-grey
+    hover: "#557a5b",
+    bgLight: "#f0f5f1",
+    accentLight: "#cfe0d3",
+    secondary: "#3f6b46",
+  },
+  Raccoon: {
+    primary: "#475569", // Slate grey
+    hover: "#334155",
+    bgLight: "#f8fafc",
+    accentLight: "#cbd5e1",
+    secondary: "#1e293b",
+  },
+  Owl: {
+    primary: "#6d28d9", // Deep purple / night
+    hover: "#5b21b6",
+    bgLight: "#f5f3ff",
+    accentLight: "#ddd6fe",
+    secondary: "#312e81",
+  },
+  Wolf: {
+    primary: "#3b82f6", // Silver-blue
+    hover: "#2563eb",
+    bgLight: "#eff6ff",
+    accentLight: "#bfdbfe",
+    secondary: "#1e40af",
+  },
+  Elephant: {
+    primary: "#6b7280", // Majestic grey-blue
+    hover: "#4b5563",
+    bgLight: "#f9fafb",
+    accentLight: "#d1d5db",
+    secondary: "#374151",
+  },
+  Otter: {
+    primary: "#14b8a6", // Playful teal/aqua
+    hover: "#0d9488",
+    bgLight: "#f0fdfa",
+    accentLight: "#99f6e4",
+    secondary: "#0f766e",
+  },
 };
 
 export function ThemeProvider({ children }) {

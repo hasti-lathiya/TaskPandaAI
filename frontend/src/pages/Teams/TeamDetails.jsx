@@ -3,16 +3,16 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   doc,
-  getDoc,
   getDocs,
   collection,
   query,
   where,
   addDoc,
   updateDoc,
-  deleteDoc,
   serverTimestamp,
   arrayUnion,
+  onSnapshot,
+  writeBatch,
 } from "firebase/firestore";
 import {
   Plus,
@@ -30,10 +30,15 @@ import {
 import { db, auth } from "../../firebase/firebase";
 import MainLayout from "../../layouts/MainLayout";
 import { recommendTeamAssignee } from "../../services/gemini";
+import { runAchievementChecks } from "../../services/achievements";
+import { awardXpOnce } from "../../services/rewards";
+import { isValidEmail } from "../../utils/validation";
+import { useNotifications } from "../../context/NotificationContext";
 
 function TeamDetails() {
   const { teamId } = useParams();
   const navigate = useNavigate();
+  const { addNotification } = useNotifications();
 
   const [team, setTeam] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -68,71 +73,108 @@ function TeamDetails() {
   const [newEditMemberEmail, setNewEditMemberEmail] = useState("");
   const [newEditMemberRole, setNewEditMemberRole] = useState("internal");
 
+  // In-flight guards and user-visible feedback (replacing native dialogs)
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [postingComment, setPostingComment] = useState(false);
+  const [savingReview, setSavingReview] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [deletingTeam, setDeletingTeam] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [banner, setBanner] = useState("");
+
   // Filtering states
   const [taskSearch, setTaskSearch] = useState("");
   const [memberFilter, setMemberFilter] = useState("All");
 
-  const loadTeamData = async (user) => {
-    if (!user) return;
-    try {
-      setLoading(true);
-      // Fetch Team details
-      const teamRef = doc(db, "teams", teamId);
-      const teamSnap = await getDoc(teamRef);
-
-      if (!teamSnap.exists()) {
-        alert("Team not found!");
-        navigate("/teams");
-        return;
-      }
-
-      const teamData = teamSnap.data();
-      // Access check
-      const isMember =
-        teamData.createdBy === user.uid ||
-        teamData.memberEmails?.includes(user.email.toLowerCase());
-
-      if (!isMember) {
-        alert("You do not have access to this team.");
-        navigate("/teams");
-        return;
-      }
-
-      setTeam({ id: teamSnap.id, ...teamData });
-
-      // Fetch Team Tasks
-      const tasksQuery = query(
-        collection(db, "teamTasks"),
-        where("teamId", "==", teamId)
-      );
-      const tasksSnap = await getDocs(tasksQuery);
-      const tasksList = [];
-      tasksSnap.forEach((doc) => {
-        tasksList.push({ id: doc.id, ...doc.data() });
-      });
-
-      setTasks(tasksList);
-    } catch (error) {
-      console.error("Error loading team details:", error);
-    } finally {
-      setLoading(false);
-    }
+  const showBanner = (message) => {
+    setBanner(message);
+    setTimeout(() => setBanner(""), 5000);
   };
 
+  // Live subscriptions: this is the one genuinely collaborative screen, so a
+  // teammate's comment, status change or new task should appear without a
+  // manual reload.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        loadTeamData(user);
+    let unsubTeam = null;
+    let unsubTasks = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (unsubTeam) unsubTeam();
+      if (unsubTasks) unsubTasks();
+
+      if (!user) {
+        setLoading(false);
+        return;
       }
+
+      setLoading(true);
+
+      unsubTeam = onSnapshot(
+        doc(db, "teams", teamId),
+        (teamSnap) => {
+          if (!teamSnap.exists()) {
+            navigate("/teams", {
+              replace: true,
+              state: { notice: "That team no longer exists." },
+            });
+            return;
+          }
+
+          const teamData = teamSnap.data();
+          const email = (user.email || "").toLowerCase();
+          const isMember =
+            teamData.createdBy === user.uid ||
+            teamData.memberEmails?.includes(email);
+
+          if (!isMember) {
+            navigate("/teams", {
+              replace: true,
+              state: { notice: "You do not have access to that team." },
+            });
+            return;
+          }
+
+          setTeam({ id: teamSnap.id, ...teamData });
+          setLoading(false);
+        },
+        (err) => {
+          console.error("Error loading team:", err);
+          setActionError("Could not load this team. Please try again.");
+          setLoading(false);
+        }
+      );
+
+      unsubTasks = onSnapshot(
+        query(collection(db, "teamTasks"), where("teamId", "==", teamId)),
+        (tasksSnap) => {
+          const list = tasksSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          setTasks(list);
+
+          // Keep an open task modal in step with incoming changes.
+          setSelectedTask((current) =>
+            current ? list.find((t) => t.id === current.id) || current : current
+          );
+        },
+        (err) => {
+          console.error("Error loading team tasks:", err);
+          setActionError("Could not load this team's tasks.");
+        }
+      );
     });
-    return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamId]);
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubTeam) unsubTeam();
+      if (unsubTasks) unsubTasks();
+    };
+  }, [teamId, navigate]);
 
   // Generate AI Recommendation
   const handleGetAiRecommendation = async () => {
     if (!taskTitle.trim()) {
-      alert("Please enter a task title first.");
+      setActionError("Please enter a task title first.");
       return;
     }
     try {
@@ -169,10 +211,15 @@ function TeamDetails() {
   // Create Team Task
   const handleCreateTask = async (e) => {
     e.preventDefault();
+    if (creatingTask) return;
+
     if (!taskTitle.trim() || !taskAssignee) {
-      alert("Title and Assignee are required!");
+      setActionError("A title and an assignee are required.");
       return;
     }
+
+    setActionError("");
+    setCreatingTask(true);
 
     try {
       await addDoc(collection(db, "teamTasks"), {
@@ -186,24 +233,28 @@ function TeamDetails() {
         comments: [],
       });
 
-      alert("🎉 Team Task Created!");
+      showBanner("🎉 Team task created.");
       setTaskTitle("");
       setTaskDesc("");
       setTaskAssignee("");
       setTaskDueDate("");
       setAiRecommendation("");
       setCreateTaskOpen(false);
-      loadTeamData(auth.currentUser);
     } catch (error) {
       console.error("Error creating task:", error);
-      alert("Failed to create task.");
+      setActionError("Could not create that task. Please try again.");
+    } finally {
+      setCreatingTask(false);
     }
   };
 
   // Add Comment to Task
   const handleAddComment = async (e) => {
     e.preventDefault();
-    if (!newComment.trim() || !selectedTask) return;
+    if (!newComment.trim() || !selectedTask || postingComment) return;
+
+    setPostingComment(true);
+    setActionError("");
 
     try {
       const user = auth.currentUser;
@@ -227,13 +278,26 @@ function TeamDetails() {
       setNewComment("");
     } catch (error) {
       console.error("Error adding comment:", error);
+      setActionError("Your comment couldn't be posted. Please try again.");
+    } finally {
+      setPostingComment(false);
     }
   };
 
   // Update Task Status
   const handleUpdateStatus = async (taskId, newStatus) => {
+    if (statusUpdatingId) return;
+
+    setStatusUpdatingId(taskId);
+    setActionError("");
+
     try {
       const taskRef = doc(db, "teamTasks", taskId);
+      const taskObj = tasks.find((t) => t.id === taskId);
+
+      // The status itself is just a field — setting it is idempotent and safe
+      // to repeat. The reward is what must never repeat, so it is guarded
+      // separately below rather than by "is this task currently completed?".
       await updateDoc(taskRef, { status: newStatus });
 
       setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)));
@@ -241,62 +305,82 @@ function TeamDetails() {
         setSelectedTask({ ...selectedTask, status: newStatus });
       }
 
-      // If status changed to completed, reward points automatically!
-      if (newStatus === "completed") {
-        const taskObj = tasks.find((t) => t.id === taskId);
-        if (taskObj && taskObj.assignedTo) {
-          rewardXPAndCoins(taskObj.assignedTo);
-        }
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
-    }
-  };
+      if (newStatus !== "completed") return;
 
-  // Reward XP and Coins to completed task owner
-  const rewardXPAndCoins = async (assigneeEmail) => {
-    try {
-      // Find user UID by email in users collection
-      const q = query(
-        collection(db, "users"),
-        where("email", "==", assigneeEmail.toLowerCase())
+      const assignee = taskObj?.assignedTo;
+      if (!assignee) return;
+
+      const userSnap = await getDocs(
+        query(collection(db, "users"), where("email", "==", assignee.toLowerCase()))
       );
-      const userSnap = await getDocs(q);
 
-      if (!userSnap.empty) {
-        const userDoc = userSnap.docs[0];
-        const userRef = doc(db, "users", userDoc.id);
-        const currentData = userDoc.data();
+      if (userSnap.empty) {
+        // Previously this case silently skipped the guarded path entirely.
+        setActionError(
+          `${assignee} hasn't signed up yet, so no reward was granted for this task.`
+        );
+        return;
+      }
 
-        const newXp = (currentData.xp || 0) + 20;
-        const newCoins = (currentData.coins || 0) + 10;
-        const currentLevel = currentData.level || 1;
+      const assigneeUid = userSnap.docs[0].id;
 
-        // Level up logic (every 100 XP is a level)
-        const expectedLevel = Math.floor(newXp / 100) + 1;
-        const isLeveledUp = expectedLevel > currentLevel;
+      // Security rules forbid writing another user's document, so a reward can
+      // only be granted to yourself. In practice the assignee marks their own
+      // work complete and this is the normal path; when someone else closes
+      // the task we say plainly that the reward is still pending.
+      if (assigneeUid !== auth.currentUser?.uid) {
+        showBanner(
+          `Marked complete. ${assignee} earns the reward when they mark it complete themselves.`
+        );
+        return;
+      }
 
-        await updateDoc(userRef, {
-          xp: newXp,
-          coins: newCoins,
-          level: expectedLevel,
-        });
+      // awardXpOnce records a claim document keyed by uniqueRewardId, so this
+      // task can be flipped between statuses any number of times and the
+      // reward is still granted exactly once, ever.
+      const { awarded } = await awardXpOnce(assigneeUid, {
+        xp: 20,
+        coins: 10,
+        reason: "Team task completed",
+        uniqueRewardId: `team-task-${taskId}`,
+      });
 
-        alert(
-          `🏆 Work Completed! ${assigneeEmail} rewarded +20 XP and +10 Coins!${
-            isLeveledUp ? " 🎉 LEVEL UP!" : ""
-          }`
+      if (!awarded) {
+        // Already rewarded on a previous completion — nothing more to do.
+        return;
+      }
+
+      // Team Leader achievement belongs to the team's owner, who may
+      // not be the person completing this task. Always recompute
+      // their progress/unlock+XP correctly; only attach a live
+      // toast/notification when the owner is the one currently
+      // logged in (addNotification always attributes to the
+      // logged-in user, so it can't correctly notify someone else).
+      // The Team Leader achievement belongs to the team's owner. Recomputing
+      // it writes to that owner's documents, which rules only permit for
+      // yourself — so this runs only when the owner is the one completing.
+      if (team?.createdBy && auth.currentUser?.uid === team.createdBy) {
+        runAchievementChecks(team.createdBy, { addNotification }).catch((err) =>
+          console.error("Achievement check failed:", err)
         );
       }
+
+      showBanner("🏆 Task completed — you earned +20 XP and +10 Coins!");
     } catch (error) {
-      console.error("Error rewarding points:", error);
+      console.error("Error updating status:", error);
+      setActionError("Could not update that task. Please try again.");
+    } finally {
+      setStatusUpdatingId(null);
     }
   };
 
   // Review and Rate completed task
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (!selectedTask) return;
+    if (!selectedTask || savingReview) return;
+
+    setSavingReview(true);
+    setActionError("");
 
     try {
       const taskRef = doc(db, "teamTasks", selectedTask.id);
@@ -315,10 +399,13 @@ function TeamDetails() {
 
       setSelectedTask(updatedTask);
       setTasks(tasks.map((t) => (t.id === selectedTask.id ? updatedTask : t)));
-      alert("⭐ Feedback and rating saved successfully!");
+      showBanner("⭐ Feedback and rating saved.");
       setFeedbackText("");
     } catch (error) {
       console.error("Error submitting review:", error);
+      setActionError("Could not save your review. Please try again.");
+    } finally {
+      setSavingReview(false);
     }
   };
 
@@ -333,11 +420,20 @@ function TeamDetails() {
 
   const handleAddMemberToEdit = () => {
     if (!newEditMemberEmail.trim()) return;
+
     const emailLower = newEditMemberEmail.trim().toLowerCase();
-    if (editTeamMembers.some((m) => m.email === emailLower)) {
-      alert("Member already in the list!");
+
+    if (!isValidEmail(emailLower)) {
+      setActionError("Please enter a valid email address.");
       return;
     }
+
+    if (editTeamMembers.some((m) => m.email === emailLower)) {
+      setActionError("That member is already on the list.");
+      return;
+    }
+
+    setActionError("");
     setEditTeamMembers([
       ...editTeamMembers,
       {
@@ -352,7 +448,7 @@ function TeamDetails() {
   const handleRemoveMemberFromEdit = (email) => {
     const member = editTeamMembers.find((m) => m.email === email);
     if (member && member.role === "owner") {
-      alert("Cannot remove the team owner!");
+      setActionError("The team owner can't be removed.");
       return;
     }
     setEditTeamMembers(editTeamMembers.filter((m) => m.email !== email));
@@ -360,10 +456,22 @@ function TeamDetails() {
 
   const handleSaveSettings = async (e) => {
     e.preventDefault();
-    if (!editTeamName.trim()) {
-      alert("Team Name is required!");
+    if (savingSettings) return;
+
+    // The UI hides these controls from non-owners; checking here too means a
+    // stale render or a devtools poke can't slip past.
+    if (team?.createdBy !== auth.currentUser?.uid) {
+      setActionError("Only the team owner can change these settings.");
       return;
     }
+
+    if (!editTeamName.trim()) {
+      setActionError("A team name is required.");
+      return;
+    }
+
+    setActionError("");
+    setSavingSettings(true);
 
     try {
       const teamRef = doc(db, "teams", teamId);
@@ -376,46 +484,68 @@ function TeamDetails() {
         memberEmails: memberEmails,
       });
 
-      alert("🎉 Team settings updated successfully!");
+      showBanner("🎉 Team settings updated.");
       setSettingsModalOpen(false);
-      loadTeamData(auth.currentUser);
     } catch (err) {
       console.error("Error saving team settings:", err);
-      alert("Failed to update team settings.");
+      setActionError("Could not update team settings. Please try again.");
+    } finally {
+      setSavingSettings(false);
     }
   };
 
   const handleDeleteTeam = async () => {
-    if (
-      !window.confirm(
-        "⚠️ WARNING: Are you sure you want to delete this team and all associated tasks? This action cannot be undone."
-      )
-    ) {
+    if (deletingTeam) return;
+
+    if (team?.createdBy !== auth.currentUser?.uid) {
+      setActionError("Only the team owner can delete this team.");
       return;
     }
 
+    setDeletingTeam(true);
+    setActionError("");
+
     try {
-      // 1. Delete all tasks belonging to this team
-      const tasksQuery = query(
-        collection(db, "teamTasks"),
-        where("teamId", "==", teamId)
+      const tasksSnap = await getDocs(
+        query(collection(db, "teamTasks"), where("teamId", "==", teamId))
       );
-      const tasksSnap = await getDocs(tasksQuery);
-      
-      const deletePromises = [];
-      tasksSnap.forEach((taskDoc) => {
-        deletePromises.push(deleteDoc(doc(db, "teamTasks", taskDoc.id)));
+
+      // Batched so the cascade commits as a unit. Deleting the tasks with
+      // separate writes and the team afterwards could fail halfway and strand
+      // tasks pointing at a team that no longer exists. Firestore caps a batch
+      // at 500 writes, so large teams are chunked with the team document left
+      // for the final batch.
+      const BATCH_LIMIT = 500;
+      const taskDocs = tasksSnap.docs;
+
+      for (let i = 0; i < taskDocs.length; i += BATCH_LIMIT - 1) {
+        const chunk = taskDocs.slice(i, i + BATCH_LIMIT - 1);
+        const isLastChunk = i + BATCH_LIMIT - 1 >= taskDocs.length;
+        const batch = writeBatch(db);
+
+        chunk.forEach((taskDoc) => batch.delete(doc(db, "teamTasks", taskDoc.id)));
+        if (isLastChunk) batch.delete(doc(db, "teams", teamId));
+
+        await batch.commit();
+      }
+
+      // No tasks at all — the loop above never ran.
+      if (taskDocs.length === 0) {
+        const batch = writeBatch(db);
+        batch.delete(doc(db, "teams", teamId));
+        await batch.commit();
+      }
+
+      navigate("/teams", {
+        replace: true,
+        state: { notice: "Team and all its tasks were deleted." },
       });
-      await Promise.all(deletePromises);
-
-      // 2. Delete team doc
-      await deleteDoc(doc(db, "teams", teamId));
-
-      alert("🗑️ Team and all tasks deleted successfully.");
-      navigate("/teams");
     } catch (err) {
       console.error("Error deleting team:", err);
-      alert("Failed to delete team.");
+      setActionError("Could not delete the team. Please try again.");
+      setConfirmDeleteOpen(false);
+    } finally {
+      setDeletingTeam(false);
     }
   };
 
@@ -460,6 +590,83 @@ function TeamDetails() {
 
   return (
     <MainLayout>
+
+      {banner && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300 p-4 rounded-2xl mb-4 font-bold text-sm text-center shadow-sm"
+        >
+          {banner}
+        </div>
+      )}
+
+      {actionError && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-4 font-bold text-sm text-center shadow-sm flex items-center justify-center gap-3"
+        >
+          <span>{actionError}</span>
+          <button
+            type="button"
+            onClick={() => setActionError("")}
+            aria-label="Dismiss error"
+            className="text-red-500 hover:text-red-700 dark:hover:text-red-300 font-bold cursor-pointer transition-colors duration-200"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {confirmDeleteOpen && (
+        <div
+          className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-team-title"
+        >
+          <div
+            className="absolute inset-0"
+            onClick={() => !deletingTeam && setConfirmDeleteOpen(false)}
+          />
+
+          <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-md shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10">
+            <h2
+              id="delete-team-title"
+              className="text-2xl font-bold text-slate-800 dark:text-slate-100"
+            >
+              Delete “{team.name}”?
+            </h2>
+
+            <p className="text-gray-500 dark:text-slate-400 mt-3">
+              This removes the team and all {tasks.length} of its tasks for every
+              member. This can't be undone.
+            </p>
+
+            <div className="flex gap-3 mt-8">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteOpen(false)}
+                disabled={deletingTeam}
+                className="flex-1 px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDeleteTeam}
+                disabled={deletingTeam}
+                aria-busy={deletingTeam}
+                className="flex-1 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {deletingTeam ? "Deleting..." : "Delete team"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 p-6 transition-colors duration-300 rounded-3xl">
         {/* Back Link */}
         <Link
@@ -560,6 +767,7 @@ function TeamDetails() {
             <div className="flex flex-col md:flex-row gap-4 mb-6 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-4 rounded-3xl shadow-sm transition-colors duration-300">
               <div className="flex-1">
                 <input
+                  aria-label="Search tasks"
                   type="text"
                   placeholder="🔍 Search tasks by title or description..."
                   value={taskSearch}
@@ -570,6 +778,7 @@ function TeamDetails() {
 
               <div className="w-full md:w-64">
                 <select
+                  aria-label="Filter tasks by assignee"
                   value={memberFilter}
                   onChange={(e) => setMemberFilter(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer text-slate-800 dark:text-slate-100"
@@ -617,7 +826,7 @@ function TeamDetails() {
 
                     <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-slate-800">
                       <div className="flex justify-between items-center text-xs text-gray-500">
-                        <span className="font-semibold text-indigo-650 dark:text-indigo-400">
+                        <span className="font-semibold text-indigo-600 dark:text-indigo-400">
                           {t.assignedTo.split("@")[0]}
                         </span>
                         {t.dueDate && (
@@ -672,7 +881,7 @@ function TeamDetails() {
 
                     <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-slate-800">
                       <div className="flex justify-between items-center text-xs text-gray-500">
-                        <span className="font-semibold text-indigo-650 dark:text-indigo-400">
+                        <span className="font-semibold text-indigo-600 dark:text-indigo-400">
                           {t.assignedTo.split("@")[0]}
                         </span>
                         {t.dueDate && (
@@ -718,7 +927,7 @@ function TeamDetails() {
                   >
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-bold text-slate-850 dark:text-slate-200 line-through mb-2">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 line-through mb-2">
                           {t.title}
                         </h4>
                         {t.rating && (
@@ -759,7 +968,7 @@ function TeamDetails() {
               {team.members.map((member) => (
                 <div
                   key={member.email}
-                  className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-850 border border-transparent dark:border-slate-800 rounded-2xl"
+                  className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
@@ -792,24 +1001,25 @@ function TeamDetails() {
 
         {/* Assign Task Modal */}
         {createTaskOpen && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-              <h2 className="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100">
+          <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden">
+              <h2 className="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100 flex-shrink-0">
                 Assign Team Task
               </h2>
 
-              <form onSubmit={handleCreateTask} className="space-y-6">
+              <form onSubmit={handleCreateTask} className="space-y-6 flex-grow overflow-y-auto pr-2 scrollbar-thin text-left">
                 <div>
                   <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
                     Task Title
                   </label>
                   <input
+                    aria-label="Task title"
                     type="text"
                     required
                     value={taskTitle}
                     onChange={(e) => setTaskTitle(e.target.value)}
                     placeholder="Enter task title"
-                    className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -818,11 +1028,12 @@ function TeamDetails() {
                     Description
                   </label>
                   <textarea
+                    aria-label="Task description"
                     rows="3"
                     value={taskDesc}
                     onChange={(e) => setTaskDesc(e.target.value)}
                     placeholder="Provide details on the assignment"
-                    className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                   />
                 </div>
 
@@ -832,10 +1043,11 @@ function TeamDetails() {
                       Assignee
                     </label>
                     <select
+                      aria-label="Assign task to"
                       required
                       value={taskAssignee}
                       onChange={(e) => setTaskAssignee(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm cursor-pointer"
+                      className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm cursor-pointer"
                     >
                       <option value="">Select Assignee</option>
                       {team.members.map((m) => (
@@ -851,16 +1063,17 @@ function TeamDetails() {
                       Due Date
                     </label>
                     <input
+                      aria-label="Task due date"
                       type="date"
                       value={taskDueDate}
                       onChange={(e) => setTaskDueDate(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                     />
                   </div>
                 </div>
 
                 {/* AI Workload Balancer Button */}
-                <div className="bg-slate-50 dark:bg-slate-850 border border-transparent dark:border-slate-800 rounded-2xl p-5">
+                <div className="bg-slate-50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl p-5">
                   <div className="flex justify-between items-center mb-3">
                     <span className="font-semibold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
                       <Sparkles size={16} /> Workload Suggestion
@@ -869,7 +1082,7 @@ function TeamDetails() {
                       type="button"
                       onClick={handleGetAiRecommendation}
                       disabled={aiLoading}
-                      className="text-xs bg-indigo-650 hover:bg-indigo-750 text-white px-3.5 py-1.5 rounded-lg transition font-medium cursor-pointer"
+                      className="text-xs bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-3.5 py-1.5 rounded-lg transition font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {aiLoading ? "Thinking..." : "AI Recommend"}
                     </button>
@@ -882,7 +1095,7 @@ function TeamDetails() {
                   )}
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800">
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -899,9 +1112,11 @@ function TeamDetails() {
                   </button>
                   <button
                     type="submit"
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition cursor-pointer"
+                    disabled={creatingTask}
+                    aria-busy={creatingTask}
+                    className="bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Assign
+                    {creatingTask ? "Assigning..." : "Assign"}
                   </button>
                 </div>
               </form>
@@ -911,10 +1126,23 @@ function TeamDetails() {
 
         {/* Task Detail / Interaction Modal */}
         {taskModalOpen && selectedTask && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-2xl rounded-[32px] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-              {/* Task Title */}
-              <div className="flex justify-between items-start gap-4 mb-4">
+          <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-2xl rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden">
+              {/* Close Modal Button */}
+              <button
+                onClick={() => {
+                  setTaskModalOpen(false);
+                  setSelectedTask(null);
+                  setFeedbackText("");
+                }}
+                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 text-xl font-bold cursor-pointer z-50"
+              >
+                ✕
+              </button>
+
+              <div className="flex-grow overflow-y-auto pr-2 scrollbar-thin text-left">
+                {/* Task Title */}
+                <div className="flex justify-between items-start gap-4 mb-4">
                 <div>
                   <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
                     {selectedTask.title}
@@ -930,8 +1158,10 @@ function TeamDetails() {
                     Task Status
                   </label>
                   <select
+                    aria-label="Task status"
                     value={selectedTask.status}
                     onChange={(e) => handleUpdateStatus(selectedTask.id, e.target.value)}
+                    disabled={Boolean(statusUpdatingId)}
                     className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
                     <option value="pending">Pending ⏳</option>
@@ -942,11 +1172,11 @@ function TeamDetails() {
               </div>
 
               {/* Task Description */}
-              <div className="bg-slate-50 dark:bg-slate-850 p-4 rounded-2xl border border-transparent dark:border-slate-800 mb-6">
+              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-transparent dark:border-slate-800 mb-6">
                 <h4 className="font-bold text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                   Task Details
                 </h4>
-                <p className="text-sm text-slate-700 dark:text-slate-350 whitespace-pre-line">
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
                   {selectedTask.description || "No description provided."}
                 </p>
               </div>
@@ -973,7 +1203,7 @@ function TeamDetails() {
                           />
                         ))}
                       </div>
-                      <p className="text-sm text-slate-700 dark:text-slate-350 italic">
+                      <p className="text-sm text-slate-700 dark:text-slate-300 italic">
                         "{selectedTask.feedback || "No review feedback entered."}"
                       </p>
                     </div>
@@ -1004,6 +1234,7 @@ function TeamDetails() {
 
                       <div className="flex gap-3 items-end">
                         <input
+                          aria-label="Write a comment"
                           type="text"
                           required
                           value={feedbackText}
@@ -1013,9 +1244,11 @@ function TeamDetails() {
                         />
                         <button
                           type="submit"
-                          className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition cursor-pointer"
+                          disabled={savingReview}
+                          aria-busy={savingReview}
+                          className="bg-amber-600 hover:bg-amber-700 disabled:hover:bg-amber-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          Submit
+                          {savingReview ? "Saving..." : "Submit"}
                         </button>
                       </div>
                     </form>
@@ -1035,7 +1268,7 @@ function TeamDetails() {
                 </h3>
 
                 {/* Comment list */}
-                <div className="space-y-3 max-h-40 overflow-y-auto mb-4 bg-slate-55 dark:bg-slate-850 p-3 rounded-2xl border border-transparent dark:border-slate-800">
+                <div className="space-y-3 max-h-40 overflow-y-auto pr-1.5 scrollbar-thin mb-4 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-transparent dark:border-slate-800">
                   {(!selectedTask.comments || selectedTask.comments.length === 0) ? (
                     <p className="text-xs text-gray-500 dark:text-slate-400 italic text-center py-4">
                       No discussion logs yet. Ask a question or submit updates below.
@@ -1068,67 +1301,61 @@ function TeamDetails() {
                 {/* Post Comment Form */}
                 <form onSubmit={handleAddComment} className="flex gap-3">
                   <input
+                    aria-label="Rating out of 5"
                     type="text"
                     required
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Type comments, links or updates..."
-                    className="flex-1 bg-white dark:bg-slate-850 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   <button
                     type="submit"
-                    className="bg-indigo-650 hover:bg-indigo-755 text-white px-5 rounded-xl text-sm font-semibold transition cursor-pointer"
+                    disabled={postingComment}
+                    aria-busy={postingComment}
+                    className="bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-5 rounded-xl text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Post
+                    {postingComment ? "Posting..." : "Post"}
                   </button>
                 </form>
               </div>
 
-              {/* Close Modal Button */}
-              <button
-                onClick={() => {
-                  setTaskModalOpen(false);
-                  setSelectedTask(null);
-                  setFeedbackText("");
-                }}
-                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 text-xl font-bold cursor-pointer"
-              >
-                ✕
-              </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* Team Settings / Manage Modal */}
         {settingsModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto transition-colors duration-300">
+          <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
               
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-6 flex-shrink-0">
                 <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
                   Manage Team Settings
                 </h2>
                 <button
                   type="button"
                   onClick={() => setSettingsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-650 dark:hover:text-slate-200 text-xl font-bold cursor-pointer"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 text-xl font-bold cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
-              <form onSubmit={handleSaveSettings} className="space-y-6">
+              <form onSubmit={handleSaveSettings} className="space-y-6 flex-grow overflow-y-auto pr-2 scrollbar-thin">
                 <div>
                   <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
                     Team Name
                   </label>
                   <input
+                    aria-label="Team name"
                     type="text"
                     required
                     value={editTeamName}
                     onChange={(e) => setEditTeamName(e.target.value)}
                     placeholder="Enter team name"
-                    className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -1137,11 +1364,12 @@ function TeamDetails() {
                     Description
                   </label>
                   <textarea
+                    aria-label="Team description"
                     rows="3"
                     value={editTeamDesc}
                     onChange={(e) => setEditTeamDesc(e.target.value)}
                     placeholder="What is this team working on?"
-                    className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                   />
                 </div>
 
@@ -1157,11 +1385,12 @@ function TeamDetails() {
                         Email Address
                       </label>
                       <input
+                        aria-label="New member email address"
                         type="email"
                         value={newEditMemberEmail}
                         onChange={(e) => setNewEditMemberEmail(e.target.value)}
                         placeholder="collaborator@domain.com"
-                        className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                       />
                     </div>
 
@@ -1170,9 +1399,10 @@ function TeamDetails() {
                         Role
                       </label>
                       <select
+                        aria-label="New member role"
                         value={newEditMemberRole}
                         onChange={(e) => setNewEditMemberRole(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm cursor-pointer"
+                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm cursor-pointer"
                       >
                         <option value="internal">Internal</option>
                         <option value="external">External</option>
@@ -1189,7 +1419,7 @@ function TeamDetails() {
                   </div>
 
                   {/* List of current members */}
-                  <div className="space-y-2 max-h-48 overflow-y-auto mb-4 bg-slate-50 dark:bg-slate-850 p-3 rounded-2xl border border-transparent dark:border-slate-800">
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin mb-4 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-transparent dark:border-slate-800">
                     {editTeamMembers.map((member) => (
                       <div
                         key={member.email}
@@ -1217,11 +1447,11 @@ function TeamDetails() {
                   </div>
                 </div>
 
-                <div className="flex justify-between gap-3 pt-6 border-t border-gray-100 dark:border-slate-800">
+                <div className="flex justify-between gap-3 pt-6 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
                   {/* Danger Zone: Delete Team */}
                   <button
                     type="button"
-                    onClick={handleDeleteTeam}
+                    onClick={() => setConfirmDeleteOpen(true)}
                     className="flex items-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-950/60 px-5 py-3 rounded-xl font-semibold transition cursor-pointer text-sm"
                   >
                     <Trash2 size={16} />
@@ -1238,9 +1468,11 @@ function TeamDetails() {
                     </button>
                     <button
                       type="submit"
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-semibold shadow-md transition cursor-pointer text-sm"
+                      disabled={savingSettings}
+                      aria-busy={savingSettings}
+                      className="bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-5 py-3 rounded-xl font-semibold shadow-md transition cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      Save Settings
+                      {savingSettings ? "Saving..." : "Save Settings"}
                     </button>
                   </div>
                 </div>

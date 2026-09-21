@@ -1,0 +1,192 @@
+rules_version = '2';
+
+// TaskPanda AI — Firestore security rules.
+//
+// Model: every user-owned document carries a `userId` field; team access is
+// derived from the parent team document. Nothing is readable or writable
+// without authentication, and no user can write another user's data.
+//
+// Known limitation, by design: a signed-in user can still change their OWN
+// xp / coins / level, because task completion awards them from the browser.
+// Closing that requires moving reward writes into a Cloud Function — these
+// rules deliberately do not pretend otherwise.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    // Existing document belongs to the caller.
+    function ownsExisting() {
+      return signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Incoming document is stamped with the caller's own id.
+    function ownsIncoming() {
+      return signedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Callers may not reassign a document to someone else on update.
+    function keepsOwner() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    function teamData(teamId) {
+      return get(/databases/$(database)/documents/teams/$(teamId)).data;
+    }
+
+    function teamExists(teamId) {
+      return exists(/databases/$(database)/documents/teams/$(teamId));
+    }
+
+    // Emails are normalised to lower case on registration and on invite.
+    function callerEmail() {
+      return signedIn() && request.auth.token.email != null
+        ? request.auth.token.email.lower()
+        : '';
+    }
+
+    function isTeamOwner(teamId) {
+      return signedIn()
+        && teamExists(teamId)
+        && teamData(teamId).createdBy == request.auth.uid;
+    }
+
+    function isTeamMember(teamId) {
+      return signedIn()
+        && teamExists(teamId)
+        && (
+          teamData(teamId).createdBy == request.auth.uid
+          || callerEmail() in teamData(teamId).memberEmails
+        );
+    }
+
+    // True when an update touches only the listed fields.
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // ---------- users ----------
+
+    match /users/{userId} {
+      // Any signed-in user can read profiles because the team screens resolve
+      // a member's uid from their email address. This does expose profile
+      // fields (name, email, xp, bio) to other signed-in users.
+      allow read: if signedIn();
+
+      // Writing someone else's profile is never allowed — this is what stops
+      // a teammate editing your coins, XP or level.
+      allow create, update: if isSelf(userId);
+      allow delete: if false;
+
+      match /achievements/{achievementId} {
+        allow read, write: if isSelf(userId);
+      }
+
+      // Claim receipts backing awardXpOnce's at-most-once guarantee.
+      match /rewardClaims/{claimId} {
+        allow read, write: if isSelf(userId);
+      }
+    }
+
+    // ---------- personal task list ----------
+
+    match /tasks/{taskId} {
+      allow read, delete: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && keepsOwner();
+    }
+
+    // ---------- teams ----------
+
+    match /teams/{teamId} {
+      allow read: if signedIn()
+        && (
+          resource.data.createdBy == request.auth.uid
+          || callerEmail() in resource.data.memberEmails
+        );
+
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid;
+
+      // Only the owner renames the team or changes its membership.
+      allow update, delete: if signedIn()
+        && resource.data.createdBy == request.auth.uid;
+    }
+
+    // ---------- team tasks ----------
+    //
+    // Read: any member of the parent team.
+    // Create / delete: the team owner.
+    // Update: the owner or the assignee for anything; any other member for
+    //         comments only, so discussion stays open without letting members
+    //         reassign or re-status each other's work.
+
+    match /teamTasks/{taskId} {
+      allow read: if isTeamMember(resource.data.teamId);
+
+      allow create: if isTeamOwner(request.resource.data.teamId);
+
+      allow delete: if isTeamOwner(resource.data.teamId);
+
+      allow update: if
+        isTeamOwner(resource.data.teamId)
+        || (
+          signedIn()
+          && resource.data.assignedTo == callerEmail()
+          && request.resource.data.teamId == resource.data.teamId
+        )
+        || (
+          isTeamMember(resource.data.teamId)
+          && onlyChanges(['comments'])
+        );
+    }
+
+    // ---------- per-user records ----------
+
+    match /internshipLogs/{logId} {
+      allow read, delete: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && keepsOwner();
+    }
+
+    match /internshipReports/{reportId} {
+      allow read, delete: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && keepsOwner();
+    }
+
+    match /aiSchedules/{scheduleId} {
+      allow read, delete: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && keepsOwner();
+    }
+
+    match /pdfDocuments/{documentId} {
+      allow read, delete: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && keepsOwner();
+    }
+
+    match /notifications/{notificationId} {
+      allow read, delete: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && keepsOwner();
+    }
+
+    // ---------- default deny ----------
+    // Any collection added later is locked until it is described above.
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

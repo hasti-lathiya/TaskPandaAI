@@ -59,7 +59,7 @@ function TaskCard({
       }`}
     >
       {/* Floating horizontal actions toolbar */}
-      <div className="absolute top-4 right-4 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 bg-white/95 dark:bg-slate-850/95 backdrop-blur-sm p-1.5 rounded-xl border border-slate-200/40 dark:border-slate-800 shadow-md z-10">
+      <div className="absolute top-4 right-4 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm p-1.5 rounded-xl border border-slate-200/40 dark:border-slate-800 shadow-md z-10">
         <button
           onClick={() => onComplete(task.id)}
           title="Complete Task"
@@ -83,7 +83,7 @@ function TaskCard({
         <button
           onClick={() => onDelete(task.id)}
           title="Delete Task"
-          className="p-2 rounded-lg bg-red-100/80 dark:bg-red-950/80 text-red-650 dark:text-red-400 hover:bg-red-200 hover:scale-105 active:scale-95 transition cursor-pointer"
+          className="p-2 rounded-lg bg-red-100/80 dark:bg-red-950/80 text-red-600 dark:text-red-400 hover:bg-red-200 hover:scale-105 active:scale-95 transition cursor-pointer"
         >
           <Trash2 size={16} />
         </button>
@@ -93,7 +93,7 @@ function TaskCard({
         {/* Left Side */}
         <div className="flex-1">
           <div className="flex flex-wrap gap-2 mb-6 pr-24">
-            <span className="bg-slate-100 dark:bg-slate-850/85 text-slate-750 dark:text-slate-300 px-3 py-1 rounded-full text-xs font-bold border border-slate-200/10 dark:border-slate-800/30">
+            <span className="bg-slate-100 dark:bg-slate-800/85 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full text-xs font-bold border border-slate-200/10 dark:border-slate-800/30">
               {getCategoryEmoji()} {task.category || "Other"}
             </span>
 
@@ -121,21 +121,21 @@ function TaskCard({
             className={`text-2xl font-black tracking-tight pr-24 ${
               task.completed
                 ? "line-through text-slate-400 dark:text-slate-600"
-                : "text-slate-800 dark:text-slate-105"
+                : "text-slate-800 dark:text-slate-100"
             }`}
           >
             {task.title}
           </h3>
 
-          <p className="text-slate-500 dark:text-slate-450 mt-3.5 text-sm font-semibold pr-24">
+          <p className="text-slate-500 dark:text-slate-400 mt-3.5 text-sm font-semibold pr-24">
             📅 Due Date:
-            <span className="font-bold ml-2 text-slate-705 dark:text-slate-300">
+            <span className="font-bold ml-2 text-slate-700 dark:text-slate-300">
               {task.dueDate || "No Date"}
             </span>
           </p>
 
           {isOverdue && (
-            <div className="mt-4 bg-red-100/80 dark:bg-red-950/60 text-red-700 dark:text-red-350 px-4 py-3 rounded-2xl inline-flex items-center gap-2 border border-red-200/20 dark:border-red-900/30 text-xs font-bold">
+            <div className="mt-4 bg-red-100/80 dark:bg-red-950/60 text-red-700 dark:text-red-300 px-4 py-3 rounded-2xl inline-flex items-center gap-2 border border-red-200/20 dark:border-red-900/30 text-xs font-bold">
               <AlertTriangle size={16} />
               This task is overdue and needs attention.
             </div>

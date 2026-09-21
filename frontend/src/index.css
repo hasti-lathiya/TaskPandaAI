@@ -57,6 +57,23 @@ body {
   background: var(--primary-hover, #4f46e5);
 }
 
+/* Scrollbar Utilities */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
 /* Dynamic Accents overrides */
 :root {
   --primary-accent: #4f46e5;

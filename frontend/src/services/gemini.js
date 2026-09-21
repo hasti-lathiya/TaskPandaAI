@@ -1,114 +1,118 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// These used to call Gemini directly from the browser using
+// VITE_GEMINI_API_KEY. Vite inlines VITE_-prefixed variables into the built
+// bundle, so that key shipped to every visitor. Generation now happens on the
+// backend (backend/src/ai.js) and this module is a thin client over it — the
+// exported function signatures are unchanged, so call sites did not move.
 
-const genAI = new GoogleGenerativeAI(
-  import.meta.env.VITE_GEMINI_API_KEY
-);
+// In development Vite proxies /api to the local server, so the base is empty.
+// In production the API lives on its own host (Vercel), so the deployed build
+// is given its absolute URL. Trailing slashes are trimmed so the joined path
+// never ends up with a double slash.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
-});
+async function callAI(endpoint, payload) {
+  const response = await fetch(`${API_BASE}/api/ai/${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-export const generateInternshipReport = async (tasks) => {
-  const prompt = `
-Convert the following internship tasks into a professional weekly internship report suitable for college submission.
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    throw new Error(detail.error || "AI request failed.");
+  }
 
-Tasks:
-${tasks}
+  const { text } = await response.json();
+  return text;
+}
 
-Generate:
-- Professional language
-- Paragraph format
-- Internship report style
-- Mention technical contribution
-`;
+export const generateInternshipReport = async (tasks) =>
+  callAI("internship-report", { tasks });
 
-  const result = await model.generateContent(prompt);
+export const generateAISchedule = async (tasks) =>
+  callAI("schedule", { tasks });
 
-  return result.response.text();
-};
-
-export const generateAISchedule = async (tasks) => {
-
-  const formattedTasks = tasks
-    .map(
-      (task, index) => `
-${index + 1}. ${task.title}
-Priority: ${task.priority}
-Category: ${task.category}
-Duration: ${task.estimatedDuration || 30} minutes
-Energy: ${task.energyLevel || "Medium"}
-Due Date: ${task.dueDate || "Not specified"}
-`
-    )
-    .join("\n");
-
-  const prompt = `
-You are an AI productivity planner.
-
-Generate the schedule in EXACTLY this format:
-
-Morning
-07:30 AM - 09:00 AM | Study | React Assignment | Urgent
-09:15 AM - 11:15 AM | Internship | Gemini Module | Internship
-11:15 AM - 11:30 AM | Break | Short Break | Break
-
-Afternoon
-12:00 PM - 01:00 PM | Personal | Lunch | Personal
-01:00 PM - 02:00 PM | Study | Cloud Revision | Study
-
-Evening
-06:00 PM - 06:20 PM | Exercise | Exercise | Exercise
-
-Rules:
-- First line must be Morning, Afternoon or Evening section name.
-- Use exactly this format:
-TIME | CATEGORY | TASK | BADGE
-- No markdown
-- No bullet points
-- No explanations
-- No extra text
-
-Tasks:
-${formattedTasks}
-`;
-
-  const result = await model.generateContent(prompt);
-
-  return result.response.text();
-};
-
-export const recommendTeamAssignee = async (taskTitle, taskDesc, members, activeTasksCount) => {
-  const memberDetails = members
-    .map(
-      (member) => `
-- Email: ${member.email}
-  Role: ${member.role}
-  Active Tasks Count: ${activeTasksCount[member.email] || 0}
-`
-    )
-    .join("\n");
-
-  const prompt = `
-You are an AI workload balancer and assistant.
-Recommend the most suitable team member to assign the following task to.
-
-Task Title: ${taskTitle}
-Task Description: ${taskDesc}
-
-Team Members:
-${memberDetails}
-
-Guidelines:
-- Analyze active tasks count (prefer members with fewer active tasks to balance workload).
-- Align task title/description with the role (Internal vs External).
-- Return your recommendation in a clean, short, professional paragraph (max 3 sentences). Mention the recommended member's email, why they were chosen, and why it balances the workload.
-`;
-
+export const recommendTeamAssignee = async (
+  taskTitle,
+  taskDesc,
+  members,
+  activeTasksCount
+) => {
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await callAI("recommend-assignee", {
+      taskTitle,
+      taskDesc,
+      members,
+      activeTasksCount,
+    });
   } catch (error) {
     console.error("AI recommendation error:", error);
     return "Could not generate AI recommendation at this time.";
+  }
+};
+
+// Checklist titles are duplicated here only to build the offline fallback
+// below; the authoritative prompt copy lives on the server.
+const FALLBACK_CHECKLISTS = {
+  Resume: [
+    "Education Section",
+    "Skills Summary",
+    "Project Portfolios",
+    "Work Experience",
+    "Certifications",
+  ],
+  Assignment: [
+    "Introduction Overview",
+    "Core Objectives",
+    "Conclusion Summary",
+    "Bibliography / References",
+  ],
+  "Internship Report": [
+    "Company Profile",
+    "Log of Work Done",
+    "Technologies & Toolings",
+    "Learning Milestones",
+    "Report Conclusion",
+  ],
+};
+
+const DEFAULT_FALLBACK_CHECKLIST = [
+  "Problem Statement",
+  "Research Objectives",
+  "Methodology Details",
+  "Implementation Walkthrough",
+  "Testing Metrics",
+  "Future Scope Limitations",
+];
+
+export const analyzePDFDocument = async (docType, text) => {
+  try {
+    const raw = await callAI("analyze-pdf", { docType, text });
+    const jsonStr = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+    return JSON.parse(jsonStr);
+  } catch (error) {
+    console.error("Gemini PDF analysis failed:", error);
+
+    // Same degraded-but-useful result as before: a keyword-based structural
+    // audit, so the page still works when AI is unavailable.
+    const titles = FALLBACK_CHECKLISTS[docType] || DEFAULT_FALLBACK_CHECKLIST;
+
+    return {
+      checklist: titles.map((title) => ({
+        title,
+        found: text.toLowerCase().includes(title.split(" ")[0].toLowerCase()),
+      })),
+      summary: "Completed a structural audit of the uploaded PDF.",
+      insights: [
+        "Verified critical sections layout.",
+        "Detected vocabulary density.",
+        "Checked formatting margins compliance.",
+      ],
+      tips: [
+        "Include more concrete metrics/data in your reports.",
+        "Double-check citation styles and page numbering.",
+        "Add an appendix or references section for academic credibility.",
+      ],
+    };
   }
 };

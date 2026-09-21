@@ -2,8 +2,8 @@ function LevelUpModal({ isOpen, level, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300">
-      <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[32px] p-8 md:p-10 w-full max-w-[440px] text-center shadow-2xl animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-all duration-300">
+      <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[32px] p-8 md:p-10 w-full max-w-[440px] text-center shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 animate-in zoom-in-95 duration-200">
         <div className="text-7xl mb-4 animate-bounce">
           🎉
         </div>
@@ -28,7 +28,7 @@ function LevelUpModal({ isOpen, level, onClose }) {
 
         <button
           onClick={onClose}
-          className="mt-8 w-full bg-gradient-to-r from-indigo-600 to-purple-650 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-900/30 transition transform hover:-translate-y-0.5 cursor-pointer"
+          className="mt-8 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-900/30 transition transform hover:-translate-y-0.5 cursor-pointer"
         >
           Awesome!
         </button>

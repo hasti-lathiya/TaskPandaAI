@@ -7,8 +7,11 @@ import {
   FileText,
   User,
   Users,
+  LogOut,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase/firebase";
 
 function Sidebar() {
   const { equippedCompanion } = useTheme();
@@ -244,7 +247,7 @@ function Sidebar() {
               className={({ isActive }) =>
                 `flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 text-sm ${
                   isActive
-                    ? "bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-650 dark:text-indigo-350 font-bold border-l-2 border-indigo-500 glow-active shadow-sm"
+                    ? "bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 font-bold border-l-2 border-indigo-500 glow-active shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 font-medium"
                 }`
               }
@@ -254,6 +257,25 @@ function Sidebar() {
             </NavLink>
           ))}
         </nav>
+
+        {/* Logout Button */}
+        <button
+          data-testid="logout-btn"
+          onClick={async () => {
+            await signOut(auth);
+            localStorage.removeItem("app_user");
+            localStorage.removeItem("app_tasks");
+            localStorage.removeItem("app_coins");
+            localStorage.removeItem("app_streak");
+            localStorage.removeItem("app_xp");
+            localStorage.removeItem("app_study_hours");
+            window.location.href = "/login";
+          }}
+          className="flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/20 cursor-pointer mt-4"
+        >
+          <LogOut size={20} className="text-red-500 dark:text-red-400" />
+          <span>Logout</span>
+        </button>
       </div>
 
       {/* Bottom Companion Card */}

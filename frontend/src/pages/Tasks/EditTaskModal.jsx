@@ -1,25 +1,20 @@
 import { useState } from "react";
 import { db } from "../../firebase/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { createPortal } from "react-dom";
 
 function EditTaskModal({
   isOpen,
   onClose,
   task,
 }) {
-  const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState("Medium");
-  const [category, setCategory] = useState("Other");
-  const [dueDate, setDueDate] = useState("");
-  const [prevTaskId, setPrevTaskId] = useState(null);
-
-  if (task && task.id !== prevTaskId) {
-    setPrevTaskId(task.id);
-    setTitle(task.title || "");
-    setPriority(task.priority || "Medium");
-    setCategory(task.category || "Other");
-    setDueDate(task.dueDate || "");
-  }
+  const [title, setTitle] = useState(task?.title || "");
+  const [priority, setPriority] = useState(task?.priority || "Medium");
+  const [category, setCategory] = useState(task?.category || "Other");
+  const [dueDate, setDueDate] = useState(task?.dueDate || "");
+  const [estimatedDuration, setEstimatedDuration] = useState(task?.estimatedDuration || 30);
+  const [energyLevel, setEnergyLevel] = useState(task?.energyLevel || "Medium");
+  const [description, setDescription] = useState(task?.description || "");
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -36,9 +31,12 @@ function EditTaskModal({
 
       await updateDoc(taskRef, {
         title,
+        description,
         category,
         priority,
         dueDate,
+        estimatedDuration: Number(estimatedDuration),
+        energyLevel,
       });
 
       alert("✅ Task Updated Successfully!");
@@ -51,16 +49,20 @@ function EditTaskModal({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) return null;  return createPortal(
+    <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
+      {/* Backdrop dark overlay */}
+      <div 
+        className="absolute inset-0 backdrop-blur-md z-40" 
+        onClick={onClose} 
+      />
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-lg shadow-2xl transition-colors duration-300">
+      {/* Modal card */}
+      <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 w-full max-w-lg shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300 z-50 box-border">
 
         {/* Header */}
 
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 flex-shrink-0">
 
           <div>
             <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
@@ -78,7 +80,23 @@ function EditTaskModal({
 
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-5 flex-grow overflow-y-auto pr-2 scrollbar-thin text-left">
+
+          {/* Description */}
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Description
+            </label>
+
+            <textarea
+              rows="3"
+              placeholder="Describe the task..."
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
           {/* Title */}
 
@@ -95,6 +113,61 @@ function EditTaskModal({
               }
               placeholder="Enter task title..."
               className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          {/* Priority */}
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Priority
+            </label>
+
+            <select
+              value={priority}
+              onChange={(e) =>
+                setPriority(e.target.value)
+              }
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option className="dark:bg-slate-800">High</option>
+              <option className="dark:bg-slate-800">Medium</option>
+              <option className="dark:bg-slate-800">Low</option>
+            </select>
+          </div>
+
+          {/* Energy Requirement */}
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Energy Requirement
+            </label>
+
+            <select
+              value={energyLevel}
+              onChange={(e) => setEnergyLevel(e.target.value)}
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option className="dark:bg-slate-800">High</option>
+              <option className="dark:bg-slate-800">Medium</option>
+              <option className="dark:bg-slate-800">Low</option>
+            </select>
+          </div>
+
+          {/* Estimated Duration */}
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Estimated Duration (Minutes)
+            </label>
+
+            <input
+              type="number"
+              min="5"
+              step="5"
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+              value={estimatedDuration}
+              onChange={(e) => setEstimatedDuration(Number(e.target.value))}
             />
           </div>
 
@@ -116,26 +189,6 @@ function EditTaskModal({
               <option className="dark:bg-slate-800">Internship</option>
               <option className="dark:bg-slate-800">Personal</option>
               <option className="dark:bg-slate-800">Other</option>
-            </select>
-          </div>
-
-          {/* Priority */}
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Priority
-            </label>
-
-            <select
-              value={priority}
-              onChange={(e) =>
-                setPriority(e.target.value)
-              }
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option className="dark:bg-slate-800">High</option>
-              <option className="dark:bg-slate-800">Medium</option>
-              <option className="dark:bg-slate-800">Low</option>
             </select>
           </div>
 
@@ -161,7 +214,7 @@ function EditTaskModal({
 
         {/* Footer Buttons */}
 
-        <div className="flex justify-end gap-4 mt-8">
+        <div className="flex justify-end gap-4 mt-8 flex-shrink-0">
 
           <button
             onClick={onClose}
@@ -181,7 +234,8 @@ function EditTaskModal({
 
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }
 

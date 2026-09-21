@@ -6,8 +6,6 @@ import {
   query,
   where,
   onSnapshot,
-  doc,
-  updateDoc,
 } from "firebase/firestore";
 
 import { onAuthStateChanged } from "firebase/auth";
@@ -38,12 +36,6 @@ function useTaskStats() {
 
             snapshot.forEach((docSnap) => {
               const data = docSnap.data();
-              let title = data.title || "";
-              if (title.includes("assigmment")) {
-                const correctedTitle = title.replace("assigmment", "assignment");
-                updateDoc(doc(db, "tasks", docSnap.id), { title: correctedTitle })
-                  .catch(err => console.error("Error correcting typo:", err));
-              }
               total++;
               if (data.completed) {
                 completed++;

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { auth, db } from "../../firebase/firebase";
-import { doc, collection, query, where, onSnapshot } from "firebase/firestore";
+import { doc, collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 import MainLayout from "../../layouts/MainLayout";
@@ -12,8 +12,12 @@ import MentorFeedback from "./MentorFeedback";
 import MonthlyReport from "./MonthlyReport";
 import InternshipGoals from "./InternshipGoals";
 import { generateInternshipReport } from "../../services/gemini";
+import { useNotifications } from "../../context/NotificationContext";
+import { awardXpOnce, getISOWeekString } from "../../services/rewards";
+import { runAchievementChecks } from "../../services/achievements";
 
 function Internship() {
+  const { addNotification } = useNotifications();
   const [todayHours, setTodayHours] = useState(0);
   const [completedTasks, setCompletedTasks] = useState(0);
   const [daysAttended, setDaysAttended] = useState(0);
@@ -23,6 +27,7 @@ function Internship() {
   const [weeklyTasks, setWeeklyTasks] = useState("");
   const [generatedReport, setGeneratedReport] = useState("");
   const [loadingReport, setLoadingReport] = useState(false);
+  const [reportError, setReportError] = useState("");
   
   const progressRate = useMemo(() => {
     const goalHours = todayHours >= 8;
@@ -41,7 +46,12 @@ function Internship() {
       const userRef = doc(db, "users", user.uid);
       unsubscribeUser = onSnapshot(userRef, (userSnap) => {
         if (userSnap.exists()) {
-          setTodayHours(userSnap.data().todayHours || 0);
+          const data = userSnap.data();
+          const today = new Date().toISOString().split("T")[0];
+
+          // todayHours is only "today's" if it was last written today —
+          // otherwise yesterday's total would linger indefinitely.
+          setTodayHours(data.lastUpdatedDate === today ? data.todayHours || 0 : 0);
         }
       });
 
@@ -53,14 +63,27 @@ function Internship() {
       unsubscribeTasks = onSnapshot(taskQuery, (taskSnap) => {
         let completedCount = 0;
         let compToday = false;
-        
-        taskSnap.forEach((doc) => {
-          const t = doc.data();
-          if (t.completed) {
-            completedCount++;
-            compToday = true;
+
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        taskSnap.forEach((taskDoc) => {
+          const t = taskDoc.data();
+          if (!t.completed) return;
+
+          completedCount++;
+
+          // Only a task finished since midnight counts toward today's goal.
+          // Tasks completed before completedAt was recorded simply don't
+          // qualify, which is the correct answer for "was this done today?".
+          if (t.completedAt) {
+            const completedDate = t.completedAt.toDate
+              ? t.completedAt.toDate()
+              : new Date(t.completedAt);
+            if (completedDate >= startOfDay) compToday = true;
           }
         });
+
         setCompletedTasks(completedCount);
         setCompletedToday(compToday);
       });
@@ -101,16 +124,47 @@ function Internship() {
 
   const generateWeeklyReport = async () => {
     if (!weeklyTasks.trim()) {
-      alert("Please enter your completed work details first.");
+      setReportError("Please enter your completed work details first.");
       return;
     }
 
     try {
+      setReportError("");
       setLoadingReport(true);
       setGeneratedReport("");
 
       const report = await generateInternshipReport(weeklyTasks);
       setGeneratedReport(report);
+
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        const weekIdentifier = getISOWeekString();
+
+        // Persist the report so it counts toward the Internship Hero
+        // achievement and survives refresh/login.
+        await addDoc(collection(db, "internshipReports"), {
+          userId,
+          content: report,
+          weekIdentifier,
+          createdAt: serverTimestamp(),
+        });
+
+        // +30 XP once per calendar week, no matter how many times the
+        // report is regenerated that week.
+        const { awarded } = await awardXpOnce(userId, {
+          xp: 30,
+          reason: "Internship weekly report",
+          uniqueRewardId: `internship-report-${weekIdentifier}`,
+        });
+
+        if (awarded) {
+          await addNotification("Report Generated! 📋", "Internship weekly report saved. Earned +30 XP", "gamification");
+        }
+
+        runAchievementChecks(userId, { addNotification }).catch((err) =>
+          console.error("Achievement check failed:", err)
+        );
+      }
 
     } catch (error) {
       console.error(error);
@@ -145,13 +199,13 @@ function Internship() {
         <div className="glass-premium rounded-[32px] p-8 shadow-sm mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-105 flex items-center gap-2 tracking-tight">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 tracking-tight">
                 🚀 Keep Growing Every Day
               </h2>
-              <p className="mt-2 text-sm text-slate-550 dark:text-slate-400 max-w-xl font-medium">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 max-w-xl font-medium">
                 Small consistent improvements every day lead to a highly successful internship outcome.
               </p>
-              <p className="mt-5 font-bold text-xs text-indigo-650 dark:text-indigo-400 uppercase tracking-widest">
+              <p className="mt-5 font-bold text-xs text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
                 📅 {today}
               </p>
             </div>
@@ -165,14 +219,14 @@ function Internship() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-405 uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 ⏰ Hours Today
               </h3>
-              <p className="text-3xl font-extrabold text-indigo-650 dark:text-indigo-400 mt-3">
+              <p className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-3">
                 {todayHours} / 8
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-850 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div
                 className="h-1.5 bg-indigo-500 rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${Math.min((todayHours / 8) * 100, 100)}%` }}
@@ -182,42 +236,42 @@ function Internship() {
 
           <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-405 uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 📋 Tasks Completed
               </h3>
               <p className="text-3xl font-extrabold text-green-600 dark:text-green-400 mt-3">
                 {completedTasks}
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-850 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div className="h-1.5 bg-emerald-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${completedTasks > 0 ? 100 : 0}%` }} />
             </div>
           </div>
 
           <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-405 uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 📅 Days Attended
               </h3>
               <p className="text-3xl font-extrabold text-orange-500 dark:text-orange-400 mt-3">
                 {daysAttended}
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-850 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div className="h-1.5 bg-orange-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${daysAttended > 0 ? 100 : 0}%` }} />
             </div>
           </div>
 
           <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-405 uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 📈 Progress
               </h3>
-              <p className="text-3xl font-extrabold text-purple-650 dark:text-purple-400 mt-3">
+              <p className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-3">
                 {progressRate}%
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-850 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div className="h-1.5 bg-purple-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progressRate}%` }} />
             </div>
           </div>
@@ -239,23 +293,40 @@ function Internship() {
                 Input your key activities below to generate a formatted weekly status report for your manager or mentor.
               </p>
 
+              <label htmlFor="weekly-tasks" className="sr-only">
+                Completed work details for this week
+              </label>
+
               <textarea
+                id="weekly-tasks"
                 value={weeklyTasks}
                 onChange={(e) => setWeeklyTasks(e.target.value)}
+                aria-invalid={Boolean(reportError)}
                 placeholder="Example:&#10;• Created Login Page&#10;• Integrated Firebase Authentication&#10;• Fixed Sidebar Bugs"
                 className="w-full bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 h-36 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm"
               />
 
+              {reportError && (
+                <p
+                  role="alert"
+                  aria-live="assertive"
+                  className="mt-3 text-sm font-medium text-red-600 dark:text-red-400"
+                >
+                  {reportError}
+                </p>
+              )}
+
               <button
                 onClick={generateWeeklyReport}
                 disabled={loadingReport}
-                className="mt-4 w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-650 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition cursor-pointer text-sm disabled:opacity-50"
+                aria-busy={loadingReport}
+                className="mt-4 w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition cursor-pointer text-sm disabled:opacity-50"
               >
                 {loadingReport ? "Generating AI report..." : "Generate Weekly Report"}
               </button>
 
               {generatedReport && (
-                <div className="mt-6 bg-slate-50 dark:bg-slate-850 rounded-2xl p-6 border border-gray-100 dark:border-slate-800/80 animate-in fade-in duration-200">
+                <div className="mt-6 bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 border border-gray-100 dark:border-slate-800/80 animate-in fade-in duration-200">
                   <h3 className="font-extrabold text-sm text-indigo-700 dark:text-indigo-400 mb-3 uppercase tracking-wider">
                     🐼 Generated Report
                   </h3>

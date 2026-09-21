@@ -6,6 +6,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { useNotifications } from "../../context/NotificationContext";
+import { createPortal } from "react-dom";
 
 function AddTaskModal({ isOpen, onClose }) {
 const { addNotification } = useNotifications();
@@ -60,14 +61,14 @@ const [description, setDescription] = useState("");
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+  return createPortal(
+    <div className="fixed inset-0 backdrop-blur-md flex justify-center items-center z-50 p-4">
 
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-lg shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
 
         {/* Header */}
 
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 flex-shrink-0">
 
           <div>
             <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
@@ -87,7 +88,7 @@ const [description, setDescription] = useState("");
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-5"
+          className="space-y-5 flex-grow overflow-y-auto pr-2 scrollbar-thin"
         >
 
             <div>
@@ -232,7 +233,8 @@ const [description, setDescription] = useState("");
 
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }
 

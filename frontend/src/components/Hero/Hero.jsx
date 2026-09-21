@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 function Hero() {
   return (
     <section
       id="home"
-      className="min-h-[90vh] bg-gradient-to-br from-sky-100 via-white to-purple-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/80 flex items-center transition-colors duration-300"
+      className="scroll-mt-24 min-h-[90vh] bg-gradient-to-br from-sky-100 via-white to-purple-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/80 flex items-center transition-colors duration-300"
     >
-      <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-10 items-center">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-16 lg:py-0 grid lg:grid-cols-2 gap-10 items-center">
 
         <motion.div
           initial={{ opacity: 0, x: -60 }}
@@ -17,7 +18,7 @@ function Hero() {
             🚀 AI Powered Student Productivity
           </p>
 
-          <h1 className="text-6xl font-bold leading-tight mb-6 text-slate-900 dark:text-slate-100">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-slate-900 dark:text-slate-100">
             Manage Tasks.
             <br />
             Track Internship.
@@ -30,15 +31,21 @@ function Hero() {
             productivity and AI assistance in one beautiful platform.
           </p>
 
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
 
-            <button className="bg-indigo-600 dark:bg-indigo-500 text-white px-8 py-4 rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 transition cursor-pointer font-medium">
+            <Link
+              to="/register"
+              className="bg-indigo-600 dark:bg-indigo-500 text-white px-8 py-4 rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 transition cursor-pointer font-medium"
+            >
               Get Started
-            </button>
+            </Link>
 
-            <button className="border border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 px-8 py-4 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition cursor-pointer font-medium">
+            <a
+              href="#features"
+              className="border border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 px-8 py-4 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition cursor-pointer font-medium"
+            >
               Learn More
-            </button>
+            </a>
 
           </div>
         </motion.div>
@@ -49,9 +56,9 @@ function Hero() {
           transition={{ duration: 0.8 }}
           className="flex justify-center"
         >
-          <div className="w-96 h-96 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-2xl">
+          <div className="w-64 sm:w-80 lg:w-96 aspect-square max-w-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-2xl">
 
-            <span className="text-9xl">
+            <span className="text-7xl sm:text-8xl lg:text-9xl">
               🐼
             </span>
 

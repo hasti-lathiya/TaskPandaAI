@@ -60,7 +60,20 @@ function ProductivityChart() {
 
         if (!task.createdAt) return;
 
-        const date = task.createdAt.toDate();
+        let date;
+        try {
+          if (task.createdAt && typeof task.createdAt.toDate === "function") {
+            date = task.createdAt.toDate();
+          } else {
+            date = new Date(task.createdAt);
+          }
+          if (isNaN(date.getTime())) {
+            return;
+          }
+        } catch (e) {
+          console.error("Error parsing date: ", e);
+          return;
+        }
 
         const day = date.toLocaleDateString("en-US", {
           weekday: "short",
@@ -184,7 +197,7 @@ function ProductivityChart() {
             ✅ Weekly Total
           </p>
 
-          <h3 className="text-2xl font-black text-amber-650 dark:text-amber-400 mt-2">
+          <h3 className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">
             {totalCompleted}
           </h3>
 

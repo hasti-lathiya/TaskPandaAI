@@ -6,7 +6,7 @@ function StatsCard({
 }) {
   const getProgressBarColor = () => {
     if (color.includes("green")) return "bg-emerald-500";
-    if (color.includes("orange") || color.includes("amber")) return "bg-amber-505";
+    if (color.includes("orange") || color.includes("amber")) return "bg-amber-500";
     if (color.includes("purple")) return "bg-purple-500";
     return "bg-indigo-500";
   };
@@ -30,7 +30,7 @@ function StatsCard({
       </div>
 
       <div className="mt-5">
-        <div className="w-full bg-slate-100 dark:bg-slate-850 rounded-full h-1.5 overflow-hidden shadow-inner border border-slate-250/20 dark:border-slate-800/40">
+        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden shadow-inner border border-slate-200/20 dark:border-slate-800/40">
           <div
             className={`h-1.5 ${getProgressBarColor()} rounded-full transition-all duration-1000 ease-out`}
             style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
