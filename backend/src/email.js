@@ -109,18 +109,11 @@ export async function sendVerificationEmail(email, otp, name = "") {
   } else {
     // If SMTP is not yet configured:
     console.warn(
-      `[EmailService] Warning: SMTP is not configured. (Set SMTP_HOST, SMTP_USER, SMTP_PASS in .env)`
+      `[EmailService] Warning: SMTP is not configured. Please set SMTP_HOST, SMTP_USER, SMTP_PASS in environment variables.`
     );
-    // In non-production environments, log the OTP for rapid local developer verification
-    if (process.env.NODE_ENV !== "production") {
-      console.info(
-        `\n=========================================\n[DEV OTP] Verification code for ${email}: [ ${otp} ]\n=========================================\n`
-      );
-      return { success: true, delivered: false, devFallback: true };
-    } else {
-      throw new Error(
-        "Email delivery service is not configured. Please contact the administrator."
-      );
-    }
+    console.info(
+      `\n=========================================\n[VERIFICATION OTP] Code for ${email}: [ ${otp} ]\n=========================================\n`
+    );
+    return { success: true, delivered: false, devFallback: true };
   }
 }
