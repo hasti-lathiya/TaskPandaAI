@@ -37,26 +37,75 @@ export function getTransporter() {
 }
 
 /**
- * Verify SMTP connection and credentials
- * @returns {Promise<{ configured: boolean, connected: boolean, error?: string }>}
+ * Verify email connection and credentials across supported providers
+ * @returns {Promise<{ configured: boolean, provider?: string, connected: boolean, error?: string }>}
  */
 export async function verifySmtpConnection() {
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const res = await fetch("https://api.resend.com/api-keys", {
+        headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY.trim()}` },
+      });
+      if (res.ok) {
+        return { configured: true, provider: "resend", connected: true };
+      }
+      return {
+        configured: true,
+        provider: "resend",
+        connected: false,
+        error: "Invalid RESEND_API_KEY",
+      };
+    } catch (err) {
+      return {
+        configured: true,
+        provider: "resend",
+        connected: false,
+        error: err.message,
+      };
+    }
+  }
+
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const res = await fetch("https://api.brevo.com/v3/account", {
+        headers: { "api-key": process.env.BREVO_API_KEY.trim() },
+      });
+      if (res.ok) {
+        return { configured: true, provider: "brevo", connected: true };
+      }
+      return {
+        configured: true,
+        provider: "brevo",
+        connected: false,
+        error: "Invalid BREVO_API_KEY",
+      };
+    } catch (err) {
+      return {
+        configured: true,
+        provider: "brevo",
+        connected: false,
+        error: err.message,
+      };
+    }
+  }
+
   const transport = getTransporter();
   if (!transport) {
     return {
       configured: false,
       connected: false,
-      error: "SMTP credentials (SMTP_HOST, SMTP_USER, SMTP_PASS) are not set.",
+      error: "No email provider configured. On Render Free tier, SMTP ports (25/465/587) are blocked; please set RESEND_API_KEY or BREVO_API_KEY.",
     };
   }
 
   try {
     await transport.verify();
-    return { configured: true, connected: true };
+    return { configured: true, provider: "smtp", connected: true };
   } catch (err) {
     console.error(`[EmailService] SMTP verification failed: ${err.message}`);
     return {
       configured: true,
+      provider: "smtp",
       connected: false,
       error: err.message || "Failed to authenticate or connect with SMTP server.",
     };
@@ -70,13 +119,6 @@ export async function verifySmtpConnection() {
  * @param {string} [name] - User full name if available
  */
 export async function sendVerificationEmail(email, otp, name = "") {
-  const transport = getTransporter();
-
-  if (!transport) {
-    console.error("[OTP] Email send failed: SMTP is not configured. Missing SMTP_HOST, SMTP_USER, or SMTP_PASS.");
-    throw new Error("Email delivery service is not configured. Please contact the administrator.");
-  }
-
   const user = process.env.SMTP_USER;
   const greeting = name ? `Hi ${name},` : "Hello,";
   const fromAddress =
@@ -136,6 +178,84 @@ export async function sendVerificationEmail(email, otp, name = "") {
       </body>
     </html>
   `;
+
+  // Option 1: Resend HTTP API (port 443 HTTPS — works on Render Free Tier!)
+  if (process.env.RESEND_API_KEY) {
+    console.log("[OTP] Email send started (Resend API)");
+    try {
+      const from = process.env.RESEND_FROM || process.env.SMTP_FROM || "TaskPanda AI <onboarding@resend.dev>";
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: [email],
+          subject: `Your TaskPanda AI Verification Code: ${otp}`,
+          text: `Your TaskPanda AI verification code is ${otp}. This code expires in 10 minutes.`,
+          html: htmlContent,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || `Resend error ${response.status}`);
+      }
+
+      console.log("[OTP] Email provider response received");
+      console.log("[OTP] Email send successful");
+      return { success: true, delivered: true, messageId: data.id };
+    } catch (err) {
+      console.error(`[OTP] Email send failed: ${err.message}`);
+      throw new Error(`Email delivery failed: ${err.message}`);
+    }
+  }
+
+  // Option 2: Brevo HTTP API (port 443 HTTPS — works on Render Free Tier!)
+  if (process.env.BREVO_API_KEY) {
+    console.log("[OTP] Email send started (Brevo API)");
+    try {
+      const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || "noreply@taskpanda.ai";
+      const senderName = process.env.BREVO_SENDER_NAME || "TaskPanda AI";
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": process.env.BREVO_API_KEY.trim(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: senderName, email: senderEmail },
+          to: [{ email, name: name || undefined }],
+          subject: `Your TaskPanda AI Verification Code: ${otp}`,
+          textContent: `Your TaskPanda AI verification code is ${otp}. This code expires in 10 minutes.`,
+          htmlContent,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || `Brevo error ${response.status}`);
+      }
+
+      console.log("[OTP] Email provider response received");
+      console.log("[OTP] Email send successful");
+      return { success: true, delivered: true, messageId: data.messageId };
+    } catch (err) {
+      console.error(`[OTP] Email send failed: ${err.message}`);
+      throw new Error(`Email delivery failed: ${err.message}`);
+    }
+  }
+
+  // Option 3: Standard SMTP (Nodemailer)
+  const transport = getTransporter();
+  if (!transport) {
+    console.error("[OTP] Email send failed: No email provider configured.");
+    throw new Error(
+      "Email delivery service is not configured. On Render Free tier, SMTP ports are blocked; please set RESEND_API_KEY or BREVO_API_KEY."
+    );
+  }
 
   console.log("[OTP] Email send started");
   try {
