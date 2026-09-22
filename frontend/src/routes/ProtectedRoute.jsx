@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
 import { useEffect, useState } from "react";
 
@@ -15,22 +15,40 @@ function ProtectedRoute({ children }) {
         return;
       }
 
-      // Check if user is unverified in Firestore
+      // If email is verified in Firebase Auth, ensure Firestore reflects it and allow entry
+      if (currentUser.emailVerified) {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          await updateDoc(userDocRef, { isVerified: true });
+        } catch {
+          // Continue if Firestore write fails (offline, etc.)
+        }
+        setUser(currentUser);
+        setIsVerified(true);
+        return;
+      }
+
+      // If emailVerified is false in Auth, check Firestore as fallback (e.g. manual verification)
       try {
         const userDocRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userDocRef);
-        if (userSnap.exists() && userSnap.data().isVerified === false) {
-          await signOut(auth);
-          setUser(null);
-          setIsVerified(false);
+        if (userSnap.exists() && userSnap.data()?.isVerified === true) {
+          setUser(currentUser);
+          setIsVerified(true);
           return;
         }
       } catch {
         // Continue if offline / emulator
       }
 
-      setUser(currentUser);
-      setIsVerified(true);
+      // User is genuinely unverified: sign out and redirect to login
+      try {
+        await signOut(auth);
+      } catch {
+        // ignore
+      }
+      setUser(null);
+      setIsVerified(false);
     });
 
     return () => unsubscribe();

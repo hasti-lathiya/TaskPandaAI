@@ -6,13 +6,11 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   deleteUser,
-  signOut,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth, db } from "../../firebase/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { getAuthErrorMessage } from "../../utils/authErrors";
-import { requestVerificationOtp } from "../../services/authService";
-
 
 const MIN_PASSWORD_LENGTH = 6;
 
@@ -72,6 +70,7 @@ function Register() {
     // Flag to prevent PublicRoute from prematurely redirecting to /dashboard
     sessionStorage.setItem("registering_in_progress", "true");
 
+    // Stage 1: Account Creation in Firebase Authentication
     try {
       setError("");
       setLoading(true);
@@ -90,12 +89,12 @@ function Register() {
       return;
     }
 
+    // Stage 2: Firestore User Profile Creation
     try {
       await updateProfile(createdUser, {
         displayName: formData.fullName,
       });
 
-      // Create user document in Firestore with isVerified: false
       await setDoc(doc(db, "users", createdUser.uid), {
         fullName: formData.fullName,
         email: normalisedEmail,
@@ -112,35 +111,69 @@ function Register() {
         isVerified: false,
         createdAt: new Date().toISOString(),
       });
+    } catch (firestoreErr) {
+      console.error("Firestore profile creation error:", firestoreErr);
+      try {
+        await deleteUser(createdUser);
+      } catch (rollbackErr) {
+        console.error("User rollback failed after Firestore error:", rollbackErr);
+      }
+      sessionStorage.removeItem("registering_in_progress");
+      setError("Failed to create profile. Please try again.");
+      setLoading(false);
+      return;
+    }
 
-      // Request secure 6-digit OTP code to be sent to user's email
-      await requestVerificationOtp(normalisedEmail, formData.fullName);
+    // Stage 3: Verification Email Dispatch via Firebase Authentication
+    try {
+      const actionCodeSettings = {
+        url: `${window.location.origin}/login?verified=true`,
+        handleCodeInApp: false,
+      };
 
-      // Sign out immediately so unverified users have NO active session or JWT
-      await signOut(auth);
+      console.log("[Firebase Auth] Sending verification email to:", createdUser.email);
+      try {
+        await sendEmailVerification(createdUser, actionCodeSettings);
+      } catch (actionCodeErr) {
+        console.warn("[Firebase Auth] ActionCodeSettings failed, falling back to standard verification:", actionCodeErr);
+        await sendEmailVerification(createdUser);
+      }
+      console.log("[Firebase Auth] Verification email sent successfully");
+
       sessionStorage.removeItem("registering_in_progress");
 
-      // Redirect to Email Verification page
+      // Navigate to verification guidance page
       navigate("/verify-email", {
         replace: true,
         state: { email: normalisedEmail, fullName: formData.fullName },
       });
-    } catch (otpErr) {
-      sessionStorage.removeItem("registering_in_progress");
-      let rolledBack = true;
+    } catch (emailErr) {
+      console.error("Firebase verification email error:", emailErr);
+      console.error("Firebase error code:", emailErr?.code);
+      console.error("Firebase error message:", emailErr?.message);
 
+      // Clean rollback of created user so they can re-attempt registration
       try {
         await deleteUser(createdUser);
-      } catch {
-        rolledBack = false;
+      } catch (rollbackErr) {
+        console.error("User rollback failed after email error:", rollbackErr);
+      }
+      sessionStorage.removeItem("registering_in_progress");
+
+      let friendlyMsg = "Unable to send verification email. Please try again later.";
+      if (emailErr?.code === "auth/too-many-requests") {
+        friendlyMsg = "Too many verification requests. Please wait a few moments before trying again.";
+      } else if (emailErr?.code === "auth/quota-exceeded") {
+        friendlyMsg = "Email service quota exceeded. Please contact support or try again later.";
+      } else if (emailErr?.code === "auth/network-request-failed") {
+        friendlyMsg = "Network error. Please check your internet connection and try again.";
+      } else if (emailErr?.code === "auth/unauthorized-continue-uri") {
+        friendlyMsg = "Email configuration error: The continue domain is not authorized in Firebase Console.";
+      } else if (emailErr?.code === "auth/invalid-continue-uri") {
+        friendlyMsg = "Email configuration error: Invalid continue URL.";
       }
 
-      setError(
-        otpErr.message ||
-          (rolledBack
-            ? "We couldn't complete your registration. Please try again."
-            : "Registration failed. Please contact support.")
-      );
+      setError(friendlyMsg);
       setLoading(false);
       return;
     }

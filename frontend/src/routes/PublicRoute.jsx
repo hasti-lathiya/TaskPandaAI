@@ -25,7 +25,12 @@ function PublicRoute({ children }) {
     return children;
   }
 
-  return user ? <Navigate to="/dashboard" replace /> : children;
+  // Only redirect if the user is authenticated AND email is verified
+  return user && user.emailVerified ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    children
+  );
 }
 
 export default PublicRoute;

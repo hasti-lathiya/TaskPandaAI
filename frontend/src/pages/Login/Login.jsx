@@ -1,23 +1,29 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, RefreshCw } from "lucide-react";
 
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, sendEmailVerification } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebase";
 import { getAuthErrorMessage } from "../../utils/authErrors";
 import { setFlashMessage } from "../../utils/flashMessage";
-import { checkEmailVerified, requestVerificationOtp } from "../../services/authService";
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(location.state?.successMessage || "");
+  const [success, setSuccess] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get("verified") === "true") {
+      return "🎉 Your email has been verified! Please login to continue.";
+    }
+    return location.state?.successMessage || "";
+  });
   const [error, setError] = useState("");
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const [formData, setFormData] = useState({
     email: location.state?.prefillEmail || "",
@@ -31,18 +37,36 @@ function Login() {
     });
   };
 
-  const handleVerifyNow = async () => {
-    if (!unverifiedEmail) return;
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail || resending) return;
     try {
-      setLoading(true);
-      await requestVerificationOtp(unverifiedEmail);
-    } catch {
-      // Continue to verification page even if background send fails
+      setResending(true);
+      setError("");
+      setSuccess("");
+
+      if (formData.password) {
+        const cred = await signInWithEmailAndPassword(auth, unverifiedEmail, formData.password);
+        const actionCodeSettings = {
+          url: `${window.location.origin}/login?verified=true`,
+          handleCodeInApp: false,
+        };
+        try {
+          await sendEmailVerification(cred.user, actionCodeSettings);
+        } catch {
+          await sendEmailVerification(cred.user);
+        }
+        await signOut(auth);
+        setSuccess("A fresh verification link has been sent to your email! Please check your inbox.");
+      } else {
+        navigate("/verify-email", {
+          state: { email: unverifiedEmail },
+        });
+      }
+    } catch (err) {
+      console.error("Resend verification error:", err);
+      setError(getAuthErrorMessage(err));
     } finally {
-      setLoading(false);
-      navigate("/verify-email", {
-        state: { email: unverifiedEmail },
-      });
+      setResending(false);
     }
   };
 
@@ -70,32 +94,31 @@ function Login() {
         formData.password
       );
 
-      const cleanEmail = formData.email.trim().toLowerCase();
-      const userDocRef = doc(db, "users", userCredential.user.uid);
+      const user = userCredential.user;
+      const userDocRef = doc(db, "users", user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
-      let isVerified = true;
-      if (userDocSnap.exists()) {
-        const data = userDocSnap.data();
-        if (data.isVerified === false) {
-          // Verify against backend status
-          const verifiedOnBackend = await checkEmailVerified(cleanEmail);
-          if (verifiedOnBackend) {
-            await updateDoc(userDocRef, { isVerified: true });
-            isVerified = true;
-          } else {
-            isVerified = false;
-          }
-        }
+      // Check email verification status
+      let isVerified = user.emailVerified;
+      if (!isVerified && userDocSnap.exists() && userDocSnap.data()?.isVerified === true) {
+        isVerified = true;
       }
 
       if (!isVerified) {
-        // Strict security: destroy session immediately for unverified users
+        // Destroy session immediately for unverified users
+        const userEmail = user.email || formData.email.trim().toLowerCase();
         await signOut(auth);
-        setError("Your email has not been verified yet. Please verify your email before logging in.");
-        setUnverifiedEmail(cleanEmail);
+        setError("Your email has not been verified yet. Please check your inbox for the verification link before logging in.");
+        setUnverifiedEmail(userEmail);
         setLoading(false);
         return;
+      }
+
+      // Sync Firestore if needed
+      try {
+        await updateDoc(userDocRef, { isVerified: true });
+      } catch (dbErr) {
+        console.warn("Firestore updateDoc error on login:", dbErr);
       }
 
       setFlashMessage("🎉 Login Successful!");
@@ -135,10 +158,18 @@ function Login() {
             {unverifiedEmail && (
               <button
                 type="button"
-                onClick={handleVerifyNow}
+                onClick={handleResendVerification}
+                disabled={resending}
                 className="mt-2.5 font-bold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
-                Verify Email Now &rarr;
+                {resending ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    Sending verification link...
+                  </>
+                ) : (
+                  "Resend Verification Link →"
+                )}
               </button>
             )}
           </div>

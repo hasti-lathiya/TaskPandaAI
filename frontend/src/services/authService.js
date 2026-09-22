@@ -12,7 +12,10 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
     return response;
   } catch (err) {
     if (err.name === "AbortError") {
-      throw new Error("Unable to send verification email. The server took too long to respond. Please check your connection or try again.");
+      throw new Error(
+        "Unable to send verification email. The server took too long to respond. Please check your connection or try again.",
+        { cause: err }
+      );
     }
     throw err;
   } finally {

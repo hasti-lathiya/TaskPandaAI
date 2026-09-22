@@ -1,27 +1,29 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Mail, CheckCircle2, AlertCircle, RefreshCw, ArrowLeft } from "lucide-react";
-import { verifyOtpCode, resendVerificationOtp } from "../../services/authService";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Mail, CheckCircle2, AlertCircle, RefreshCw, ArrowLeft, ExternalLink, ArrowRight } from "lucide-react";
+import { sendEmailVerification, signOut } from "firebase/auth";
+import { doc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../../firebase/firebase";
 
 function VerifyEmail() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [email] = useState(
-    location.state?.email || sessionStorage.getItem("pending_verify_email") || ""
+    () =>
+      location.state?.email ||
+      sessionStorage.getItem("pending_verify_email") ||
+      auth.currentUser?.email ||
+      ""
   );
-  const fullName = location.state?.fullName || "";
 
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const inputRefs = useRef([]);
-
-  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [countdown, setCountdown] = useState(60);
 
-  // Store in sessionStorage so page reload preserves the email
+  // Preserve email in sessionStorage so page reload preserves the email
   useEffect(() => {
     if (email) {
       sessionStorage.setItem("pending_verify_email", email);
@@ -37,109 +39,120 @@ function VerifyEmail() {
     return () => clearInterval(timer);
   }, [countdown]);
 
-  // Handle digit input across the 6 boxes
-  const handleDigitChange = (index, value) => {
-    // Only accept numbers
-    const cleanValue = value.replace(/\D/g, "");
-    if (!cleanValue) {
-      const updated = [...otp];
-      updated[index] = "";
-      setOtp(updated);
-      return;
-    }
-
-    const updated = [...otp];
-    // If user typed/pasted a single digit
-    updated[index] = cleanValue[cleanValue.length - 1];
-    setOtp(updated);
-    setError("");
-
-    // Auto focus next input
-    if (index < 5 && cleanValue) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!pastedData) return;
-
-    const updated = [...otp];
-    for (let i = 0; i < pastedData.length; i++) {
-      updated[i] = pastedData[i];
-    }
-    setOtp(updated);
-    setError("");
-
-    const nextIndex = Math.min(pastedData.length, 5);
-    inputRefs.current[nextIndex]?.focus();
-  };
-
-  const handleSubmit = async (e) => {
-    e?.preventDefault();
-    if (loading) return;
-
-    const otpString = otp.join("");
-    if (otpString.length !== 6) {
-      setError("Please enter the complete 6-digit verification code.");
-      return;
-    }
-
-    if (!email) {
-      setError("Email address is missing. Please return to the registration page.");
-      return;
-    }
-
+  // Check if user has clicked the verification link
+  const handleCheckStatus = async () => {
+    if (checking) return;
     try {
-      setLoading(true);
+      setChecking(true);
       setError("");
       setSuccess("");
 
-      await verifyOtpCode(email, otpString);
-
-      setSuccess("🎉 Email verified successfully! Redirecting to login...");
-      sessionStorage.removeItem("pending_verify_email");
-
-      // Redirect to login after brief celebratory pause
-      setTimeout(() => {
+      const user = auth.currentUser;
+      if (!user) {
         navigate("/login", {
-          replace: true,
-          state: {
-            successMessage: "🎉 Your email has been verified! Please login to continue.",
-            prefillEmail: email,
-          },
+          state: { prefillEmail: email },
         });
-      }, 1500);
+        return;
+      }
+
+      await user.reload();
+
+      if (user.emailVerified) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          await updateDoc(userDocRef, { isVerified: true });
+        } catch (dbErr) {
+          console.warn("Firestore status update failed:", dbErr);
+        }
+
+        setSuccess("🎉 Email verified successfully! Redirecting to dashboard...");
+        sessionStorage.removeItem("pending_verify_email");
+
+        setTimeout(() => {
+          navigate("/dashboard", { replace: true });
+        }, 1200);
+      } else {
+        setError(
+          "Your email is not verified yet. Please check your inbox (and spam folder) and click the verification link."
+        );
+      }
     } catch (err) {
-      setError(err.message || "Invalid verification code.");
-      setLoading(false);
+      console.error("Error checking verification status:", err);
+      setError("Unable to check verification status. Please try logging in.");
+    } finally {
+      setChecking(false);
     }
   };
 
+  // Resend verification email via Firebase Auth native service
   const handleResend = async () => {
-    if (countdown > 0 || resending || !email) return;
+    if (countdown > 0 || resending) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+      setError("Your session expired. Please log in to request a new verification email.");
+      return;
+    }
 
     try {
       setResending(true);
       setError("");
       setSuccess("");
-      await resendVerificationOtp(email, fullName);
-      setSuccess("A fresh verification code has been sent to your email.");
+
+      const actionCodeSettings = {
+        url: `${window.location.origin}/login?verified=true`,
+        handleCodeInApp: false,
+      };
+
+      console.log("[Firebase Auth] Resending verification email to:", user.email);
+      try {
+        await sendEmailVerification(user, actionCodeSettings);
+      } catch (actionCodeErr) {
+        console.warn("[Firebase Auth] Resend fallback without actionCodeSettings:", actionCodeErr);
+        await sendEmailVerification(user);
+      }
+      console.log("[Firebase Auth] Verification email resent successfully");
+
+      setSuccess("A fresh verification link has been sent to your email!");
       setCountdown(60);
-      setOtp(["", "", "", "", "", ""]);
-      inputRefs.current[0]?.focus();
     } catch (err) {
-      setError(err.message || "Unable to send verification email. Please try again.");
+      console.error("Firebase resend verification email error:", err);
+      console.error("Firebase error code:", err?.code);
+      console.error("Firebase error message:", err?.message);
+
+      let friendlyMsg = "Unable to send verification email. Please try again later.";
+      if (err?.code === "auth/too-many-requests") {
+        friendlyMsg = "Too many verification requests. Please wait a few moments before trying again.";
+      } else if (err?.code === "auth/quota-exceeded") {
+        friendlyMsg = "Email service quota exceeded. Please contact support or try again later.";
+      } else if (err?.code === "auth/network-request-failed") {
+        friendlyMsg = "Network error. Please check your internet connection.";
+      }
+
+      setError(friendlyMsg);
     } finally {
       setResending(false);
     }
+  };
+
+  const handleGoToLogin = async () => {
+    try {
+      await signOut(auth);
+    } catch {
+      // ignore
+    }
+    navigate("/login", {
+      state: { prefillEmail: email },
+    });
+  };
+
+  const handleBackToRegister = async () => {
+    try {
+      await signOut(auth);
+    } catch {
+      // ignore
+    }
+    navigate("/register");
   };
 
   return (
@@ -156,7 +169,7 @@ function VerifyEmail() {
           </h2>
 
           <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">
-            We sent a 6-digit verification code to
+            We sent a verification link to
           </p>
 
           <p className="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mt-0.5 break-all">
@@ -184,45 +197,48 @@ function VerifyEmail() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 6-Digit Code Inputs */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center mb-3">
-              Enter 6-Digit Code
-            </label>
-            <div className="flex justify-between gap-2 sm:gap-3" onPaste={handlePaste}>
-              {otp.map((digit, idx) => (
-                <input
-                  key={idx}
-                  ref={(el) => (inputRefs.current[idx] = el)}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  disabled={loading || Boolean(success)}
-                  onChange={(e) => handleDigitChange(idx, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition disabled:opacity-50"
-                  autoFocus={idx === 0}
-                />
-              ))}
-            </div>
+        <div className="space-y-4">
+          <div className="bg-gray-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-gray-100 dark:border-slate-800 text-sm text-gray-600 dark:text-slate-300 leading-relaxed">
+            <p className="mb-2">
+              <strong>Instructions:</strong> Open your email inbox, find the message from TaskPanda AI, and click the <strong>Verify</strong> link.
+            </p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">
+              💡 <em>Didn&apos;t see it? Check your Spam or Junk folder. It may take a minute to arrive.</em>
+            </p>
           </div>
 
-          {/* Verify Button */}
           <button
-            type="submit"
-            disabled={loading || otp.join("").length !== 6 || Boolean(success)}
-            className="w-full bg-indigo-600 dark:bg-indigo-500 text-white py-3.5 rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 transition cursor-pointer font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            type="button"
+            onClick={handleCheckStatus}
+            disabled={checking}
+            className="w-full flex items-center justify-center gap-2 bg-indigo-600 dark:bg-indigo-500 text-white py-3.5 rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 transition cursor-pointer font-medium disabled:opacity-50 shadow-md hover:shadow-lg"
           >
-            {loading ? "Verifying..." : "Verify Email"}
+            {checking ? (
+              <>
+                <RefreshCw size={18} className="animate-spin" />
+                Checking status...
+              </>
+            ) : (
+              <>
+                I&apos;ve Verified My Email
+                <ArrowRight size={18} />
+              </>
+            )}
           </button>
-        </form>
 
-        {/* Resend OTP & Links */}
+          <button
+            type="button"
+            onClick={handleGoToLogin}
+            className="w-full flex items-center justify-center gap-2 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-200 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer font-medium text-sm"
+          >
+            Go to Login
+            <ExternalLink size={14} />
+          </button>
+        </div>
+
         <div className="mt-6 text-center space-y-3">
           <div className="text-sm text-gray-500 dark:text-slate-400">
-            Didn't receive the code?{" "}
+            Didn&apos;t receive the email?{" "}
             {countdown > 0 ? (
               <span className="font-semibold text-slate-700 dark:text-slate-300">
                 Resend in {countdown}s
@@ -235,19 +251,20 @@ function VerifyEmail() {
                 className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
                 <RefreshCw size={14} className={resending ? "animate-spin" : ""} />
-                {resending ? "Sending..." : "Resend Code"}
+                {resending ? "Sending..." : "Resend Link"}
               </button>
             )}
           </div>
 
           <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+            <button
+              type="button"
+              onClick={handleBackToRegister}
+              className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
             >
               <ArrowLeft size={13} />
               Back to Create Account
-            </Link>
+            </button>
           </div>
         </div>
 
