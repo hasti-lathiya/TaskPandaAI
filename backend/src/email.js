@@ -1,4 +1,11 @@
+import dns from "node:dns";
 import nodemailer from "nodemailer";
+
+// Render and cloud container runtimes do not have IPv6 routing enabled.
+// Force Node.js and Nodemailer to resolve IPv4 addresses to prevent ENETUNREACH.
+if (typeof dns.setDefaultResultOrder === "function") {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 let transporter = null;
 
@@ -21,6 +28,7 @@ export function getTransporter() {
       connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 15000,
+      family: 4, // Force IPv4 to prevent ENETUNREACH on cloud environments like Render
     });
     console.log(`[EmailService] Configured SMTP via ${host}:${port}`);
   }
