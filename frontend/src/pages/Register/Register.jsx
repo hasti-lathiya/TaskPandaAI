@@ -11,7 +11,6 @@ import {
 import { auth, db } from "../../firebase/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { getAuthErrorMessage } from "../../utils/authErrors";
-import { setFlashMessage } from "../../utils/flashMessage";
 import { requestVerificationOtp } from "../../services/authService";
 
 

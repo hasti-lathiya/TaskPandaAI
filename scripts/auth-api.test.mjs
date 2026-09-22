@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import http from "node:http";
 import app from "../backend/src/app.js";
+import { setOtpRecord, generateSecureOtp } from "../backend/src/otpStore.js";
 
 console.log("Running Express API router integration tests...\n");
 
@@ -24,19 +25,22 @@ try {
     console.log("✓ API Test 1: Invalid email rejected with 400");
   }
 
-  // Test 2: POST /api/auth/send-otp with valid email
+  // Test 2: POST /api/auth/send-otp without configured SMTP rejects with 503 (no fake delivery)
   {
     const res = await fetch(`${baseUrl}/api/auth/send-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: "integration@panda.edu", fullName: "Panda Student" }),
     });
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 503, "Must return HTTP 503 when SMTP is not configured");
     const data = await res.json();
-    assert.equal(data.success, true);
+    assert.equal(data.success, false);
     assert.equal(data.otp, undefined, "OTP must NEVER be returned in response");
-    console.log("✓ API Test 2: Valid email accepted and OTP kept private");
+    console.log("✓ API Test 2: Unconfigured SMTP correctly rejected with 503 (No fake success)");
   }
+
+  // Seed record for verification and cooldown tests
+  setOtpRecord("integration@panda.edu", generateSecureOtp(), "Panda Student");
 
   // Test 3: POST /api/auth/verify-otp with wrong OTP
   {

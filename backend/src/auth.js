@@ -6,7 +6,7 @@ import {
   getResendStatus,
   isEmailVerified,
 } from "./otpStore.js";
-import { sendVerificationEmail } from "./email.js";
+import { sendVerificationEmail, verifySmtpConnection } from "./email.js";
 
 const authRouter = Router();
 
@@ -34,6 +34,7 @@ authRouter.post("/send-otp", async (req, res) => {
 
     // Generate secure 6-digit code
     const otp = generateSecureOtp();
+    console.log("[OTP] OTP generated");
 
     // Store hashed OTP with rate limiting and expiration
     const recordResult = setOtpRecord(cleanEmail, otp, cleanName);
@@ -53,10 +54,10 @@ authRouter.post("/send-otp", async (req, res) => {
       message: "Verification code sent to your email.",
     });
   } catch (err) {
-    console.error("[Auth API] send-otp error:", err);
-    return res.status(500).json({
+    console.error("[Auth API] send-otp error:", err.message);
+    return res.status(503).json({
       success: false,
-      error: "Failed to send verification email. Please try again later.",
+      error: "Unable to send verification email. Please try again later.",
     });
   }
 });
@@ -138,6 +139,7 @@ authRouter.post("/resend-otp", async (req, res) => {
     }
 
     const otp = generateSecureOtp();
+    console.log("[OTP] OTP generated");
     const recordResult = setOtpRecord(cleanEmail, otp, fullName);
 
     if (!recordResult.success) {
@@ -155,10 +157,33 @@ authRouter.post("/resend-otp", async (req, res) => {
       message: "A new verification code has been sent to your email.",
     });
   } catch (err) {
-    console.error("[Auth API] resend-otp error:", err);
+    console.error("[Auth API] resend-otp error:", err.message);
+    return res.status(503).json({
+      success: false,
+      error: "Unable to send verification email. Please try again later.",
+    });
+  }
+});
+
+/**
+ * GET /api/auth/email-status
+ * Health check for email delivery service without exposing credentials.
+ */
+authRouter.get("/email-status", async (_req, res) => {
+  try {
+    const status = await verifySmtpConnection();
+    return res.json({
+      success: true,
+      configured: status.configured,
+      connected: status.connected,
+      error: status.error || null,
+    });
+  } catch (err) {
     return res.status(500).json({
       success: false,
-      error: "Failed to resend verification code. Please try again later.",
+      configured: false,
+      connected: false,
+      error: err.message,
     });
   }
 });

@@ -2,14 +2,15 @@ import nodemailer from "nodemailer";
 
 let transporter = null;
 
-function getTransporter() {
+export function getTransporter() {
   if (transporter) return transporter;
 
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT) || 587;
   const secure = process.env.SMTP_SECURE === "true" || port === 465;
   const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  // Clean up any spaces in SMTP_PASS (e.g. Google 16-character App Passwords "xxxx yyyy zzzz wwww")
+  const pass = process.env.SMTP_PASS ? String(process.env.SMTP_PASS).replace(/\s+/g, "") : "";
 
   if (host && user && pass) {
     transporter = nodemailer.createTransport({
@@ -17,11 +18,41 @@ function getTransporter() {
       port,
       secure,
       auth: { user, pass },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
-    console.log(`[EmailService] Configured SMTP via ${host}:${port} as ${user}`);
+    console.log(`[EmailService] Configured SMTP via ${host}:${port}`);
   }
 
   return transporter;
+}
+
+/**
+ * Verify SMTP connection and credentials
+ * @returns {Promise<{ configured: boolean, connected: boolean, error?: string }>}
+ */
+export async function verifySmtpConnection() {
+  const transport = getTransporter();
+  if (!transport) {
+    return {
+      configured: false,
+      connected: false,
+      error: "SMTP credentials (SMTP_HOST, SMTP_USER, SMTP_PASS) are not set.",
+    };
+  }
+
+  try {
+    await transport.verify();
+    return { configured: true, connected: true };
+  } catch (err) {
+    console.error(`[EmailService] SMTP verification failed: ${err.message}`);
+    return {
+      configured: true,
+      connected: false,
+      error: err.message || "Failed to authenticate or connect with SMTP server.",
+    };
+  }
 }
 
 /**
@@ -32,9 +63,16 @@ function getTransporter() {
  */
 export async function sendVerificationEmail(email, otp, name = "") {
   const transport = getTransporter();
+
+  if (!transport) {
+    console.error("[OTP] Email send failed: SMTP is not configured. Missing SMTP_HOST, SMTP_USER, or SMTP_PASS.");
+    throw new Error("Email delivery service is not configured. Please contact the administrator.");
+  }
+
+  const user = process.env.SMTP_USER;
   const greeting = name ? `Hi ${name},` : "Hello,";
   const fromAddress =
-    process.env.SMTP_FROM || `"TaskPanda AI" <noreply@taskpanda.ai>`;
+    process.env.SMTP_FROM || (user ? `"TaskPanda AI" <${user}>` : `"TaskPanda AI" <noreply@taskpanda.ai>`);
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -91,29 +129,20 @@ export async function sendVerificationEmail(email, otp, name = "") {
     </html>
   `;
 
-  if (transport) {
-    try {
-      const info = await transport.sendMail({
-        from: fromAddress,
-        to: email,
-        subject: `Your TaskPanda AI Verification Code: ${otp}`,
-        text: `Your TaskPanda AI verification code is ${otp}. This code expires in 10 minutes.`,
-        html: htmlContent,
-      });
-      console.log(`[EmailService] Sent OTP to ${email} (Message ID: ${info.messageId})`);
-      return { success: true, delivered: true };
-    } catch (err) {
-      console.error(`[EmailService] Failed to send email to ${email}:`, err);
-      throw new Error(`Email delivery failed: ${err.message}`);
-    }
-  } else {
-    // If SMTP is not yet configured:
-    console.warn(
-      `[EmailService] Warning: SMTP is not configured. Please set SMTP_HOST, SMTP_USER, SMTP_PASS in environment variables.`
-    );
-    console.info(
-      `\n=========================================\n[VERIFICATION OTP] Code for ${email}: [ ${otp} ]\n=========================================\n`
-    );
-    return { success: true, delivered: false, devFallback: true };
+  console.log("[OTP] Email send started");
+  try {
+    const info = await transport.sendMail({
+      from: fromAddress,
+      to: email,
+      subject: `Your TaskPanda AI Verification Code: ${otp}`,
+      text: `Your TaskPanda AI verification code is ${otp}. This code expires in 10 minutes.`,
+      html: htmlContent,
+    });
+    console.log("[OTP] Email provider response received");
+    console.log("[OTP] Email send successful");
+    return { success: true, delivered: true, messageId: info.messageId };
+  } catch (err) {
+    console.error(`[OTP] Email send failed: ${err.message}`);
+    throw new Error(`Email delivery failed: ${err.message}`);
   }
 }

@@ -7,7 +7,7 @@ function VerifyEmail() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState(
+  const [email] = useState(
     location.state?.email || sessionStorage.getItem("pending_verify_email") || ""
   );
   const fullName = location.state?.fullName || "";
@@ -129,13 +129,14 @@ function VerifyEmail() {
     try {
       setResending(true);
       setError("");
+      setSuccess("");
       await resendVerificationOtp(email, fullName);
       setSuccess("A fresh verification code has been sent to your email.");
       setCountdown(60);
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } catch (err) {
-      setError(err.message || "Failed to resend code. Please wait a moment.");
+      setError(err.message || "Unable to send verification email. Please try again.");
     } finally {
       setResending(false);
     }

@@ -1,10 +1,30 @@
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("Unable to send verification email. The server took too long to respond. Please check your connection or try again.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 /**
  * Request a 6-digit verification code to be emailed to user
  */
 export async function requestVerificationOtp(email, fullName = "") {
-  const response = await fetch(`${API_BASE}/api/auth/send-otp`, {
+  const response = await fetchWithTimeout(`${API_BASE}/api/auth/send-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -14,8 +34,8 @@ export async function requestVerificationOtp(email, fullName = "") {
   });
 
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to send verification email.");
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "Unable to send verification email. Please try again.");
   }
 
   return data;
@@ -25,7 +45,7 @@ export async function requestVerificationOtp(email, fullName = "") {
  * Verify the 6-digit code with the backend
  */
 export async function verifyOtpCode(email, otp) {
-  const response = await fetch(`${API_BASE}/api/auth/verify-otp`, {
+  const response = await fetchWithTimeout(`${API_BASE}/api/auth/verify-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -50,7 +70,7 @@ export async function verifyOtpCode(email, otp) {
  * Resend a new verification code, subject to cooldown
  */
 export async function resendVerificationOtp(email, fullName = "") {
-  const response = await fetch(`${API_BASE}/api/auth/resend-otp`, {
+  const response = await fetchWithTimeout(`${API_BASE}/api/auth/resend-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -60,8 +80,8 @@ export async function resendVerificationOtp(email, fullName = "") {
   });
 
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error(data.error || "Failed to resend code.");
+  if (!response.ok || !data.success) {
+    const error = new Error(data.error || "Unable to send verification email. Please try again.");
     error.remainingSeconds = data.remainingSeconds;
     throw error;
   }
