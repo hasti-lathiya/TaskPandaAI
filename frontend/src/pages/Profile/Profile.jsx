@@ -225,10 +225,6 @@ function Profile() {
           
           {/* Profile Hero Card */}
           <div className="glass-premium rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm relative overflow-hidden transition-colors duration-300">
-            <div className="absolute right-4 sm:right-8 top-4 sm:top-8 text-6xl sm:text-8xl opacity-5 select-none pointer-events-none">
-              {companionEmoji}
-            </div>
-
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               
               {/* Avatar and Details */}
