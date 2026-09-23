@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
+import { ChevronDown } from "lucide-react";
 
 import MainLayout from "../../layouts/MainLayout";
 import TaskCard from "./TaskCard";
@@ -27,6 +28,41 @@ import {
 } from "firebase/firestore";
 
 import { sortTasks, filterTasks } from "../../utils/taskSorting";
+
+const getCategoryEmoji = (category) => {
+  switch (category) {
+    case "All":
+      return "📋";
+    case "College":
+      return "🎓";
+    case "Internship":
+      return "💼";
+    case "Personal":
+      return "🏠";
+    case "Work":
+      return "💻";
+    case "Fitness":
+    case "Health":
+    case "Gym":
+      return "💪";
+    case "Finance":
+    case "Money":
+      return "💰";
+    case "Coding":
+    case "Project":
+      return "⚡";
+    case "Shopping":
+      return "🛒";
+    case "Gaming":
+      return "🎮";
+    case "Design":
+      return "🎨";
+    case "Other":
+      return "📦";
+    default:
+      return "🏷️";
+  }
+};
 
 function Tasks() {
   const { addNotification } = useNotifications();
@@ -86,6 +122,51 @@ function Tasks() {
       setSelectedCategory("All");
     }
   };
+
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const handleClickOutside = (e) => {
+      if (moreRef.current && !moreRef.current.contains(e.target)) {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [moreOpen]);
+
+  // Split into visible primary pills and overflow categories (tucked in 'More')
+  const { visibleCategories, overflowCategories } = useMemo(() => {
+    const BASE_CATEGORIES = ["All", "College", "Internship", "Personal"];
+
+    // If total categories is 5 or less, show all directly without dropdown
+    if (categories.length <= 5) {
+      return {
+        visibleCategories: categories,
+        overflowCategories: [],
+      };
+    }
+
+    // When there are more than 5, keep base categories visible
+    const overflow = categories.filter((c) => !BASE_CATEGORIES.includes(c));
+    const selectedIsOverflow = overflow.includes(selectedCategory);
+
+    // If an overflow category is currently active, promote it to visible so user can see it
+    const visible = [
+      ...BASE_CATEGORIES,
+      ...(selectedIsOverflow ? [selectedCategory] : []),
+    ];
+
+    // Rest of overflow goes into dropdown (excluding the currently active one)
+    const dropdownItems = overflow.filter((c) => c !== selectedCategory);
+
+    return {
+      visibleCategories: visible,
+      overflowCategories: dropdownItems,
+    };
+  }, [categories, selectedCategory]);
 
   const completedTasks = tasks.filter((task) => task.completed).length;
   const pendingTasks = tasks.filter((task) => !task.completed).length;
@@ -456,34 +537,49 @@ function Tasks() {
       {/* Category Filter */}
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
 
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-2.5 flex-wrap items-center">
 
-          {categories.map((category) => {
-            const isBase = ["All", "College", "Internship", "Personal", "Other"].includes(category);
+          {visibleCategories.map((category) => {
+            const isBase = ["All", "College", "Internship", "Personal"].includes(category);
             const taskCount = category === "All"
               ? tasks.length
               : tasks.filter((t) => t.category === category).length;
-            const canDelete = !isBase && taskCount === 0;
+            const isSelected = selectedCategory === category;
+            const canDeselect = !isBase && isSelected;
 
             return (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                aria-pressed={selectedCategory === category}
+                aria-pressed={isSelected}
                 className={`group px-4 py-2.5 rounded-xl transition cursor-pointer text-sm font-bold border flex items-center gap-1.5 ${
-                  selectedCategory === category
+                  isSelected
                     ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm shadow-indigo-500/10 glow-active"
                     : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
                 <span>{category}</span>
-                {canDelete && (
+                {category !== "All" && (
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                      isSelected
+                        ? "bg-indigo-500/20 text-indigo-700 dark:text-indigo-300"
+                        : "bg-slate-200/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                    }`}
+                  >
+                    {taskCount}
+                  </span>
+                )}
+                {canDeselect && (
                   <span
                     role="button"
                     tabIndex={0}
-                    onClick={(e) => removeCustomCategory(e, category)}
-                    title={`Remove unused tag "${category}"`}
-                    className="ml-1 text-xs opacity-60 hover:opacity-100 hover:text-red-500 transition-opacity p-0.5"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCategory("All");
+                    }}
+                    title="Clear filter"
+                    className="ml-1 text-xs opacity-70 hover:opacity-100 hover:text-red-500 transition-opacity p-0.5"
                   >
                     ×
                   </span>
@@ -491,6 +587,81 @@ function Tasks() {
               </button>
             );
           })}
+
+          {/* More Categories Dropdown (shown when overflow categories exist) */}
+          {overflowCategories.length > 0 && (
+            <div ref={moreRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreOpen((prev) => !prev)}
+                aria-expanded={moreOpen}
+                className={`px-4 py-2.5 rounded-xl transition cursor-pointer text-sm font-bold border flex items-center gap-2 ${
+                  moreOpen
+                    ? "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+                    : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>More ({overflowCategories.length})</span>
+                <ChevronDown
+                  size={15}
+                  className={`transition-transform duration-200 text-slate-400 ${
+                    moreOpen ? "rotate-180 text-indigo-500" : ""
+                  }`}
+                />
+              </button>
+
+              {moreOpen && (
+                <div className="absolute left-0 top-full mt-2 z-50 w-64 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-1.5 shadow-2xl shadow-slate-900/20 dark:shadow-black/70 backdrop-blur-md scrollbar-thin">
+                  <div className="px-3 py-1.5 text-[11px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">
+                    More Categories
+                  </div>
+                  <div className="space-y-0.5">
+                    {overflowCategories.map((cat) => {
+                      const taskCount = tasks.filter((t) => t.category === cat).length;
+                      const isBase = ["All", "College", "Internship", "Personal", "Other"].includes(cat);
+                      const canDelete = !isBase && taskCount === 0;
+
+                      return (
+                        <div
+                          key={cat}
+                          className="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition group cursor-pointer"
+                          onClick={() => {
+                            setSelectedCategory(cat);
+                            setMoreOpen(false);
+                          }}
+                        >
+                          <span className="truncate flex items-center gap-2">
+                            <span>{getCategoryEmoji(cat)}</span>
+                            <span className="truncate">{cat}</span>
+                          </span>
+
+                          <div className="flex items-center gap-1.5 ml-2 flex-shrink-0">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-400 font-semibold">
+                              {taskCount}
+                            </span>
+
+                            {canDelete && (
+                              <button
+                                type="button"
+                                title={`Delete unused tag "${cat}"`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeCustomCategory(e, cat);
+                                }}
+                                className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
 
