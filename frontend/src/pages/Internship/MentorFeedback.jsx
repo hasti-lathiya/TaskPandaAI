@@ -51,23 +51,23 @@ function MentorFeedback() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-lg p-6 mt-6 transition-colors duration-300">
+    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 transition-colors duration-300">
 
-      <h2 className="text-2xl font-bold mb-5 text-slate-800 dark:text-slate-100">
+      <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-slate-100">
         ⭐ Mentor Feedback
       </h2>
 
       <textarea
-        rows="5"
+        rows="3"
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
         placeholder="Write mentor feedback here..."
-        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm"
       />
 
       <button
         onClick={saveFeedback}
-        className="mt-5 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-6 py-3 rounded-xl transition cursor-pointer font-medium"
+        className="mt-4 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-6 py-3 rounded-xl transition cursor-pointer font-medium text-sm"
       >
         Save Feedback
       </button>

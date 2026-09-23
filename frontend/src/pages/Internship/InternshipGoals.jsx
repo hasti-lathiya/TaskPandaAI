@@ -84,7 +84,7 @@ function InternshipGoals() {
   const progress = Math.round((completed / 3) * 100);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-lg p-6 mt-6 transition-colors duration-300">
+    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 transition-colors duration-300">
 
       <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-slate-100">
         🎯 Internship Goals

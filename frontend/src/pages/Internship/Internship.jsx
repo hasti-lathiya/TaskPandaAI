@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { auth, db } from "../../firebase/firebase";
 import { doc, collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -34,6 +34,42 @@ function Internship() {
     const completedGoals = Number(goalHours) + Number(loggedToday) + Number(completedToday);
     return Math.round((completedGoals / 3) * 100);
   }, [todayHours, loggedToday, completedToday]);
+
+  const rightColRef = useRef(null);
+
+  // Synchronize the right-side sticky cards with the main scroll progress
+  // so that when the left side reaches 100% bottom, the right side is also
+  // 100% scrolled and cards are never left half-scrolled or cut off.
+  useEffect(() => {
+    const mainEl = document.querySelector("main");
+    if (!mainEl) return;
+
+    const handleScroll = () => {
+      const rightCol = rightColRef.current;
+      if (!rightCol) return;
+
+      if (window.innerWidth < 1024) return;
+
+      const maxScrollMain = mainEl.scrollHeight - mainEl.clientHeight;
+      if (maxScrollMain <= 0) return;
+
+      const scrollRatio = mainEl.scrollTop / maxScrollMain;
+      const maxScrollRight = rightCol.scrollHeight - rightCol.clientHeight;
+
+      if (maxScrollRight > 0) {
+        rightCol.scrollTop = scrollRatio * maxScrollRight;
+      }
+    };
+
+    mainEl.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      mainEl.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     let unsubscribeUser = null;
@@ -342,8 +378,11 @@ function Internship() {
             <MonthlyReport />
           </div>
 
-          {/* Right Column (1/3 Width) - Settings and Quick Inputs (Sticky on scroll) */}
-          <div className="space-y-8 lg:sticky lg:top-6 self-start max-h-[calc(100vh-2rem)] overflow-y-auto scrollbar-none pb-4">
+          {/* Right Column (1/3 Width) - Settings and Quick Inputs (Synchronized sticky scroll) */}
+          <div
+            ref={rightColRef}
+            className="space-y-6 lg:sticky lg:top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-hidden scrollbar-none pb-2"
+          >
             <HoursTracker todayHours={todayHours} setTodayHours={setTodayHours} />
             <InternshipGoals />
             <MentorFeedback />
