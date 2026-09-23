@@ -94,7 +94,7 @@ function ForgotPassword() {
                 Email Address
               </label>
 
-              <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-xl px-4 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-indigo-500 transition duration-150">
+              <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-xl px-4 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 transition duration-150">
                 <Mail className="text-gray-400 dark:text-slate-400" size={20} />
                 <input
                   id="forgot-email"

@@ -530,7 +530,7 @@ function Tasks() {
           placeholder="🔍 Search tasks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base shadow border border-gray-200 dark:border-slate-800 outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base shadow border border-gray-200 dark:border-slate-800 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
         />
       </div>
 

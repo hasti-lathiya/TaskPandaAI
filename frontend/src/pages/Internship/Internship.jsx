@@ -339,7 +339,7 @@ function Internship() {
                 onChange={(e) => setWeeklyTasks(e.target.value)}
                 aria-invalid={Boolean(reportError)}
                 placeholder="Example:&#10;• Created Login Page&#10;• Integrated Firebase Authentication&#10;• Fixed Sidebar Bugs"
-                className="w-full bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 h-32 sm:h-36 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-xs sm:text-sm"
+                className="w-full bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 h-32 sm:h-36 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 resize-none text-xs sm:text-sm"
               />
 
               {reportError && (

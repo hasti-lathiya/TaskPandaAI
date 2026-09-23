@@ -779,7 +779,7 @@ function TeamDetails() {
                   placeholder="🔍 Search tasks by title or description..."
                   value={taskSearch}
                   onChange={(e) => setTaskSearch(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                 />
               </div>
 
@@ -1027,7 +1027,7 @@ function TeamDetails() {
                     value={taskTitle}
                     onChange={(e) => setTaskTitle(e.target.value)}
                     placeholder="Enter task title"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm sm:text-base"
                   />
                 </div>
 
@@ -1041,7 +1041,7 @@ function TeamDetails() {
                     value={taskDesc}
                     onChange={(e) => setTaskDesc(e.target.value)}
                     placeholder="Provide details on the assignment"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm sm:text-base"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 resize-none text-sm sm:text-base"
                   />
                 </div>
 
@@ -1072,7 +1072,7 @@ function TeamDetails() {
                       min={new Date().toLocaleDateString("en-CA")}
                       value={taskDueDate}
                       onChange={(e) => setTaskDueDate(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm"
                     />
                   </div>
                 </div>
@@ -1248,7 +1248,7 @@ function TeamDetails() {
                           value={feedbackText}
                           onChange={(e) => setFeedbackText(e.target.value)}
                           placeholder="Give feedback on this work..."
-                          className="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-2 sm:py-2.5 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-2 sm:py-2.5 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                         />
                         <button
                           type="submit"
@@ -1315,7 +1315,7 @@ function TeamDetails() {
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Type comments, links or updates..."
-                    className="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-2.5 sm:py-3 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-2.5 sm:py-3 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                   />
                   <button
                     type="submit"
@@ -1365,7 +1365,7 @@ function TeamDetails() {
                     value={editTeamName}
                     onChange={(e) => setEditTeamName(e.target.value)}
                     placeholder="Enter team name"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm sm:text-base"
                   />
                 </div>
 
@@ -1379,7 +1379,7 @@ function TeamDetails() {
                     value={editTeamDesc}
                     onChange={(e) => setEditTeamDesc(e.target.value)}
                     placeholder="What is this team working on?"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm sm:text-base"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 resize-none text-sm sm:text-base"
                   />
                 </div>
 
@@ -1400,7 +1400,7 @@ function TeamDetails() {
                         value={newEditMemberEmail}
                         onChange={(e) => setNewEditMemberEmail(e.target.value)}
                         placeholder="collaborator@domain.com"
-                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm"
                       />
                     </div>
 

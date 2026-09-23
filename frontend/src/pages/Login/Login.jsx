@@ -197,7 +197,7 @@ function Login() {
               Email
             </label>
 
-            <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-xl px-4 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-indigo-500">
+            <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-xl px-4 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500">
 
               <Mail className="text-gray-400 dark:text-slate-400" size={20} />
 
@@ -226,7 +226,7 @@ function Login() {
               Password
             </label>
 
-            <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-xl px-4 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-indigo-500">
+            <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-xl px-4 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500">
 
               <Lock className="text-gray-400 dark:text-slate-400" size={20} />
 

@@ -62,7 +62,7 @@ function MentorFeedback() {
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
         placeholder="Write mentor feedback here..."
-        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-xs sm:text-sm"
+        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 resize-none text-xs sm:text-sm"
       />
 
       <button

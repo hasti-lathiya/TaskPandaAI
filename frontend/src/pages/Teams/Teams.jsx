@@ -479,7 +479,7 @@ function Teams() {
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder="Enter team name"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm sm:text-base"
                   />
                 </div>
 
@@ -493,7 +493,7 @@ function Teams() {
                     value={teamDesc}
                     onChange={(e) => setTeamDesc(e.target.value)}
                     placeholder="What is this team working on?"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm sm:text-base"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 resize-none text-sm sm:text-base"
                   />
                 </div>
 
@@ -514,7 +514,7 @@ function Teams() {
                         value={newMemberEmail}
                         onChange={(e) => setNewMemberEmail(e.target.value)}
                         placeholder="collaborator@domain.com"
-                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm"
                       />
                     </div>
 

@@ -257,7 +257,7 @@ function Profile() {
                           aria-label="Full name"
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-extrabold text-base sm:text-xl px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto"
+                          className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-extrabold text-base sm:text-xl px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 w-full sm:w-auto"
                         />
                         <button
                           onClick={handleSaveProfile}
@@ -282,7 +282,7 @@ function Profile() {
                           value={editRole}
                           onChange={(e) => setEditRole(e.target.value)}
                           placeholder="Student Role"
-                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300 w-full sm:w-auto"
+                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-slate-700 dark:text-slate-300 w-full sm:w-auto"
                         />
                         <input
                           type="text"
@@ -291,7 +291,7 @@ function Profile() {
                           value={editMajor}
                           onChange={(e) => setEditMajor(e.target.value)}
                           placeholder="Major Field"
-                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300 w-full sm:w-auto"
+                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-slate-700 dark:text-slate-300 w-full sm:w-auto"
                         />
                       </div>
                       <input
@@ -301,7 +301,7 @@ function Profile() {
                         value={editBio}
                         onChange={(e) => setEditBio(e.target.value)}
                         placeholder="Bio"
-                        className="w-full max-w-sm bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300"
+                        className="w-full max-w-sm bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-slate-700 dark:text-slate-300"
                       />
                     </div>
                   ) : (
@@ -653,7 +653,7 @@ function Profile() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm"
                     />
                   </div>
 
@@ -668,7 +668,7 @@ function Profile() {
                       onChange={(e) => setNewPassword(e.target.value)}
                       minLength={MIN_PASSWORD_LENGTH}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm"
                     />
                   </div>
 
@@ -683,7 +683,7 @@ function Profile() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       minLength={MIN_PASSWORD_LENGTH}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm"
                     />
                   </div>
 
