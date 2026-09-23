@@ -12,18 +12,18 @@ function AchievementsPanel() {
   const { achievements, loading, unlockedCount, totalCount } = useAchievements();
 
   return (
-    <div className="glass-premium rounded-[24px] p-8 shadow-sm">
-      <div className="flex justify-between items-center mb-8">
+    <div className="glass-premium rounded-2xl sm:rounded-[24px] p-4 sm:p-8 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
             🏆 Achievements
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
             Unlock badges by staying productive
           </p>
         </div>
 
-        <div className="bg-indigo-500/10 dark:bg-indigo-500/25 text-indigo-700 dark:text-indigo-400 px-4.5 py-2 rounded-2xl font-bold text-sm border border-indigo-500/10 dark:border-indigo-500/30 shadow-sm">
+        <div className="bg-indigo-500/10 dark:bg-indigo-500/25 text-indigo-700 dark:text-indigo-400 px-3.5 sm:px-4.5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm border border-indigo-500/10 dark:border-indigo-500/30 shadow-sm">
           {unlockedCount} / {totalCount}
         </div>
       </div>
@@ -34,7 +34,7 @@ function AchievementsPanel() {
           <span className="text-sm font-semibold">Loading achievements...</span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {achievements.map((a) => (
             <div
               key={a.id}

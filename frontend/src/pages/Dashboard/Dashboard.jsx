@@ -104,12 +104,12 @@ function Dashboard() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 space-y-8 animate-fade-in">
+      <div className="max-w-7xl mx-auto py-2 space-y-6 sm:space-y-8 animate-fade-in">
         {successBanner && (
           <div
             role="status"
             aria-live="polite"
-            className="relative bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300 p-4 pr-12 rounded-2xl font-bold text-sm text-center shadow-sm animate-fade-in"
+            className="relative bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300 p-3.5 sm:p-4 pr-12 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm text-center shadow-sm animate-fade-in"
           >
             {successBanner}
 
@@ -128,8 +128,8 @@ function Dashboard() {
 
         <StreakRepairCard userStats={userStats} />
 
-        {/* Dynamic Statistics Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Dynamic Statistics Cards Grid (2x2 on mobile, 4-col on desktop) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatsCard
             title="📋 Total Tasks"
             value={stats.total}
@@ -160,7 +160,7 @@ function Dashboard() {
         </div>
 
         {/* Interactive Analytics and Tasks */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
           <ProductivityChart />
           <RecentTasks />
         </div>

@@ -35,31 +35,31 @@ function WelcomeCard({ userStats }) {
   const pendingTasksCount = tasks.filter((t) => !t.completed).length;
 
   return (
-    <div className="bg-white/40 dark:bg-[#0f172a]/40 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-[32px] p-8 mb-8 transition-all duration-500 relative overflow-hidden shadow-sm shadow-indigo-500/5">
+    <div className="bg-white/40 dark:bg-[#0f172a]/40 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-2xl sm:rounded-[32px] p-4 sm:p-6 xl:p-8 mb-6 sm:mb-8 transition-all duration-500 relative overflow-hidden shadow-sm shadow-indigo-500/5">
       <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 dark:bg-pink-600/3 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto flex flex-col xl:flex-row justify-between items-center gap-8 xl:gap-16 w-full">
+      <div className="max-w-7xl mx-auto flex flex-col xl:flex-row justify-between items-center gap-6 xl:gap-16 w-full">
         {/* Left Side: Welcome and motivation */}
-        <div className="flex-grow max-w-xl flex flex-col gap-6">
+        <div className="flex-grow max-w-xl flex flex-col gap-4 sm:gap-6 w-full">
           <div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center text-3xl shadow-inner border border-white/20 dark:border-slate-800/40 select-none animate-float">
+            <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center text-2xl sm:text-3xl shadow-inner border border-white/20 dark:border-slate-800/40 select-none animate-float shrink-0">
                 👋
               </div>
               <div>
-                <h1 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-slate-50 tracking-tight leading-tight">
+                <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-slate-800 dark:text-slate-50 tracking-tight leading-tight">
                   {headline}
                 </h1>
               </div>
             </div>
 
-            <p className="text-slate-600 dark:text-slate-400 text-base font-medium leading-relaxed max-w-lg">
+            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-base font-medium leading-relaxed max-w-lg">
               Small daily improvements build massive long-term success. What's your top priority right now?
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <button
               onClick={async () => {
                 const taskTitle = window.prompt("Enter quick task title:");
@@ -89,71 +89,71 @@ function WelcomeCard({ userStats }) {
                   }
                 }
               }}
-              className="bg-slate-900 hover:bg-slate-800 dark:bg-slate-800/80 dark:hover:bg-slate-700/85 hover:shadow-lg dark:hover:shadow-indigo-500/10 border border-slate-800 dark:border-slate-700 px-5 py-3 rounded-2xl text-sm font-bold text-white dark:text-slate-100 transition duration-300 transform active:scale-95 cursor-pointer flex items-center gap-2 shadow-sm"
+              className="bg-slate-900 hover:bg-slate-800 dark:bg-slate-800/80 dark:hover:bg-slate-700/85 hover:shadow-lg dark:hover:shadow-indigo-500/10 border border-slate-800 dark:border-slate-700 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-white dark:text-slate-100 transition duration-300 transform active:scale-95 cursor-pointer flex items-center gap-1.5 sm:gap-2 shadow-sm"
             >
               ➕ Quick Task
             </button>
             <button
               onClick={() => alert(`You have ${pendingTasksCount} pending tasks to prioritize today.`)}
-              className="bg-emerald-500/10 dark:bg-emerald-500/20 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30 border border-emerald-500/10 dark:border-emerald-500/40 px-5 py-3 rounded-2xl text-sm font-bold text-emerald-700 dark:text-emerald-400 transition duration-300 transform active:scale-95 cursor-pointer flex items-center gap-2 shadow-sm"
+              className="bg-emerald-500/10 dark:bg-emerald-500/20 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30 border border-emerald-500/10 dark:border-emerald-500/40 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 transition duration-300 transform active:scale-95 cursor-pointer flex items-center gap-1.5 sm:gap-2 shadow-sm"
             >
-              🎯 Today's Focus ({pendingTasksCount} Pending)
+              🎯 Today's Focus ({pendingTasksCount})
             </button>
-            <span className="bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-200/30 dark:border-indigo-800/40 px-5 py-3 rounded-2xl text-sm font-bold text-indigo-700 dark:text-indigo-400 shadow-sm flex items-center justify-center gap-2">
-              🐾 Companion Level {level}
+            <span className="bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-200/30 dark:border-indigo-800/40 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-indigo-700 dark:text-indigo-400 shadow-sm flex items-center justify-center gap-1.5 sm:gap-2">
+              🐾 Lv. {level}
             </span>
           </div>
         </div>
 
         {/* Right Side: Interactive Frosted Panda Companion */}
-        <div className="w-full xl:w-[620px] min-h-[300px] flex-shrink-0 bg-white/60 dark:bg-[#070b14]/50 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-[32px] p-10 shadow-md flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden glass-hover group">
+        <div className="w-full xl:w-[620px] min-h-0 sm:min-h-[300px] flex-shrink-0 bg-white/60 dark:bg-[#070b14]/50 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-2xl sm:rounded-[32px] p-4 sm:p-8 xl:p-10 shadow-md flex flex-col sm:flex-row items-center gap-4 sm:gap-8 relative overflow-hidden glass-hover group">
           <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 dark:via-indigo-500/2 dark:to-indigo-500/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700" />
           
-          <div className="flex-shrink-0 bg-gradient-to-tr from-indigo-500/5 to-pink-500/5 dark:from-slate-800 dark:to-slate-800 p-6 rounded-[28px] border border-white/60 dark:border-slate-800 shadow-inner animate-float select-none">
+          <div className="flex-shrink-0 bg-gradient-to-tr from-indigo-500/5 to-pink-500/5 dark:from-slate-800 dark:to-slate-800 p-3.5 sm:p-6 rounded-2xl sm:rounded-[28px] border border-white/60 dark:border-slate-800 shadow-inner animate-float select-none">
             <PandaAvatar level={level} companion={equippedCompanion} />
           </div>
 
           <div className="flex-1 w-full relative z-10">
             <div className="flex justify-between items-center mb-1.5">
-              <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-1.5 tracking-tight">
+              <h3 className="font-bold text-base sm:text-lg text-slate-800 dark:text-slate-100 flex items-center gap-1.5 tracking-tight">
                 {equippedCompanion} Companion
               </h3>
-              <span className="bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-extrabold px-3 py-1 rounded-full border border-indigo-200/30">
+              <span className="bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-extrabold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border border-indigo-200/30">
                 Lv. {level}
               </span>
             </div>
             
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4.5 font-semibold">
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mb-3 sm:mb-4.5 font-semibold">
               Help your companion grow by completing tasks
             </p>
 
             {/* Progress Bar */}
-            <div className="mb-5">
+            <div className="mb-4 sm:mb-5">
               <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 font-bold mb-1.5">
                 <span>Growth Progress</span>
                 <span>{progress}/100 XP</span>
               </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden shadow-inner border border-slate-200/20 dark:border-slate-800/40">
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 sm:h-3 overflow-hidden shadow-inner border border-slate-200/20 dark:border-slate-800/40">
                 <div
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-700"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2.5 sm:h-3 rounded-full transition-all duration-700"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
 
             {/* Gamification Stats badges */}
-            <div className="grid grid-cols-3 gap-3.5">
-              <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 dark:from-amber-950/20 dark:to-amber-950/30 rounded-2xl py-4 px-3 border border-amber-500/10 dark:border-amber-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-amber-500/30 shadow-sm">
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">🪙 Coins</p>
-                <p className="text-xl font-black text-amber-700 dark:text-amber-300 mt-1">{coins}</p>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
+              <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 dark:from-amber-950/20 dark:to-amber-950/30 rounded-xl sm:rounded-2xl py-2.5 sm:py-4 px-2 sm:px-3 border border-amber-500/10 dark:border-amber-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-amber-500/30 shadow-sm">
+                <p className="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">🪙 Coins</p>
+                <p className="text-base sm:text-xl font-black text-amber-700 dark:text-amber-300 mt-0.5 sm:mt-1">{coins}</p>
               </div>
-              <div className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 dark:from-rose-950/20 dark:to-rose-950/30 rounded-2xl py-4 px-3 border border-rose-500/10 dark:border-rose-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-rose-500/30 shadow-sm">
-                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider">🔥 Streak</p>
-                <p className="text-xl font-black text-rose-700 dark:text-rose-400 mt-1">{streak} Days</p>
+              <div className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 dark:from-rose-950/20 dark:to-rose-950/30 rounded-xl sm:rounded-2xl py-2.5 sm:py-4 px-2 sm:px-3 border border-rose-500/10 dark:border-rose-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-rose-500/30 shadow-sm">
+                <p className="text-[10px] sm:text-[11px] text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider">🔥 Streak</p>
+                <p className="text-base sm:text-xl font-black text-rose-700 dark:text-rose-400 mt-0.5 sm:mt-1">{streak}d</p>
               </div>
-              <div className="bg-gradient-to-br from-indigo-500/5 to-indigo-500/10 dark:from-indigo-950/20 dark:to-indigo-950/30 rounded-2xl py-4 px-3 border border-indigo-500/10 dark:border-indigo-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-indigo-500/30 shadow-sm">
-                <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">🏆 Badges</p>
-                <p className="text-xl font-black text-indigo-700 dark:text-indigo-300 mt-1">{unlockedCount}/{totalCount}</p>
+              <div className="bg-gradient-to-br from-indigo-500/5 to-indigo-500/10 dark:from-indigo-950/20 dark:to-indigo-950/30 rounded-xl sm:rounded-2xl py-2.5 sm:py-4 px-2 sm:px-3 border border-indigo-500/10 dark:border-indigo-900/30 text-center relative overflow-hidden transition-all duration-300 hover:border-indigo-500/30 shadow-sm">
+                <p className="text-[10px] sm:text-[11px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">🏆 Badges</p>
+                <p className="text-base sm:text-xl font-black text-indigo-700 dark:text-indigo-300 mt-0.5 sm:mt-1">{unlockedCount}/{totalCount}</p>
               </div>
             </div>
           </div>
