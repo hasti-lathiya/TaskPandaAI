@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { db, auth } from "../../firebase/firebase";
 import {
   collection,
@@ -9,17 +9,32 @@ import { useNotifications } from "../../context/NotificationContext";
 import { createPortal } from "react-dom";
 import CustomSelect from "../../components/Common/CustomSelect";
 
-function AddTaskModal({ isOpen, onClose }) {
-const { addNotification } = useNotifications();
-const [title, setTitle] = useState("");
-const [priority, setPriority] = useState("Medium");
-const [dueDate, setDueDate] = useState("");
-const [category, setCategory] = useState("College");
+function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
+  const { addNotification } = useNotifications();
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState("Medium");
+  const [dueDate, setDueDate] = useState("");
+  const [category, setCategory] = useState("College");
+  const [customCategory, setCustomCategory] = useState("");
 
-const [estimatedDuration, setEstimatedDuration] = useState(30);
-const [energyLevel, setEnergyLevel] = useState("Medium");
-const [description, setDescription] = useState("");
+  const [estimatedDuration, setEstimatedDuration] = useState(30);
+  const [energyLevel, setEnergyLevel] = useState("Medium");
+  const [description, setDescription] = useState("");
 
+  const categoryOptions = useMemo(() => {
+    const base = ["College", "Internship", "Personal"];
+    const custom = new Set();
+    (existingCategories || []).forEach((c) => {
+      if (c && !["All", "College", "Internship", "Personal", "Other"].includes(c)) {
+        custom.add(c);
+      }
+    });
+    return [
+      ...base,
+      ...Array.from(custom).sort((a, b) => a.localeCompare(b)),
+      "Other",
+    ];
+  }, [existingCategories]);
 
   if (!isOpen) return null;
 
@@ -31,31 +46,54 @@ const [description, setDescription] = useState("");
       return;
     }
 
+    let finalCategory = category;
+    if (category === "Other") {
+      const trimmed = customCategory.trim();
+      if (trimmed) {
+        finalCategory = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+      } else {
+        finalCategory = "Other";
+      }
+    }
+
     try {
       await addDoc(collection(db, "tasks"), {
-      title,
-      description,
-      category,
-      priority,
-      dueDate,
-      estimatedDuration,
-      energyLevel,
-      completed: false,
-      userId: auth.currentUser.uid,
-      createdAt: serverTimestamp(),
-    });
+        title,
+        description,
+        category: finalCategory,
+        priority,
+        dueDate,
+        estimatedDuration,
+        energyLevel,
+        completed: false,
+        userId: auth.currentUser.uid,
+        createdAt: serverTimestamp(),
+      });
 
       await addNotification("Task Created 🎯", `Task Created: ${title}`, "task");
+
+      // Persist custom category locally so it survives future task deletions
+      if (finalCategory && !["College", "Internship", "Personal", "Other"].includes(finalCategory)) {
+        try {
+          const saved = JSON.parse(localStorage.getItem("taskpanda_custom_categories") || "[]");
+          if (!saved.includes(finalCategory)) {
+            localStorage.setItem("taskpanda_custom_categories", JSON.stringify([...saved, finalCategory]));
+          }
+        } catch {
+          // Ignore localStorage errors
+        }
+      }
 
       setTitle("");
       setPriority("Medium");
       setDueDate("");
       setCategory("College");
+      setCustomCategory("");
       setEstimatedDuration(30);
       setEnergyLevel("Medium");
       setDescription("");
 
-      onClose();
+      onClose(finalCategory);
 
     } catch (error) {
       alert(error.message);
@@ -180,11 +218,37 @@ const [description, setDescription] = useState("");
             <CustomSelect
               ariaLabel="Category"
               value={category}
-              onChange={(val) => setCategory(val)}
-              options={["College", "Internship", "Personal", "Other"]}
+              onChange={(val) => {
+                setCategory(val);
+                if (val !== "Other") {
+                  setCustomCategory("");
+                }
+              }}
+              options={categoryOptions}
               buttonClassName="!rounded-2xl !p-4"
             />
           </div>
+
+          {/* Custom Category Input (shown when Other is selected) */}
+          {category === "Other" && (
+            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+              <label className="block text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                Custom Category / Reason
+              </label>
+
+              <input
+                type="text"
+                placeholder="Enter custom category (e.g. Work, Fitness, Freelance)..."
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border-2 border-indigo-500/40 dark:border-indigo-500/50 rounded-2xl p-4 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                autoFocus
+              />
+              <p className="text-xs text-slate-500 dark:text-slate-400 pl-1">
+                ✨ This will automatically create a new filter tag on your tasks page.
+              </p>
+            </div>
+          )}
 
           {/* Due Date */}
 

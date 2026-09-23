@@ -28,8 +28,6 @@ import {
 
 import { sortTasks, filterTasks } from "../../utils/taskSorting";
 
-const CATEGORIES = ["All", "College", "Internship", "Personal", "Other"];
-
 function Tasks() {
   const { addNotification } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
@@ -44,6 +42,50 @@ function Tasks() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [taskPendingDelete, setTaskPendingDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Custom categories saved in localStorage
+  const [savedCustomCategories, setSavedCustomCategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem("taskpanda_custom_categories");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Dynamically compute all available categories
+  const categories = useMemo(() => {
+    const base = ["All", "College", "Internship", "Personal"];
+    const custom = new Set(savedCustomCategories);
+    tasks.forEach((t) => {
+      const cat = t.category?.trim();
+      if (cat && !["All", "College", "Internship", "Personal", "Other"].includes(cat)) {
+        custom.add(cat);
+      }
+    });
+    return [
+      ...base,
+      ...Array.from(custom).sort((a, b) => a.localeCompare(b)),
+      "Other",
+    ];
+  }, [tasks, savedCustomCategories]);
+
+  // Remove a custom category if it has no tasks associated
+  const removeCustomCategory = (e, cat) => {
+    e.stopPropagation();
+    setSavedCustomCategories((prev) => {
+      const next = prev.filter((c) => c !== cat);
+      try {
+        localStorage.setItem("taskpanda_custom_categories", JSON.stringify(next));
+      } catch (err) {
+        console.error(err);
+      }
+      return next;
+    });
+    if (selectedCategory === cat) {
+      setSelectedCategory("All");
+    }
+  };
 
   const completedTasks = tasks.filter((task) => task.completed).length;
   const pendingTasks = tasks.filter((task) => !task.completed).length;
@@ -416,20 +458,39 @@ function Tasks() {
 
         <div className="flex gap-3 flex-wrap">
 
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              aria-pressed={selectedCategory === category}
-              className={`px-4 py-2.5 rounded-xl transition cursor-pointer text-sm font-bold border ${
-                selectedCategory === category
-                  ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm shadow-indigo-500/10 glow-active"
-                  : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+          {categories.map((category) => {
+            const isBase = ["All", "College", "Internship", "Personal", "Other"].includes(category);
+            const taskCount = category === "All"
+              ? tasks.length
+              : tasks.filter((t) => t.category === category).length;
+            const canDelete = !isBase && taskCount === 0;
+
+            return (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                aria-pressed={selectedCategory === category}
+                className={`group px-4 py-2.5 rounded-xl transition cursor-pointer text-sm font-bold border flex items-center gap-1.5 ${
+                  selectedCategory === category
+                    ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm shadow-indigo-500/10 glow-active"
+                    : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span>{category}</span>
+                {canDelete && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => removeCustomCategory(e, category)}
+                    title={`Remove unused tag "${category}"`}
+                    className="ml-1 text-xs opacity-60 hover:opacity-100 hover:text-red-500 transition-opacity p-0.5"
+                  >
+                    ×
+                  </span>
+                )}
+              </button>
+            );
+          })}
 
         </div>
 
@@ -528,21 +589,39 @@ function Tasks() {
       {/* Add Task Modal */}
       <AddTaskModal
         isOpen={isOpen}
-        onClose={() => {
+        onClose={(newCategory) => {
           setIsOpen(false);
           loadTasks();
+          if (newCategory && typeof newCategory === "string") {
+            if (!["All", "College", "Internship", "Personal", "Other"].includes(newCategory)) {
+              setSavedCustomCategories((prev) =>
+                prev.includes(newCategory) ? prev : [...prev, newCategory]
+              );
+            }
+            setSelectedCategory(newCategory);
+          }
         }}
+        existingCategories={categories}
       />
 
       {editOpen && selectedTask && (
         <EditTaskModal
           isOpen={editOpen}
-          onClose={() => {
+          onClose={(updatedCategory) => {
             setEditOpen(false);
             setSelectedTask(null);
             loadTasks();
+            if (updatedCategory && typeof updatedCategory === "string") {
+              if (!["All", "College", "Internship", "Personal", "Other"].includes(updatedCategory)) {
+                setSavedCustomCategories((prev) =>
+                  prev.includes(updatedCategory) ? prev : [...prev, updatedCategory]
+                );
+              }
+              setSelectedCategory(updatedCategory);
+            }
           }}
           task={selectedTask}
+          existingCategories={categories}
         />
       )}
 

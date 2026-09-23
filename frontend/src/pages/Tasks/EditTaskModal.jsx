@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { db } from "../../firebase/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { createPortal } from "react-dom";
@@ -8,19 +8,49 @@ function EditTaskModal({
   isOpen,
   onClose,
   task,
+  existingCategories = [],
 }) {
   const [title, setTitle] = useState(task?.title || "");
   const [priority, setPriority] = useState(task?.priority || "Medium");
   const [category, setCategory] = useState(task?.category || "Other");
+  const [customCategory, setCustomCategory] = useState("");
   const [dueDate, setDueDate] = useState(task?.dueDate || "");
   const [estimatedDuration, setEstimatedDuration] = useState(task?.estimatedDuration || 30);
   const [energyLevel, setEnergyLevel] = useState(task?.energyLevel || "Medium");
   const [description, setDescription] = useState(task?.description || "");
 
+  const categoryOptions = useMemo(() => {
+    const base = ["College", "Internship", "Personal"];
+    const custom = new Set();
+    (existingCategories || []).forEach((c) => {
+      if (c && !["All", "College", "Internship", "Personal", "Other"].includes(c)) {
+        custom.add(c);
+      }
+    });
+    if (task?.category && !base.includes(task.category) && task.category !== "Other") {
+      custom.add(task.category);
+    }
+    return [
+      ...base,
+      ...Array.from(custom).sort((a, b) => a.localeCompare(b)),
+      "Other",
+    ];
+  }, [existingCategories, task?.category]);
+
   const handleSave = async () => {
     if (!title.trim()) {
       alert("Please enter task title.");
       return;
+    }
+
+    let finalCategory = category;
+    if (category === "Other") {
+      const trimmed = customCategory.trim();
+      if (trimmed) {
+        finalCategory = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+      } else {
+        finalCategory = "Other";
+      }
     }
 
     try {
@@ -33,16 +63,26 @@ function EditTaskModal({
       await updateDoc(taskRef, {
         title,
         description,
-        category,
+        category: finalCategory,
         priority,
         dueDate,
         estimatedDuration: Number(estimatedDuration),
         energyLevel,
       });
 
-      alert("✅ Task Updated Successfully!");
+      // Persist custom category locally so it survives future task deletions
+      if (finalCategory && !["College", "Internship", "Personal", "Other"].includes(finalCategory)) {
+        try {
+          const saved = JSON.parse(localStorage.getItem("taskpanda_custom_categories") || "[]");
+          if (!saved.includes(finalCategory)) {
+            localStorage.setItem("taskpanda_custom_categories", JSON.stringify([...saved, finalCategory]));
+          }
+        } catch {
+          // Ignore
+        }
+      }
 
-      onClose();
+      onClose(finalCategory);
 
     } catch (error) {
       console.log(error);
@@ -176,11 +216,37 @@ function EditTaskModal({
             <CustomSelect
               ariaLabel="Category"
               value={category}
-              onChange={(val) => setCategory(val)}
-              options={["College", "Internship", "Personal", "Other"]}
+              onChange={(val) => {
+                setCategory(val);
+                if (val !== "Other") {
+                  setCustomCategory("");
+                }
+              }}
+              options={categoryOptions}
               buttonClassName="!rounded-2xl !p-4"
             />
           </div>
+
+          {/* Custom Category Input (shown when Other is selected) */}
+          {category === "Other" && (
+            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+              <label className="block text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                Custom Category / Reason
+              </label>
+
+              <input
+                type="text"
+                placeholder="Enter custom category (e.g. Work, Fitness, Freelance)..."
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border-2 border-indigo-500/40 dark:border-indigo-500/50 rounded-2xl p-4 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                autoFocus
+              />
+              <p className="text-xs text-slate-500 dark:text-slate-400 pl-1">
+                ✨ This will automatically update your filter tags.
+              </p>
+            </div>
+          )}
 
           {/* Due Date */}
 

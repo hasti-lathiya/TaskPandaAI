@@ -15,15 +15,28 @@ function TaskCard({
     switch (task.category) {
       case "College":
         return "🎓";
-
       case "Internship":
         return "💼";
-
       case "Personal":
         return "🏠";
-
-      default:
+      case "Work":
+        return "💻";
+      case "Fitness":
+      case "Health":
+      case "Gym":
+        return "💪";
+      case "Finance":
+      case "Money":
+        return "💰";
+      case "Coding":
+      case "Project":
+        return "⚡";
+      case "Shopping":
+        return "🛒";
+      case "Other":
         return "📦";
+      default:
+        return "🏷️";
     }
   };
 
