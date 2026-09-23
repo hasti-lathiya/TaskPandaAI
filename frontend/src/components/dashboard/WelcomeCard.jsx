@@ -26,9 +26,9 @@ function WelcomeCard({ userStats }) {
     if (hour >= 5 && hour < 12) {
       return `Ready to conquer today's goals, ${nameToShow}?`;
     } else if (hour >= 12 && hour < 17) {
-      return `Keep up the momentum, ${nameToShow}! ⚡`;
+      return `Keep up the momentum, ${nameToShow}!`;
     } else {
-      return `Reflect on today's wins, ${nameToShow} ✨`;
+      return `Reflect on today's wins, ${nameToShow}!`;
     }
   }, [nameToShow]);
 
