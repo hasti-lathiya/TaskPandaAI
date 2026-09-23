@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { db, auth } from "../../firebase/firebase";
 import MainLayout from "../../layouts/MainLayout";
+import CustomSelect from "../../components/Common/CustomSelect";
 import { recommendTeamAssignee } from "../../services/gemini";
 import { runAchievementChecks } from "../../services/achievements";
 import { awardXpOnce } from "../../services/rewards";
@@ -778,19 +779,19 @@ function TeamDetails() {
               </div>
 
               <div className="w-full md:w-64">
-                <select
-                  aria-label="Filter tasks by assignee"
+                <CustomSelect
+                  ariaLabel="Filter tasks by assignee"
                   value={memberFilter}
-                  onChange={(e) => setMemberFilter(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer text-slate-800 dark:text-slate-100"
-                >
-                  <option value="All">👤 Filter by Assignee: All</option>
-                  {team.members?.map((m) => (
-                    <option key={m.email} value={m.email}>
-                      {m.email}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setMemberFilter(val)}
+                  buttonClassName="!bg-slate-50 dark:!bg-slate-800 !rounded-2xl !py-3"
+                  options={[
+                    { value: "All", label: "👤 Filter by Assignee: All" },
+                    ...(team.members?.map((m) => ({
+                      value: m.email,
+                      label: m.email,
+                    })) || []),
+                  ]}
+                />
               </div>
             </div>
 
@@ -1044,20 +1045,16 @@ function TeamDetails() {
                     <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
                       Assignee
                     </label>
-                    <select
-                      aria-label="Assign task to"
-                      required
+                    <CustomSelect
+                      ariaLabel="Assign task to"
+                      placeholder="Select Assignee"
                       value={taskAssignee}
-                      onChange={(e) => setTaskAssignee(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm cursor-pointer"
-                    >
-                      <option value="">Select Assignee</option>
-                      {team.members.map((m) => (
-                        <option key={m.email} value={m.email}>
-                          {m.email} ({m.role})
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setTaskAssignee(val)}
+                      options={team.members.map((m) => ({
+                        value: m.email,
+                        label: `${m.email} (${m.role})`,
+                      }))}
+                    />
                   </div>
 
                   <div>
@@ -1161,17 +1158,18 @@ function TeamDetails() {
                   <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">
                     Task Status
                   </label>
-                  <select
-                    aria-label="Task status"
+                  <CustomSelect
+                    ariaLabel="Task status"
                     value={selectedTask.status}
-                    onChange={(e) => handleUpdateStatus(selectedTask.id, e.target.value)}
+                    onChange={(val) => handleUpdateStatus(selectedTask.id, val)}
                     disabled={Boolean(statusUpdatingId)}
-                    className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                  >
-                    <option value="pending">Pending ⏳</option>
-                    <option value="in_progress">In Progress 🚀</option>
-                    <option value="completed">Completed ✅</option>
-                  </select>
+                    buttonClassName="!py-2 font-semibold !rounded-xl min-w-[160px]"
+                    options={[
+                      { value: "pending", label: "Pending ⏳" },
+                      { value: "in_progress", label: "In Progress 🚀" },
+                      { value: "completed", label: "Completed ✅" },
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -1404,15 +1402,15 @@ function TeamDetails() {
                       <label className="block mb-2 text-xs font-semibold text-gray-500 dark:text-slate-400">
                         Role
                       </label>
-                      <select
-                        aria-label="New member role"
+                      <CustomSelect
+                        ariaLabel="New member role"
                         value={newEditMemberRole}
-                        onChange={(e) => setNewEditMemberRole(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm cursor-pointer"
-                      >
-                        <option value="internal">Internal</option>
-                        <option value="external">External</option>
-                      </select>
+                        onChange={(val) => setNewEditMemberRole(val)}
+                        options={[
+                          { value: "internal", label: "Internal" },
+                          { value: "external", label: "External" },
+                        ]}
+                      />
                     </div>
 
                     <button

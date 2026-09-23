@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { db, auth } from "../../firebase/firebase";
 import MainLayout from "../../layouts/MainLayout";
+import CustomSelect from "../../components/Common/CustomSelect";
 import { isValidEmail } from "../../utils/validation";
 
 function Teams() {
@@ -521,15 +522,16 @@ function Teams() {
                       <label className="block mb-2 text-xs font-semibold text-gray-500 dark:text-slate-400" htmlFor="member-role">
                         Role
                       </label>
-                      <select
+                      <CustomSelect
                         id="member-role"
+                        ariaLabel="Member Role"
                         value={newMemberRole}
-                        onChange={(e) => setNewMemberRole(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm cursor-pointer text-slate-800 dark:text-slate-100"
-                      >
-                        <option value="internal">Internal</option>
-                        <option value="external">External</option>
-                      </select>
+                        onChange={(val) => setNewMemberRole(val)}
+                        options={[
+                          { value: "internal", label: "Internal" },
+                          { value: "external", label: "External" },
+                        ]}
+                      />
                     </div>
 
                     <button
