@@ -276,32 +276,46 @@ function AIScheduler() {
                   return (
                     <div
                       key={index}
-                      className="flex flex-col sm:grid sm:grid-cols-[20px_130px_1fr_auto] items-start sm:items-center gap-1.5 sm:gap-4 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800/60"
+                      className="p-3 sm:px-4 sm:py-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors border-b border-gray-100 dark:border-slate-800/60 last:border-b-0"
                     >
-                      <div className="flex items-center justify-between w-full sm:w-auto sm:contents">
-                        <div className="flex items-center gap-2.5 sm:gap-0">
-                          <div
-                            className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full ${dots[badge] || dots[category] || "bg-slate-500"} shadow-sm flex-shrink-0`}
-                          />
-                          <div className="font-bold text-indigo-600 dark:text-indigo-400 text-xs sm:text-sm">
-                            {time}
-                          </div>
+                      {/* Desktop View (sm and up) */}
+                      <div className="hidden sm:flex sm:items-center sm:gap-4 w-full">
+                        <div
+                          className={`w-3 h-3 rounded-full ${dots[badge] || dots[category] || "bg-slate-500"} shadow-sm shrink-0`}
+                        />
+                        <div className="font-bold text-indigo-600 dark:text-indigo-400 text-sm shrink-0 min-w-[170px] whitespace-nowrap">
+                          {time}
+                        </div>
+                        <div className="font-semibold text-slate-800 dark:text-slate-100 text-sm flex-1 min-w-0 truncate">
+                          {task}
                         </div>
                         <div
-                          className={`sm:hidden px-2.5 py-1 rounded-full text-center text-[10px] font-bold ${colors[badge] || colors[category] || "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}
+                          className={`px-3 py-1 rounded-full text-center text-xs font-bold shrink-0 ${colors[badge] || colors[category] || "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}
                         >
                           {badge || category}
                         </div>
                       </div>
 
-                      <div className="font-medium sm:font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-base sm:pr-4 pl-5 sm:pl-0">
-                        {task}
-                      </div>
-
-                      <div
-                        className={`hidden sm:inline-block px-3 py-1.5 rounded-2xl text-center text-xs font-bold ${colors[badge] || colors[category] || "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}
-                      >
-                        {badge || category}
+                      {/* Mobile View (< sm) */}
+                      <div className="sm:hidden flex flex-col gap-1.5 w-full">
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className={`w-2.5 h-2.5 rounded-full ${dots[badge] || dots[category] || "bg-slate-500"} shrink-0`}
+                            />
+                            <span className="font-bold text-indigo-600 dark:text-indigo-400 text-xs whitespace-nowrap">
+                              {time}
+                            </span>
+                          </div>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${colors[badge] || colors[category] || "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}
+                          >
+                            {badge || category}
+                          </span>
+                        </div>
+                        <div className="pl-4.5 font-semibold text-slate-800 dark:text-slate-100 text-xs leading-snug">
+                          {task}
+                        </div>
                       </div>
                     </div>
                   );
