@@ -234,7 +234,7 @@ function Sidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 lg:static lg:h-screen flex flex-col justify-between bg-white/95 dark:bg-[#070b14]/95 lg:bg-white/70 lg:dark:bg-[#070b14]/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/70 p-3 sm:p-4 pb-6 transition-all duration-300 ease-in-out flex-shrink-0 ${
+      className={`fixed inset-y-0 left-0 z-50 lg:static lg:h-screen flex flex-col justify-between bg-white dark:bg-[#0B0F19] border-r border-slate-200 dark:border-slate-800 p-3 sm:p-4 pb-6 transition-all duration-300 ease-in-out flex-shrink-0 shadow-[1px_0_3px_0_rgba(0,0,0,0.02)] ${
         isCollapsed ? "lg:w-20 w-72 max-w-[85vw]" : "lg:w-64 w-72 max-w-[85vw]"
       } ${
         isOpen ? "translate-x-0 shadow-2xl shadow-black/40" : "-translate-x-full lg:translate-x-0"
@@ -250,16 +250,16 @@ function Sidebar({
             <div className="flex items-center gap-2.5 min-w-0">
               <span className="text-2xl sm:text-3xl flex-shrink-0 select-none">🐼</span>
               <div className="min-w-0">
-                <h1 className="text-xl font-black text-slate-800 dark:text-white tracking-tight truncate">
+                <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                   TaskPanda
                 </h1>
-                <p className="text-slate-400 dark:text-slate-500 text-[10px] font-bold tracking-wider uppercase truncate">
+                <p className="text-slate-500 dark:text-slate-400 text-[10.5px] font-bold tracking-wider uppercase whitespace-nowrap">
                   Productivity Platform
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0 ml-1">
               {/* Desktop Collapse Button */}
               <button
                 onClick={onToggleCollapse}
@@ -313,16 +313,16 @@ function Sidebar({
               title={isCollapsed ? item.name : undefined}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center rounded-2xl transition-all duration-200 text-sm ${
+                `flex items-center rounded-xl transition-all duration-150 text-sm ${
                   isCollapsed
                     ? "justify-center p-2.5"
-                    : "gap-3.5 px-3.5 py-2.5"
+                    : "gap-3 px-3 py-2.5"
                 } ${
                   isActive
                     ? isCollapsed
-                      ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 ring-2 ring-indigo-500/40 shadow-sm"
-                      : "bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 font-bold border-l-2 border-indigo-500 glow-active shadow-sm"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 font-medium"
+                      ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500/40 font-bold shadow-xs"
+                      : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold border-l-4 border-indigo-600 dark:border-indigo-500 shadow-xs"
+                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 font-semibold"
                 }`
               }
             >
@@ -347,10 +347,10 @@ function Sidebar({
             localStorage.removeItem("app_study_hours");
             window.location.href = "/login";
           }}
-          className={`flex items-center rounded-2xl transition-all duration-200 text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/20 cursor-pointer mt-3 ${
+          className={`flex items-center rounded-xl transition-all duration-150 text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer mt-3 ${
             isCollapsed
               ? "justify-center p-2.5"
-              : "gap-3.5 px-3.5 py-2.5"
+              : "gap-3 px-3 py-2.5"
           }`}
         >
           <LogOut size={20} className="text-red-500 dark:text-red-400 flex-shrink-0" />
@@ -360,18 +360,16 @@ function Sidebar({
 
       {/* Bottom Companion Card - Expanded */}
       {!isCollapsed && (
-        <div className="mt-4 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 dark:from-slate-900/40 dark:via-slate-900/30 dark:to-indigo-950/20 border border-slate-200/50 dark:border-slate-800/60 rounded-2xl p-3.5 flex-shrink-0 flex items-center gap-3 relative overflow-hidden shadow-sm">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
-          
-          <div className="text-3xl animate-float flex-shrink-0 select-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
+        <div className="mt-4 bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 flex-shrink-0 flex items-center gap-3 relative overflow-hidden shadow-xs">
+          <div className="text-3xl animate-float flex-shrink-0 select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
             {getCompanionEmoji()}
           </div>
 
           <div className="flex-1 min-w-0">
-            <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs mb-0.5 truncate tracking-tight">
+            <h4 className="font-bold text-slate-800 dark:text-slate-100 text-xs leading-snug">
               {getCompanionLabel()}
             </h4>
-            <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate">
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
               Grow with tasks & goals
             </p>
           </div>
@@ -382,7 +380,7 @@ function Sidebar({
       {isCollapsed && (
         <div 
           title={`${getCompanionLabel()} - Active Companion`}
-          className="mt-4 mx-auto w-11 h-11 rounded-2xl bg-indigo-500/10 dark:bg-indigo-950/50 border border-indigo-500/20 flex items-center justify-center text-2xl flex-shrink-0 cursor-pointer hover:scale-105 transition-transform select-none shadow-sm"
+          className="mt-4 mx-auto w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center text-2xl flex-shrink-0 cursor-pointer hover:scale-105 transition-transform select-none shadow-xs"
         >
           {getCompanionEmoji()}
         </div>

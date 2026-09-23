@@ -35,16 +35,13 @@ function WelcomeCard({ userStats }) {
   const pendingTasksCount = tasks.filter((t) => !t.completed).length;
 
   return (
-    <div className="bg-white/40 dark:bg-[#0f172a]/40 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-2xl sm:rounded-[32px] p-4 sm:p-6 xl:p-8 mb-6 sm:mb-8 transition-all duration-500 relative overflow-hidden shadow-sm shadow-indigo-500/5">
-      <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 dark:bg-pink-600/3 rounded-full blur-[100px] pointer-events-none" />
-
+    <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-4 sm:p-6 xl:p-8 mb-6 sm:mb-8 transition-all duration-300 relative overflow-hidden shadow-xs">
       <div className="max-w-7xl mx-auto flex flex-col xl:flex-row justify-between items-center gap-6 xl:gap-16 w-full">
         {/* Left Side: Welcome and motivation */}
         <div className="flex-grow max-w-xl flex flex-col gap-4 sm:gap-6 w-full">
           <div>
             <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center text-2xl sm:text-3xl shadow-inner border border-white/20 dark:border-slate-800/40 select-none animate-float shrink-0">
+              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-2xl sm:text-3xl border border-indigo-100 dark:border-indigo-900/50 select-none animate-float shrink-0">
                 👋
               </div>
               <div>
@@ -105,11 +102,9 @@ function WelcomeCard({ userStats }) {
           </div>
         </div>
 
-        {/* Right Side: Interactive Frosted Panda Companion */}
-        <div className="w-full xl:w-[620px] min-h-0 sm:min-h-[300px] flex-shrink-0 bg-white/60 dark:bg-[#070b14]/50 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-2xl sm:rounded-[32px] p-4 sm:p-8 xl:p-10 shadow-md flex flex-col sm:flex-row items-center gap-4 sm:gap-8 relative overflow-hidden glass-hover group">
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 dark:via-indigo-500/2 dark:to-indigo-500/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700" />
-          
-          <div className="flex-shrink-0 bg-gradient-to-tr from-indigo-500/5 to-pink-500/5 dark:from-slate-800 dark:to-slate-800 p-3.5 sm:p-6 rounded-2xl sm:rounded-[28px] border border-white/60 dark:border-slate-800 shadow-inner animate-float select-none">
+        {/* Right Side: Companion Hero Card */}
+        <div className="w-full xl:w-[620px] min-h-0 sm:min-h-[300px] flex-shrink-0 bg-slate-50 dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-4 sm:p-8 xl:p-10 shadow-xs flex flex-col sm:flex-row items-center gap-4 sm:gap-8 relative overflow-hidden group">
+          <div className="flex-shrink-0 bg-white dark:bg-slate-800 p-3.5 sm:p-6 rounded-2xl sm:rounded-[28px] border border-slate-200 dark:border-slate-700 shadow-xs animate-float select-none">
             <PandaAvatar level={level} companion={equippedCompanion} />
           </div>
 

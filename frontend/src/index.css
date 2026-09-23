@@ -214,46 +214,44 @@ body {
   animation: fadeIn 0.6s forwards cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Frosted Glassmorphism Utility */
+/* Crisp Modern Card Surface Utility */
 .glass-premium {
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.7);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark .glass-premium {
-  background-color: rgba(17, 24, 39, 0.65);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 65, 85, 0.45);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  background-color: #111827;
+  border: 1px solid #1e293b;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
 }
 
-/* Hover elevation with subtle glow */
+/* Hover elevation with crisp lift */
 .glass-hover {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-hover:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 20px 35px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
 }
 
 .dark .glass-hover:hover {
   border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 20px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
 }
 
-/* Glow highlights for navigation active states */
+/* Crisp highlights for navigation active states */
 .glow-active {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   border-color: rgba(99, 102, 241, 0.45) !important;
 }
 
 .dark .glow-active {
-  box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
   border-color: rgba(99, 102, 241, 0.55) !important;
 }
 

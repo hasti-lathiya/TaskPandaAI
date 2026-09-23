@@ -51,12 +51,10 @@ function StreakRepairCard({ userStats }) {
   };
 
   return (
-    <div className="bg-white/40 dark:bg-[#0f172a]/40 backdrop-blur-xl border border-amber-300/60 dark:border-amber-500/30 rounded-2xl sm:rounded-[32px] p-4 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden shadow-sm shadow-amber-500/5">
-      <div className="absolute top-0 right-0 w-72 h-72 bg-amber-500/10 dark:bg-amber-600/5 rounded-full blur-[100px] pointer-events-none" />
-
+    <div className="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 rounded-2xl sm:rounded-[32px] p-4 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden shadow-xs">
       <div className="relative flex flex-col lg:flex-row lg:items-center gap-4 sm:gap-6 justify-between">
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-xl sm:rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center border border-amber-400/20">
+          <div className="w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-xl sm:rounded-2xl bg-amber-500/15 dark:bg-amber-500/25 flex items-center justify-center border border-amber-400/30">
             <Flame className="text-amber-500" size={24} />
           </div>
 
