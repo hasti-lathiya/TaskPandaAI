@@ -324,7 +324,7 @@ function Companion() {
           </div>
         ) : (
           /* 2-Column Split Grid (8/12 Left, 4/12 Right) */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
 
             {/* Left Column - Marketplace List (8/12) */}
             <div className="lg:col-span-8 space-y-6">
@@ -436,7 +436,7 @@ function Companion() {
             </div>
 
             {/* Right Column - Equipped Preview (4/12) */}
-            <div className="lg:col-span-4 space-y-6">
+            <div className="lg:col-span-4 lg:sticky lg:top-6 lg:self-start space-y-6">
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 border-b border-gray-100 dark:border-slate-800/80 pb-2">
                 Active Companion
               </h3>
