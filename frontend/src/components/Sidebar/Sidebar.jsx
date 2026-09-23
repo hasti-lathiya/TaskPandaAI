@@ -9,12 +9,21 @@ import {
   Users,
   LogOut,
   X,
+  ChevronLeft,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 
-function Sidebar({ isOpen = false, onClose = () => {} }) {
+function Sidebar({ 
+  isOpen = false, 
+  onClose = () => {},
+  isCollapsed = false,
+  onToggleCollapse = () => {}
+}) {
   const { equippedCompanion } = useTheme();
 
   const menuItems = [
@@ -225,33 +234,75 @@ function Sidebar({ isOpen = false, onClose = () => {} }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 w-72 lg:w-64 lg:static lg:h-screen flex flex-col justify-between bg-white/95 dark:bg-[#070b14]/95 lg:bg-white/70 lg:dark:bg-[#070b14]/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/70 p-4 pb-6 transition-transform duration-300 ease-in-out flex-shrink-0 ${
+      className={`fixed inset-y-0 left-0 z-50 lg:static lg:h-screen flex flex-col justify-between bg-white/95 dark:bg-[#070b14]/95 lg:bg-white/70 lg:dark:bg-[#070b14]/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/70 p-3 sm:p-4 pb-6 transition-all duration-300 ease-in-out flex-shrink-0 ${
+        isCollapsed ? "lg:w-20 w-72 max-w-[85vw]" : "lg:w-64 w-72 max-w-[85vw]"
+      } ${
         isOpen ? "translate-x-0 shadow-2xl shadow-black/40" : "-translate-x-full lg:translate-x-0"
       }`}
     >
       
       {/* Scrollable upper section */}
-      <div className="flex flex-col overflow-y-auto pr-1 scrollbar-none">
-        {/* Logo & Mobile Close Button */}
-        <div className="mb-8 pt-4 px-2 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
-              <span>🐼</span> TaskPanda
-            </h1>
+      <div className="flex flex-col overflow-y-auto pr-0.5 scrollbar-none flex-1">
+        
+        {/* Header - Expanded state */}
+        {!isCollapsed && (
+          <div className="mb-6 pt-2 px-1 flex items-center justify-between">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="text-2xl sm:text-3xl flex-shrink-0 select-none">🐼</span>
+              <div className="min-w-0">
+                <h1 className="text-xl font-black text-slate-800 dark:text-white tracking-tight truncate">
+                  TaskPanda
+                </h1>
+                <p className="text-slate-400 dark:text-slate-500 text-[10px] font-bold tracking-wider uppercase truncate">
+                  Productivity Platform
+                </p>
+              </div>
+            </div>
 
-            <p className="text-slate-400 dark:text-slate-500 text-xs font-semibold mt-1 tracking-wider uppercase">
-              Productivity Platform
-            </p>
+            <div className="flex items-center gap-1">
+              {/* Desktop Collapse Button */}
+              <button
+                onClick={onToggleCollapse}
+                title="Collapse sidebar (Ctrl+B)"
+                aria-label="Collapse sidebar"
+                className="hidden lg:flex p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                <PanelLeftClose size={18} />
+              </button>
+
+              {/* Mobile Collapse/Close Button */}
+              <button
+                onClick={onClose}
+                title="Collapse menu"
+                aria-label="Collapse menu"
+                className="lg:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer text-xs font-bold"
+              >
+                <ChevronLeft size={16} />
+                <span>Collapse</span>
+              </button>
+            </div>
           </div>
+        )}
 
-          <button
-            onClick={onClose}
-            aria-label="Close sidebar"
-            className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-          >
-            <X size={20} />
-          </button>
-        </div>
+        {/* Header - Collapsed state (Desktop only) */}
+        {isCollapsed && (
+          <div className="mb-6 pt-2 flex flex-col items-center gap-3">
+            <span 
+              className="text-3xl select-none hover:scale-110 transition-transform duration-200 cursor-pointer" 
+              title="TaskPanda AI"
+            >
+              🐼
+            </span>
+            <button
+              onClick={onToggleCollapse}
+              title="Expand sidebar (Ctrl+B)"
+              aria-label="Expand sidebar"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            >
+              <PanelLeftOpen size={18} />
+            </button>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className="space-y-1">
@@ -259,17 +310,24 @@ function Sidebar({ isOpen = false, onClose = () => {} }) {
             <NavLink
               key={item.name}
               to={item.path}
+              title={isCollapsed ? item.name : undefined}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 text-sm ${
+                `flex items-center rounded-2xl transition-all duration-200 text-sm ${
+                  isCollapsed
+                    ? "justify-center p-2.5"
+                    : "gap-3.5 px-3.5 py-2.5"
+                } ${
                   isActive
-                    ? "bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 font-bold border-l-2 border-indigo-500 glow-active shadow-sm"
+                    ? isCollapsed
+                      ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 ring-2 ring-indigo-500/40 shadow-sm"
+                      : "bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 font-bold border-l-2 border-indigo-500 glow-active shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 font-medium"
                 }`
               }
             >
-              {getMenuItemIcon(item.name)}
-              {item.name}
+              <span className="flex-shrink-0">{getMenuItemIcon(item.name)}</span>
+              {!isCollapsed && <span className="truncate">{item.name}</span>}
             </NavLink>
           ))}
         </nav>
@@ -277,6 +335,7 @@ function Sidebar({ isOpen = false, onClose = () => {} }) {
         {/* Logout Button */}
         <button
           data-testid="logout-btn"
+          title={isCollapsed ? "Logout" : undefined}
           onClick={async () => {
             onClose();
             await signOut(auth);
@@ -288,30 +347,46 @@ function Sidebar({ isOpen = false, onClose = () => {} }) {
             localStorage.removeItem("app_study_hours");
             window.location.href = "/login";
           }}
-          className="flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/20 cursor-pointer mt-4"
+          className={`flex items-center rounded-2xl transition-all duration-200 text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/20 cursor-pointer mt-3 ${
+            isCollapsed
+              ? "justify-center p-2.5"
+              : "gap-3.5 px-3.5 py-2.5"
+          }`}
         >
-          <LogOut size={20} className="text-red-500 dark:text-red-400" />
-          <span>Logout</span>
+          <LogOut size={20} className="text-red-500 dark:text-red-400 flex-shrink-0" />
+          {!isCollapsed && <span>Logout</span>}
         </button>
       </div>
 
-      {/* Bottom Companion Card */}
-      <div className="mt-6 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 dark:from-slate-900/40 dark:via-slate-900/30 dark:to-indigo-950/20 border border-slate-200/50 dark:border-slate-800/60 rounded-[24px] p-4.5 flex-shrink-0 flex items-center gap-3.5 relative overflow-hidden shadow-sm">
-        <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
-        
-        <div className="text-4xl animate-float flex-shrink-0 select-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
+      {/* Bottom Companion Card - Expanded */}
+      {!isCollapsed && (
+        <div className="mt-4 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 dark:from-slate-900/40 dark:via-slate-900/30 dark:to-indigo-950/20 border border-slate-200/50 dark:border-slate-800/60 rounded-2xl p-3.5 flex-shrink-0 flex items-center gap-3 relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
+          
+          <div className="text-3xl animate-float flex-shrink-0 select-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
+            {getCompanionEmoji()}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs mb-0.5 truncate tracking-tight">
+              {getCompanionLabel()}
+            </h4>
+            <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate">
+              Grow with tasks & goals
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Companion Card - Collapsed */}
+      {isCollapsed && (
+        <div 
+          title={`${getCompanionLabel()} - Active Companion`}
+          className="mt-4 mx-auto w-11 h-11 rounded-2xl bg-indigo-500/10 dark:bg-indigo-950/50 border border-indigo-500/20 flex items-center justify-center text-2xl flex-shrink-0 cursor-pointer hover:scale-105 transition-transform select-none shadow-sm"
+        >
           {getCompanionEmoji()}
         </div>
-
-        <div className="flex-1 min-w-0">
-          <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-[13px] mb-0.5 whitespace-normal break-words tracking-tight">
-            {getCompanionLabel()}
-          </h4>
-          <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-tight">
-            Complete tasks & goals to grow
-          </p>
-        </div>
-      </div>
+      )}
 
     </aside>
   );
