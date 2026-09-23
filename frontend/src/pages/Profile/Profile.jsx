@@ -14,6 +14,7 @@ import {
   Sun,
   Flame,
   Coins,
+  Mail,
 } from "lucide-react";
 import { auth } from "../../firebase/firebase";
 import { getAuthErrorMessage } from "../../utils/authErrors";
@@ -28,6 +29,7 @@ const MIN_PASSWORD_LENGTH = 6;
 function Profile() {
   const { darkMode, toggleDarkMode, equippedCompanion } = useTheme();
   const { user, tasks, coins, streak, xp, studyHours, updateProfile } = useApp();
+  const userEmail = user?.email || auth.currentUser?.email || "No email linked";
 
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("stats");
@@ -266,6 +268,12 @@ function Profile() {
                           <Save size={12} /> {savingProfile ? "Saving..." : "Save"}
                         </button>
                       </div>
+
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono py-0.5 justify-center sm:justify-start">
+                        <Mail size={12} className="text-indigo-500 flex-shrink-0" />
+                        <span>{userEmail}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-sans font-medium">(Login ID)</span>
+                      </div>
                       <div className="flex flex-col sm:flex-row gap-2 justify-center sm:justify-start">
                         <input
                           type="text"
@@ -309,7 +317,16 @@ function Profile() {
                           <Edit2 size={12} /> Edit Profile
                         </button>
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 font-semibold">
+
+                      {/* Logged-In Account / Email Badge */}
+                      <div className="flex items-center gap-1.5 mt-1.5 justify-center sm:justify-start">
+                        <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-semibold border border-slate-200/80 dark:border-slate-700/80">
+                          <Mail size={12} className="text-indigo-500 flex-shrink-0" />
+                          <span className="font-mono">{userEmail}</span>
+                        </span>
+                      </div>
+
+                      <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1.5 font-semibold">
                         {user.role || "Student"} • <span className="font-bold text-indigo-600 dark:text-indigo-400">{user.major || "Major"}</span>
                       </p>
                       <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 max-w-sm italic font-medium">
@@ -440,6 +457,23 @@ function Profile() {
             {activeTab === "preferences" && (
               <div className="w-full max-w-4xl mx-auto space-y-6">
                 
+                {/* Account ID / Email card */}
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-7 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider block">
+                        Logged-In Account
+                      </span>
+                      <p className="text-base sm:text-lg font-mono font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+                        {userEmail}
+                      </p>
+                    </div>
+                    <span className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1.5 rounded-xl border border-indigo-500/20 self-start sm:self-auto flex items-center gap-1.5">
+                      <Mail size={13} /> Primary Login ID
+                    </span>
+                  </div>
+                </div>
+
                 {/* Theme toggles card */}
                 <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm">
                   <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 sm:mb-6">Workspace Themes</h3>
@@ -576,10 +610,37 @@ function Profile() {
 
             {/* Tab 3: Security & Privacy */}
             {activeTab === "security" && (
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm max-w-xl mx-auto">
-                <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
-                  <Lock size={18} className="text-indigo-600 dark:text-indigo-400" /> Security Settings
-                </h3>
+              <div className="space-y-6 max-w-xl mx-auto">
+                {/* Account Credentials / Logged-in ID Card */}
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-7 shadow-sm">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                    <Mail size={18} className="text-indigo-600 dark:text-indigo-400" /> Logged-In Account
+                  </h3>
+                  <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider block">
+                        Login Email / Account ID
+                      </span>
+                      <p className="text-sm sm:text-base font-mono font-bold text-slate-800 dark:text-slate-100 mt-0.5 break-all">
+                        {userEmail}
+                      </p>
+                    </div>
+                    {auth.currentUser?.emailVerified ? (
+                      <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-500/20 flex items-center gap-1.5 shrink-0 self-start sm:self-auto">
+                        <CheckCircle size={13} /> Verified
+                      </span>
+                    ) : (
+                      <span className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1.5 rounded-xl border border-indigo-500/20 shrink-0 self-start sm:self-auto">
+                        Active Account
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
+                    <Lock size={18} className="text-indigo-600 dark:text-indigo-400" /> Security Settings
+                  </h3>
 
                 <form onSubmit={handleUpdatePassword} className="space-y-4 sm:space-y-5">
                   <div>
@@ -636,7 +697,8 @@ function Profile() {
                   </button>
                 </form>
               </div>
-            )}
+            </div>
+          )}
 
           </div>
 
