@@ -9,8 +9,6 @@ import {
   CheckCheck,
   Trash2,
   Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useNotifications } from "../../context/NotificationContext";
@@ -105,16 +103,6 @@ function Topbar({
           className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700 transition cursor-pointer flex-shrink-0"
         >
           <Menu size={20} />
-        </button>
-
-        {/* Desktop Sidebar Collapse Toggle */}
-        <button
-          onClick={onToggleCollapse}
-          title={isCollapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="hidden lg:flex w-10 h-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer flex-shrink-0"
-        >
-          {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
         </button>
 
         <div className="flex items-center gap-1.5 sm:gap-2 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-bold">
