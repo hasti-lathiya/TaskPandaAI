@@ -51,49 +51,49 @@ function Features() {
   return (
     <section
       id="features"
-      className="scroll-mt-24 py-24 bg-gradient-to-b from-white to-slate-100 dark:from-slate-900 dark:to-slate-950 transition-colors duration-300"
+      className="scroll-mt-24 py-14 sm:py-24 bg-gradient-to-b from-white to-slate-100 dark:from-slate-900 dark:to-slate-950 transition-colors duration-300"
     >
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
 
-          <p className="text-indigo-600 dark:text-indigo-400 font-semibold uppercase tracking-widest">
+          <p className="text-indigo-600 dark:text-indigo-400 text-xs sm:text-sm font-semibold uppercase tracking-widest">
             Features
           </p>
 
-          <h2 className="text-5xl font-bold mt-3 text-slate-900 dark:text-slate-100">
+          <h2 className="text-3xl sm:text-5xl font-bold mt-2 sm:mt-3 text-slate-900 dark:text-slate-100">
             Everything You Need
           </h2>
 
-          <p className="text-gray-500 dark:text-slate-400 mt-5 max-w-2xl mx-auto">
+          <p className="text-gray-500 dark:text-slate-400 text-xs sm:text-base mt-2.5 sm:mt-5 max-w-2xl mx-auto leading-relaxed">
             One platform for managing your studies, internship,
             productivity and AI assistance.
           </p>
 
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
 
           {features.map((feature, index) => (
             <motion.div
               key={index}
               whileHover={{
-                y: -10,
-                scale: 1.03,
+                y: -6,
+                scale: 1.02,
               }}
               transition={{ duration: 0.3 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all border border-slate-100 dark:border-slate-800"
+              className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-md hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800"
             >
 
-              <div className="w-16 h-16 rounded-2xl bg-indigo-100 dark:bg-indigo-950/70 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-indigo-100 dark:bg-indigo-950/70 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4 sm:mb-6">
                 {feature.icon}
               </div>
 
-              <h3 className="text-2xl font-bold mb-4 text-slate-800 dark:text-slate-100">
+              <h3 className="text-lg sm:text-2xl font-bold mb-2 sm:mb-4 text-slate-800 dark:text-slate-100">
                 {feature.title}
               </h3>
 
-              <p className="text-gray-600 dark:text-slate-400 leading-7">
+              <p className="text-gray-600 dark:text-slate-400 text-xs sm:text-base leading-relaxed">
                 {feature.description}
               </p>
 
