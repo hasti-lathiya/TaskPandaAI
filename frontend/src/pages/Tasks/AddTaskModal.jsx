@@ -132,10 +132,10 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 flex-grow overflow-y-auto pr-2 scrollbar-thin"
+          className="space-y-5 flex-grow overflow-y-auto px-1.5 pr-2.5 py-1 scrollbar-thin"
         >
 
-            <div>
+          <div>
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
               Description
             </label>
@@ -143,7 +143,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
             <textarea
               rows="3"
               placeholder="Describe the task..."
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -160,7 +160,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
             <input
               type="text"
               placeholder="Example: Complete Internship Report"
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -206,7 +206,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
         type="number"
         min="5"
         step="5"
-        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
+        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
         value={estimatedDuration}
         onChange={(e) => setEstimatedDuration(Number(e.target.value))}
         />
@@ -246,7 +246,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
                 placeholder="Enter custom category (e.g. Work, Fitness, Freelance)..."
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value)}
-                className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border-2 border-indigo-500/40 dark:border-indigo-500/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border-2 border-indigo-500/40 dark:border-indigo-500/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:border-indigo-500 focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                 autoFocus
               />
               <p className="text-xs text-slate-500 dark:text-slate-400 pl-1">
@@ -265,7 +265,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
             <input
               type="date"
               min={new Date().toLocaleDateString("en-CA")}
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
             />

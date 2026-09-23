@@ -1015,7 +1015,7 @@ function TeamDetails() {
                 Assign Team Task
               </h2>
 
-              <form onSubmit={handleCreateTask} className="space-y-4 sm:space-y-6 flex-grow overflow-y-auto pr-1 sm:pr-2 scrollbar-thin text-left">
+              <form onSubmit={handleCreateTask} className="space-y-4 sm:space-y-6 flex-grow overflow-y-auto px-1.5 pr-2 sm:pr-2.5 py-1 scrollbar-thin text-left">
                 <div>
                   <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Task Title
@@ -1353,7 +1353,7 @@ function TeamDetails() {
                 </button>
               </div>
 
-              <form onSubmit={handleSaveSettings} className="space-y-4 sm:space-y-6 flex-grow overflow-y-auto pr-1 sm:pr-2 scrollbar-thin">
+              <form onSubmit={handleSaveSettings} className="space-y-4 sm:space-y-6 flex-grow overflow-y-auto px-1.5 pr-2 sm:pr-2.5 py-1 scrollbar-thin">
                 <div>
                   <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Team Name

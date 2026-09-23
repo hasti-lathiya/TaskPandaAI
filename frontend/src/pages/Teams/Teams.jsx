@@ -467,7 +467,7 @@ function Teams() {
                 </div>
               )}
 
-              <form onSubmit={handleCreateTeam} className="space-y-5 sm:space-y-6 flex-grow overflow-y-auto pr-1 sm:pr-2 scrollbar-thin">
+              <form onSubmit={handleCreateTeam} className="space-y-5 sm:space-y-6 flex-grow overflow-y-auto px-1.5 pr-2 sm:pr-2.5 py-1 scrollbar-thin">
                 <div>
                   <label className="block mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="team-name">
                     Team Name
