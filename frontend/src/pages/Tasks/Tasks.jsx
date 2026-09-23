@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import MainLayout from "../../layouts/MainLayout";
 import TaskCard from "./TaskCard";
@@ -546,54 +547,56 @@ function Tasks() {
       )}
 
       {/* Delete confirmation */}
-      {taskPendingDelete && (
-        <div
-          className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-task-title"
-        >
+      {taskPendingDelete &&
+        createPortal(
           <div
-            className="absolute inset-0"
-            onClick={() => !deleting && setTaskPendingDelete(null)}
-          />
+            className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-task-title"
+          >
+            <div
+              className="absolute inset-0"
+              onClick={() => !deleting && setTaskPendingDelete(null)}
+            />
 
-          <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-md shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10">
+            <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-md shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10">
 
-            <h2
-              id="delete-task-title"
-              className="text-2xl font-bold text-slate-800 dark:text-slate-100"
-            >
-              Delete this task?
-            </h2>
-
-            <p className="text-gray-500 dark:text-slate-400 mt-3">
-              “{taskPendingDelete.title || "Untitled task"}” will be permanently
-              removed. This can't be undone.
-            </p>
-
-            <div className="flex gap-3 mt-8">
-              <button
-                onClick={() => setTaskPendingDelete(null)}
-                disabled={deleting}
-                className="flex-1 px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              <h2
+                id="delete-task-title"
+                className="text-2xl font-bold text-slate-800 dark:text-slate-100"
               >
-                Cancel
-              </button>
+                Delete this task?
+              </h2>
 
-              <button
-                onClick={confirmDeleteTask}
-                disabled={deleting}
-                aria-busy={deleting}
-                className="flex-1 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {deleting ? "Deleting..." : "Delete"}
-              </button>
+              <p className="text-gray-500 dark:text-slate-400 mt-3">
+                “{taskPendingDelete.title || "Untitled task"}” will be permanently
+                removed. This can't be undone.
+              </p>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  onClick={() => setTaskPendingDelete(null)}
+                  disabled={deleting}
+                  className="flex-1 px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={confirmDeleteTask}
+                  disabled={deleting}
+                  aria-busy={deleting}
+                  className="flex-1 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+
             </div>
-
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       <CalendarView tasks={tasks} />
     </MainLayout>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -437,12 +438,23 @@ function Teams() {
         )}
 
         {/* Create Team Modal */}
-        {createModalOpen && (
-          <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
-              <h2 className="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100 flex-shrink-0">
-                Create New Team
-              </h2>
+        {createModalOpen &&
+          createPortal(
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
+                <div className="flex justify-between items-center mb-8 flex-shrink-0">
+                  <div>
+                    <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+                      👥 Create New Team
+                    </h2>
+                    <p className="text-gray-500 dark:text-slate-400 mt-2 text-sm">
+                      Create a workspace and collaborate with your team.
+                    </p>
+                  </div>
+                  <div className="text-5xl">
+                    🐼
+                  </div>
+                </div>
 
               {formError && (
                 <div
@@ -583,7 +595,8 @@ function Teams() {
                 </div>
               </form>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -1000,8 +1001,9 @@ function TeamDetails() {
         )}
 
         {/* Assign Task Modal */}
-        {createTaskOpen && (
-          <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+        {createTaskOpen &&
+          createPortal(
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden">
               <h2 className="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100 flex-shrink-0">
                 Assign Team Task
@@ -1121,12 +1123,14 @@ function TeamDetails() {
                 </div>
               </form>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Task Detail / Interaction Modal */}
-        {taskModalOpen && selectedTask && (
-          <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+        {taskModalOpen && selectedTask &&
+          createPortal(
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-2xl rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden">
               {/* Close Modal Button */}
               <button
@@ -1322,12 +1326,14 @@ function TeamDetails() {
 
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Team Settings / Manage Modal */}
-        {settingsModalOpen && (
-          <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+        {settingsModalOpen &&
+          createPortal(
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
               
               <div className="flex justify-between items-center mb-6 flex-shrink-0">
@@ -1478,7 +1484,8 @@ function TeamDetails() {
                 </div>
               </form>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </MainLayout>
