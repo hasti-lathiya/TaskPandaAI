@@ -195,14 +195,14 @@ function Profile() {
 
   return (
     <MainLayout>
-      <div className="pt-8 px-6 max-w-7xl mx-auto w-full max-w-full overflow-x-hidden transition-all duration-300">
+      <div className="w-full max-w-7xl mx-auto py-2 sm:py-4 transition-all duration-300">
         
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight">
             👤 Profile & Settings
           </h1>
-          <p className="text-gray-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-400 mt-1">
             Manage your account preferences, gamification stats, and productivity dashboard options.
           </p>
         </div>
@@ -210,88 +210,84 @@ function Profile() {
         {/* Floating Toast Notification */}
         {toastMessage && (
           <div
-            className={`fixed bottom-8 right-8 z-50 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 border animate-in fade-in slide-in-from-bottom-4 duration-300 ${
+            className={`fixed bottom-4 sm:bottom-8 right-4 sm:right-8 z-50 px-4 sm:px-6 py-3 sm:py-4 max-w-[calc(100vw-2rem)] rounded-2xl shadow-xl flex items-center gap-2.5 sm:gap-3 border animate-in fade-in slide-in-from-bottom-4 duration-300 ${
               toastMessage.type === "success"
                 ? "bg-green-50 dark:bg-green-950/60 border-green-200 dark:border-green-900 text-green-700 dark:text-green-300"
                 : "bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300"
             }`}
           >
-            <CheckCircle size={18} />
-            <span className="text-sm font-bold">{toastMessage.text}</span>
+            <CheckCircle size={18} className="flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-bold">{toastMessage.text}</span>
           </div>
         )}
 
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           
           {/* Profile Hero Card */}
-          <div className="glass-premium rounded-[32px] p-8 shadow-sm relative overflow-hidden transition-colors duration-300">
-            <div className="absolute right-8 top-8 text-8xl opacity-5 select-none pointer-events-none">
+          <div className="glass-premium rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm relative overflow-hidden transition-colors duration-300">
+            <div className="absolute right-4 sm:right-8 top-4 sm:top-8 text-6xl sm:text-8xl opacity-5 select-none pointer-events-none">
               {companionEmoji}
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               
               {/* Avatar and Details */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 w-full md:w-auto">
-                <div className="relative group">
-                  <div className="w-24 h-24 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-5xl flex items-center justify-center border-2 border-indigo-500/20 shadow-inner select-none">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full md:w-auto">
+                <div className="relative group flex-shrink-0">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-4xl sm:text-5xl flex items-center justify-center border-2 border-indigo-500/20 shadow-inner select-none">
                     {avatars[avatarIndex]}
                   </div>
                   {isEditing && (
                     <button
                       onClick={() => setAvatarIndexOverride((prev) => ((prev !== null ? prev : currentAvatarIndex) + 1) % avatars.length)}
                       className="absolute -bottom-1 -right-1 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-md transition cursor-pointer"
+                      title="Change avatar"
+                      aria-label="Change avatar"
                     >
                       <Edit2 size={12} />
                     </button>
                   )}
                 </div>
 
-                <div className="text-center sm:text-left flex-1">
+                <div className="text-center sm:text-left flex-1 min-w-0 w-full">
                   {isEditing ? (
                     <div className="space-y-2">
-                      <div className="flex items-center gap-3.5 flex-wrap justify-center sm:justify-start">
+                      <div className="flex items-center gap-2 sm:gap-3.5 flex-wrap justify-center sm:justify-start">
                         <input
                           type="text"
                           id="profile-name"
                           aria-label="Full name"
-                          id="profile-name"
-                        aria-label="Full name"
-                        value={editName}
+                          value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-extrabold text-xl px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-extrabold text-base sm:text-xl px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto"
                         />
                         <button
                           onClick={handleSaveProfile}
                           disabled={savingProfile}
                           aria-busy={savingProfile}
-                          className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl shadow-sm text-xs cursor-pointer active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 sm:px-4 py-2 rounded-xl shadow-sm text-xs cursor-pointer active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <Save size={12} /> {savingProfile ? "Saving..." : "Save"}
                         </button>
                       </div>
-                      <div className="flex gap-2 justify-center sm:justify-start">
+                      <div className="flex flex-col sm:flex-row gap-2 justify-center sm:justify-start">
                         <input
                           type="text"
                           id="profile-role"
                           aria-label="Student role"
-                          id="profile-role"
-                        aria-label="Student role"
-                        value={editRole}
+                          value={editRole}
                           onChange={(e) => setEditRole(e.target.value)}
                           placeholder="Student Role"
-                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300"
+                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300 w-full sm:w-auto"
                         />
                         <input
                           type="text"
                           id="profile-major"
                           aria-label="Major field"
-                          id="profile-major"
-                        aria-label="Major field"
-                        value={editMajor}
+                          value={editMajor}
                           onChange={(e) => setEditMajor(e.target.value)}
                           placeholder="Major Field"
-                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300"
+                          className="bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300 w-full sm:w-auto"
                         />
                       </div>
                       <input
@@ -301,13 +297,13 @@ function Profile() {
                         value={editBio}
                         onChange={(e) => setEditBio(e.target.value)}
                         placeholder="Bio"
-                        className="w-full max-w-sm bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300"
+                        className="w-full max-w-sm bg-slate-50 dark:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 outline-none text-slate-700 dark:text-slate-300"
                       />
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center gap-3.5 flex-wrap justify-center sm:justify-start">
-                        <h2 className="text-3xl font-black text-slate-800 dark:text-slate-50 tracking-tight">
+                      <div className="flex items-center gap-2 sm:gap-3.5 flex-wrap justify-center sm:justify-start">
+                        <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-50 tracking-tight">
                           {user.fullName || "Productive Student"}
                         </h2>
                         <button
@@ -317,7 +313,7 @@ function Profile() {
                           <Edit2 size={12} /> Edit Profile
                         </button>
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-semibold">
+                      <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 font-semibold">
                         {user.role || "Student"} • <span className="font-bold text-indigo-600 dark:text-indigo-400">{user.major || "Major"}</span>
                       </p>
                       <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 max-w-sm italic font-medium">
@@ -330,16 +326,16 @@ function Profile() {
 
               {/* Right Area - Stats Badges */}
               <div className="flex flex-wrap gap-2 justify-center md:justify-end md:max-w-md w-full md:w-auto">
-                <span className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-indigo-500/10">
+                <span className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-indigo-500/10">
                   <Trophy size={12} /> Level {calculatedLevel} Scholar
                 </span>
-                <span className="bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-purple-500/10">
+                <span className="bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-purple-500/10">
                   🐾 Theme: {equippedCompanion}
                 </span>
-                <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-amber-500/10">
+                <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-amber-500/10">
                   <Coins size={12} /> {coins} Coins
                 </span>
-                <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-red-500/10">
+                <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-red-500/10">
                   <Flame size={12} /> {streak} Day Streak
                 </span>
               </div>
@@ -348,11 +344,11 @@ function Profile() {
           </div>
 
           {/* Tab Selection Row */}
-          <div className="flex border-b border-gray-100 dark:border-slate-800 gap-6 text-sm pb-1 flex-wrap">
+          <div className="flex border-b border-gray-100 dark:border-slate-800 gap-4 sm:gap-6 text-xs sm:text-sm pb-1 overflow-x-auto no-scrollbar">
             <button
               type="button"
               onClick={() => setActiveTab("stats")}
-              className={`transition pb-3 text-sm cursor-pointer ${
+              className={`whitespace-nowrap transition pb-2.5 sm:pb-3 cursor-pointer ${
                 activeTab === "stats"
                   ? "text-slate-900 dark:text-white font-black border-b-2 border-indigo-500"
                   : "text-slate-400 dark:text-slate-500 font-semibold hover:text-slate-600 dark:hover:text-slate-300"
@@ -363,7 +359,7 @@ function Profile() {
             <button
               type="button"
               onClick={() => setActiveTab("preferences")}
-              className={`transition pb-3 text-sm cursor-pointer ${
+              className={`whitespace-nowrap transition pb-2.5 sm:pb-3 cursor-pointer ${
                 activeTab === "preferences"
                   ? "text-slate-900 dark:text-white font-black border-b-2 border-indigo-500"
                   : "text-slate-400 dark:text-slate-500 font-semibold hover:text-slate-600 dark:hover:text-slate-300"
@@ -374,7 +370,7 @@ function Profile() {
             <button
               type="button"
               onClick={() => setActiveTab("security")}
-              className={`transition pb-3 text-sm cursor-pointer ${
+              className={`whitespace-nowrap transition pb-2.5 sm:pb-3 cursor-pointer ${
                 activeTab === "security"
                   ? "text-slate-900 dark:text-white font-black border-b-2 border-indigo-500"
                   : "text-slate-400 dark:text-slate-500 font-semibold hover:text-slate-600 dark:hover:text-slate-300"
@@ -389,43 +385,43 @@ function Profile() {
             
             {/* Tab 1: Stats & Gamification */}
             {activeTab === "stats" && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                 
                 {/* Left stats cards - 2/3 width */}
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm">
-                      <span className="text-gray-400 text-xs block">Tasks Completed</span>
-                      <p className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-sm">
+                      <span className="text-gray-400 text-[11px] sm:text-xs block">Tasks Completed</span>
+                      <p className="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1 sm:mt-2">
                         {completedTasksCount}
                       </p>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm">
-                      <span className="text-gray-400 text-xs block">Study Hours</span>
-                      <p className="text-3xl font-extrabold text-amber-500 dark:text-amber-400 mt-2">
+                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-sm">
+                      <span className="text-gray-400 text-[11px] sm:text-xs block">Study Hours</span>
+                      <p className="text-2xl sm:text-3xl font-extrabold text-amber-500 dark:text-amber-400 mt-1 sm:mt-2">
                         {studyHours}h
                       </p>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm">
-                      <span className="text-gray-400 text-xs block">Streak Milestone</span>
-                      <p className="text-3xl font-extrabold text-red-500 dark:text-red-400 mt-2">{streak} days</p>
+                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-sm">
+                      <span className="text-gray-400 text-[11px] sm:text-xs block">Streak Milestone</span>
+                      <p className="text-2xl sm:text-3xl font-extrabold text-red-500 dark:text-red-400 mt-1 sm:mt-2">{streak} days</p>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm">
-                      <span className="text-gray-400 text-xs block">Scholar Grade</span>
-                      <p className="text-3xl font-extrabold text-green-600 dark:text-green-400 mt-2">Level {calculatedLevel}</p>
+                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-sm">
+                      <span className="text-gray-400 text-[11px] sm:text-xs block">Scholar Grade</span>
+                      <p className="text-2xl sm:text-3xl font-extrabold text-green-600 dark:text-green-400 mt-1 sm:mt-2">Level {calculatedLevel}</p>
                     </div>
                   </div>
 
                   {/* XP Progression Card */}
-                  <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 shadow-sm">
+                  <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-4 sm:p-6 shadow-sm">
                     <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Level XP Progression</h4>
-                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{progress}% to level up</span>
+                      <h4 className="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm">Level XP Progression</h4>
+                      <span className="text-[11px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400">{progress}% to level up</span>
                     </div>
-                    <div className="w-full bg-gray-100 dark:bg-slate-800 h-4 rounded-full overflow-hidden">
+                    <div className="w-full bg-gray-100 dark:bg-slate-800 h-3 sm:h-4 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
                     </div>
                   </div>
@@ -433,10 +429,10 @@ function Profile() {
 
                 {/* Right stats card - 1/3 width */}
                 <div className="space-y-6">
-                  <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 shadow-sm text-center">
-                    <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Active Companion</h4>
-                    <div className="text-7xl my-6 select-none animate-bounce">{companionEmoji}</div>
-                    <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg">{equippedCompanion}</h3>
+                  <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-6 shadow-sm text-center">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mb-3 sm:mb-4">Active Companion</h4>
+                    <div className="text-5xl sm:text-7xl my-4 sm:my-6 select-none animate-bounce">{companionEmoji}</div>
+                    <h3 className="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg">{equippedCompanion}</h3>
                     <p className="text-xs text-gray-500 mt-1">Ready to assist you in work sessions.</p>
                   </div>
                 </div>
@@ -449,12 +445,12 @@ function Profile() {
               <div className="w-full max-w-4xl mx-auto space-y-6">
                 
                 {/* Theme toggles card */}
-                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 sm:p-8 shadow-sm">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6">Workspace Themes</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 sm:mb-6">Workspace Themes</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     
                     {/* Dark/Light mode toggle card */}
-                    <div className="bg-slate-50/50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl p-5 flex justify-between items-center">
+                    <div className="bg-slate-50/50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex justify-between items-center">
                       <div>
                         <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">Color Mode</h4>
                         <p className="text-xs text-gray-400 mt-1">Switch between light or dark viewports.</p>
@@ -462,18 +458,20 @@ function Profile() {
                       <button
                         onClick={toggleDarkMode}
                         className="p-3 bg-white dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 cursor-pointer transition-colors duration-200"
+                        title="Toggle Dark/Light Mode"
+                        aria-label="Toggle Dark/Light Mode"
                       >
                         {darkMode ? <Sun size={18} /> : <Moon size={18} />}
                       </button>
                     </div>
 
                     {/* Companion Theme display card */}
-                    <div className="bg-slate-50/50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl p-5 flex justify-between items-center">
+                    <div className="bg-slate-50/50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl p-4 sm:p-5 flex justify-between items-center">
                       <div>
                         <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">Companion Theme</h4>
-                        <p className="text-xs text-gray-400 mt-1">Select animal to apply custom palette.</p>
+                        <p className="text-xs text-gray-400 mt-1">Select animal in Companion tab.</p>
                       </div>
-                      <div className="text-xl font-bold bg-white dark:bg-slate-900 px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
+                      <div className="text-base sm:text-xl font-bold bg-white dark:bg-slate-900 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
                         {equippedCompanion} {companionEmoji}
                       </div>
                     </div>
@@ -482,25 +480,26 @@ function Profile() {
                 </div>
 
                 {/* Workspace Preferences card */}
-                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 sm:p-8 shadow-sm">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Workspace Preferences</h3>
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Workspace Preferences</h3>
                   
                   <div className="divide-y divide-gray-100 dark:divide-slate-800">
                     
                     {/* Email Reminders Row */}
-                    <div className="flex items-center justify-between py-4 last:border-0">
-                      <div className="w-4/5 pr-4">
-                        <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">Email Reminders</span>
-                        <span className="text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
+                    <div className="flex items-center justify-between py-3.5 sm:py-4 gap-3 last:border-0">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 block">Email Reminders</span>
+                        <span className="text-[11px] sm:text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
                           Receive email notifications for due tasks.
                         </span>
                       </div>
-                      <div className="w-1/5 flex justify-end">
+                      <div className="flex-shrink-0 flex justify-end">
                         <button
                           type="button"
                           onClick={() => togglePreference("prefEmailReminders", !emailReminders)}
                           role="switch"
                           aria-checked={emailReminders}
+                          aria-label="Toggle Email Reminders"
                           disabled={savingPref === "prefEmailReminders"}
                           className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                             emailReminders ? "bg-indigo-600" : "bg-gray-200 dark:bg-slate-800"
@@ -516,19 +515,20 @@ function Profile() {
                     </div>
 
                     {/* Daily Task Digest Row */}
-                    <div className="flex items-center justify-between py-4 last:border-0">
-                      <div className="w-4/5 pr-4">
-                        <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">Daily Task Digest</span>
-                        <span className="text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
+                    <div className="flex items-center justify-between py-3.5 sm:py-4 gap-3 last:border-0">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 block">Daily Task Digest</span>
+                        <span className="text-[11px] sm:text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
                           Get a morning recap of your active scheduler.
                         </span>
                       </div>
-                      <div className="w-1/5 flex justify-end">
+                      <div className="flex-shrink-0 flex justify-end">
                         <button
                           type="button"
                           onClick={() => togglePreference("prefTaskDigest", !taskDigest)}
                           role="switch"
                           aria-checked={taskDigest}
+                          aria-label="Toggle Daily Task Digest"
                           disabled={savingPref === "prefTaskDigest"}
                           className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                             taskDigest ? "bg-indigo-600" : "bg-gray-200 dark:bg-slate-800"
@@ -544,19 +544,20 @@ function Profile() {
                     </div>
 
                     {/* Sound Effects Row */}
-                    <div className="flex items-center justify-between py-4 last:border-0">
-                      <div className="w-4/5 pr-4">
-                        <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">Sound Effects</span>
-                        <span className="text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
+                    <div className="flex items-center justify-between py-3.5 sm:py-4 gap-3 last:border-0">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 block">Sound Effects</span>
+                        <span className="text-[11px] sm:text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
                           Play audio feedback when earning coins or leveling up.
                         </span>
                       </div>
-                      <div className="w-1/5 flex justify-end">
+                      <div className="flex-shrink-0 flex justify-end">
                         <button
                           type="button"
                           onClick={() => togglePreference("prefSoundEffects", !soundEffects)}
                           role="switch"
                           aria-checked={soundEffects}
+                          aria-label="Toggle Sound Effects"
                           disabled={savingPref === "prefSoundEffects"}
                           className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                             soundEffects ? "bg-indigo-600" : "bg-gray-200 dark:bg-slate-800"
@@ -579,14 +580,14 @@ function Profile() {
 
             {/* Tab 3: Security & Privacy */}
             {activeTab === "security" && (
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 shadow-sm max-w-xl mx-auto">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
+              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 shadow-sm max-w-xl mx-auto">
+                <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
                   <Lock size={18} className="text-indigo-600 dark:text-indigo-400" /> Security Settings
                 </h3>
 
-                <form onSubmit={handleUpdatePassword} className="space-y-5">
+                <form onSubmit={handleUpdatePassword} className="space-y-4 sm:space-y-5">
                   <div>
-                    <label htmlFor="profile-current-password" className="block mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Current Password</label>
+                    <label htmlFor="profile-current-password" className="block mb-1.5 sm:mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Current Password</label>
                     <input
                       id="profile-current-password"
                       type="password"
@@ -595,12 +596,12 @@ function Profile() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="profile-new-password" className="block mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">New Password</label>
+                    <label htmlFor="profile-new-password" className="block mb-1.5 sm:mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">New Password</label>
                     <input
                       id="profile-new-password"
                       type="password"
@@ -610,12 +611,12 @@ function Profile() {
                       onChange={(e) => setNewPassword(e.target.value)}
                       minLength={MIN_PASSWORD_LENGTH}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="profile-confirm-password" className="block mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Confirm New Password</label>
+                    <label htmlFor="profile-confirm-password" className="block mb-1.5 sm:mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Confirm New Password</label>
                     <input
                       id="profile-confirm-password"
                       type="password"
@@ -625,7 +626,7 @@ function Profile() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       minLength={MIN_PASSWORD_LENGTH}
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                     />
                   </div>
 
@@ -633,7 +634,7 @@ function Profile() {
                     type="submit"
                     disabled={changingPassword}
                     aria-busy={changingPassword}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition cursor-pointer text-sm shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 sm:py-3.5 rounded-xl transition cursor-pointer text-sm shadow-md disabled:opacity-60 disabled:cursor-not-allowed active:scale-98"
                   >
                     {changingPassword ? "Updating..." : "Update Password"}
                   </button>

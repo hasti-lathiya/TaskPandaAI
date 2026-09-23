@@ -294,22 +294,22 @@ function Companion() {
           {error}
         </div>
       )}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 transition-all duration-300">
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 transition-all duration-300">
 
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight flex items-center gap-2">
-              🐾 Animal Companions Marketplace
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight flex items-center gap-2">
+              🐾 Companions Marketplace
             </h1>
-            <p className="text-gray-500 dark:text-slate-400 mt-1">
+            <p className="text-gray-500 dark:text-slate-400 mt-1 text-xs sm:text-base">
               Unlock companions, customize your colors, and dynamically morph your workspace themes.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/25 px-5 py-3 rounded-2xl">
-            <Coins className="text-amber-500 dark:text-amber-400" size={20} />
-            <span className="font-extrabold text-amber-700 dark:text-amber-300 text-lg">
+          <div className="flex items-center gap-2 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/25 px-3.5 sm:px-5 py-2 sm:py-3 rounded-2xl">
+            <Coins className="text-amber-500 dark:text-amber-400 w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="font-extrabold text-amber-700 dark:text-amber-300 text-sm sm:text-lg">
               {coins} 🪙
             </span>
           </div>
@@ -318,26 +318,26 @@ function Companion() {
         {loading ? (
           <div className="flex justify-center items-center py-20 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[32px] p-8 shadow-sm">
             <div className="text-4xl animate-bounce">🐾</div>
-            <p className="text-gray-500 dark:text-slate-400 ml-3 text-lg font-semibold">
+            <p className="text-gray-500 dark:text-slate-400 ml-3 text-base sm:text-lg font-semibold">
               Opening companion marketplace...
             </p>
           </div>
         ) : (
           /* 2-Column Split Grid (8/12 Left, 4/12 Right) */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
 
             {/* Left Column - Marketplace List (8/12) */}
             <div className="lg:col-span-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-slate-800/80 pb-2">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-200">
                   Available Companions
                 </h3>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 max-w-full">
                   {RARITY_FILTERS.map((rarity) => (
                     <button
                       key={rarity}
                       onClick={() => setRarityFilter(rarity)}
-                      className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition cursor-pointer whitespace-nowrap ${
                         rarityFilter === rarity
                           ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400"
                           : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -349,7 +349,7 @@ function Companion() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredAnimals.map((animal) => {
                   const isOwned = ownedCompanions.includes(animal.name);
                   const isActive = equippedCompanion === animal.name;

@@ -416,31 +416,31 @@ function PDFManager() {
 
   const deleteDialog = docPendingDelete ? (
     <div
-      className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-3.5 sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-doc-title"
     >
       <div className="absolute inset-0" onClick={() => setDocPendingDelete(null)} />
 
-      <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-md shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10">
+      <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 w-full max-w-md shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10">
         <h2
           id="delete-doc-title"
-          className="text-2xl font-bold text-slate-800 dark:text-slate-100"
+          className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100"
         >
           Delete this document?
         </h2>
 
-        <p className="text-gray-500 dark:text-slate-400 mt-3 break-words">
+        <p className="text-gray-500 dark:text-slate-400 mt-2 sm:mt-3 text-xs sm:text-sm break-words">
           “{docPendingDelete.fileName}” will be permanently removed. This can't
           be undone.
         </p>
 
-        <div className="flex gap-3 mt-8">
+        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 mt-6 sm:mt-8">
           <button
             type="button"
             onClick={() => setDocPendingDelete(null)}
-            className="flex-1 px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer"
+            className="w-full sm:flex-1 px-5 py-2.5 sm:py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer text-xs sm:text-sm"
           >
             Cancel
           </button>
@@ -448,7 +448,7 @@ function PDFManager() {
           <button
             type="button"
             onClick={() => handleDelete(docPendingDelete)}
-            className="flex-1 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition cursor-pointer"
+            className="w-full sm:flex-1 px-5 py-2.5 sm:py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition cursor-pointer text-xs sm:text-sm"
           >
             Delete
           </button>
@@ -469,26 +469,26 @@ function PDFManager() {
     <MainLayout>
       {deleteDialog}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 transition-all duration-300">
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 transition-all duration-300">
 
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight flex items-center gap-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight flex items-center gap-2">
             📄 PDF Intelligence Manager
           </h1>
-          <p className="text-gray-500 dark:text-slate-400 mt-1">
+          <p className="text-gray-500 dark:text-slate-400 mt-1 text-xs sm:text-base">
             Upload, analyze, and optimize your academic documents using AI.
           </p>
         </div>
 
         {/* Quick Action Pills (functional document type filters) */}
-        <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-100 dark:border-slate-800 pb-5">
+        <div className="flex gap-2 overflow-x-auto pb-3 mb-6 sm:mb-8 border-b border-gray-100 dark:border-slate-800">
           {FILTERS.map((filter) => (
             <button
               key={filter.value}
               type="button"
               onClick={() => setActiveFilter(filter.value)}
-              className={`px-4 py-2 text-xs font-bold rounded-2xl border transition cursor-pointer ${
+              className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-2xl border transition cursor-pointer whitespace-nowrap ${
                 activeFilter === filter.value
                   ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 glow-active"
                   : "bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800"
@@ -500,14 +500,14 @@ function PDFManager() {
         </div>
 
         {/* Main 2-Column Split layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
 
           {/* Left Column (7/12 width) - Upload zone & Type Selector */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-6 sm:space-y-8">
 
             {/* Interactive File Upload card */}
-            <div ref={uploadZoneRef} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 md:p-8 shadow-sm">
-              <h2 className="text-xl font-bold mb-5 text-slate-800 dark:text-slate-100">
+            <div ref={uploadZoneRef} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-8 shadow-sm">
+              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-5 text-slate-800 dark:text-slate-100">
                 Upload Document
               </h2>
 
@@ -517,7 +517,7 @@ function PDFManager() {
                 onDragOver={handleDrag}
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-3xl p-8 text-center transition-all ${
+                className={`relative border-2 border-dashed rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-center transition-all ${
                   dragActive
                     ? "border-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/20"
                     : "border-gray-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800"
@@ -536,7 +536,7 @@ function PDFManager() {
                   disabled={isUploading}
                 />
 
-                <div className="w-14 h-14 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm">
                   {isUploading ? (
                     <Loader2 className="text-indigo-600 dark:text-indigo-400 animate-spin" size={24} />
                   ) : (
@@ -544,28 +544,28 @@ function PDFManager() {
                   )}
                 </div>
 
-                 <p className="font-bold text-slate-700 dark:text-slate-200 text-sm">
+                 <p className="font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
                    {isUploading
                      ? "Uploading document..."
                      : (<>Drag & drop your PDF file here, or <span className="text-indigo-600 dark:text-indigo-400 hover:underline">browse files</span></>)}
                  </p>
-                 <p className="text-xs text-[#9CA3AF] dark:text-slate-400 mt-2 font-semibold">
+                 <p className="text-[11px] sm:text-xs text-[#9CA3AF] dark:text-slate-400 mt-1.5 sm:mt-2 font-semibold">
                    Only PDF files up to 10MB are supported
                  </p>
               </div>
 
               {/* Document Type tagging */}
-              <div className="mt-6">
-                <label className="block text-xs font-extrabold uppercase text-gray-500 dark:text-slate-400 tracking-wider mb-3">
+              <div className="mt-5 sm:mt-6">
+                <label className="block text-xs font-extrabold uppercase text-gray-500 dark:text-slate-400 tracking-wider mb-2.5 sm:mb-3">
                   Document Tag / Preset type
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                   {DOCUMENT_TYPES.map((type) => (
                     <button
                       key={type}
                       type="button"
                       onClick={() => setTagSelection(type)}
-                      className={`px-3 py-3 rounded-2xl text-xs font-bold border transition cursor-pointer text-center ${
+                      className={`px-2.5 sm:px-3 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold border transition cursor-pointer text-center ${
                         tagSelection === type
                           ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 glow-active"
                           : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -629,12 +629,12 @@ function PDFManager() {
 
           {/* Right Column (5/12 width) - Live AI Results panel */}
           <div className="lg:col-span-5 flex flex-col items-stretch h-full">
-            <div className="glass-premium rounded-[32px] p-6 md:p-8 shadow-sm flex flex-col justify-between h-full flex-grow min-h-[460px]">
+            <div className="glass-premium rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-8 shadow-sm flex flex-col justify-between h-full flex-grow min-h-[420px] sm:min-h-[460px]">
 
               {isAnalyzing ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center flex-1">
-                  <div className="text-5xl animate-bounce mb-4">🐼</div>
-                  <h3 className="font-extrabold text-indigo-600 dark:text-indigo-400 text-lg">
+                <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center flex-1">
+                  <div className="text-4xl sm:text-5xl animate-bounce mb-3 sm:mb-4">🐼</div>
+                  <h3 className="font-extrabold text-indigo-600 dark:text-indigo-400 text-base sm:text-lg">
                     Analyzing PDF structure
                   </h3>
                   <p className="text-gray-500 dark:text-slate-400 text-xs mt-1 max-w-xs leading-relaxed">
@@ -914,8 +914,8 @@ function PDFManager() {
           </div>
 
           {/* History table list */}
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-5">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-4 sm:p-6 shadow-sm">
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 sm:mb-5">
               Recent Analyzed Documents
             </h3>
 
@@ -925,14 +925,14 @@ function PDFManager() {
                 <span className="text-sm font-semibold">Loading your documents...</span>
               </div>
             ) : filteredHistory.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-12">
-                <div className="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-transparent dark:border-slate-800">
+              <div className="flex flex-col items-center justify-center text-center py-10 sm:py-12">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl mb-3 sm:mb-4 border border-transparent dark:border-slate-800">
                   📭
                 </div>
-                <h4 className="font-bold text-slate-800 dark:text-slate-200">
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
                   {history.length === 0 ? "No documents uploaded yet." : "No documents match this filter."}
                 </h4>
-                <p className="text-gray-500 dark:text-slate-400 text-xs mt-2 max-w-xs leading-relaxed">
+                <p className="text-gray-500 dark:text-slate-400 text-xs mt-1.5 sm:mt-2 max-w-xs leading-relaxed">
                   {history.length === 0
                     ? "Upload your first PDF above to start tracking your document history."
                     : "Try selecting a different document type filter."}
@@ -941,15 +941,15 @@ function PDFManager() {
                   <button
                     type="button"
                     onClick={() => uploadZoneRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
-                    className="mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl transition cursor-pointer text-xs shadow-sm"
+                    className="mt-4 sm:mt-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl transition cursor-pointer text-xs shadow-sm"
                   >
                     Upload PDF
                   </button>
                 )}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
+              <div className="overflow-x-auto -mx-1 sm:mx-0">
+                <table className="w-full text-left text-xs border-collapse min-w-[540px]">
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-slate-800 text-gray-400 uppercase font-extrabold tracking-wider">
                       <th className="pb-3.5 pl-2">Name</th>
