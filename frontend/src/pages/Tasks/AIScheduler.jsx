@@ -137,18 +137,20 @@ function AIScheduler() {
         )}
 
         {/* Hero Card Banner */}
-        <div className="bg-gradient-to-br from-indigo-950 via-[#0c0f19] to-slate-950 rounded-[32px] px-8 py-8 text-white border border-indigo-500/20 dark:border-slate-800/80 shadow-xl relative overflow-hidden mb-8">
-          <div className="absolute right-8 top-1/2 -translate-y-1/2 text-7xl opacity-10 select-none pointer-events-none">
+        <div className="bg-gradient-to-br from-indigo-50/90 via-white to-purple-50/70 dark:from-indigo-950 dark:via-[#0c0f19] dark:to-slate-950 rounded-[32px] px-8 py-8 text-slate-800 dark:text-white border border-indigo-100/80 dark:border-slate-800/80 shadow-sm shadow-indigo-500/5 dark:shadow-xl relative overflow-hidden mb-8 transition-colors duration-300">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 dark:bg-purple-600/5 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 text-7xl opacity-20 dark:opacity-10 select-none pointer-events-none">
             🐼
           </div>
           <div className="relative z-10 max-w-2xl">
-            <span className="text-xs uppercase tracking-widest font-black bg-indigo-500/20 px-3.5 py-1.5 rounded-full border border-indigo-500/30 text-indigo-300">
+            <span className="text-xs uppercase tracking-widest font-black bg-indigo-100/70 dark:bg-indigo-500/20 px-3.5 py-1.5 rounded-full border border-indigo-200/60 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300">
               Generative Pacing Engine
             </span>
-            <h2 className="text-2xl font-black mt-4 mb-2 tracking-tight">
+            <h2 className="text-2xl font-black mt-4 mb-2 tracking-tight text-slate-800 dark:text-slate-50">
               How does the Scheduler work?
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed font-semibold">
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
               We compile your pending tasks directly from Firestore, filter for priority weights and category constraints, and query Gemini to draft a balanced hourly layout aligned with cognitive health best-practices.
             </p>
           </div>
