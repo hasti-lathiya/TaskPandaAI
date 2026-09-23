@@ -8,12 +8,13 @@ import {
   Sun,
   CheckCheck,
   Trash2,
+  Menu,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useNotifications } from "../../context/NotificationContext";
 import { useApp } from "../../context/AppContext";
 
-function Topbar() {
+function Topbar({ onOpenSidebar = () => {} }) {
   const { darkMode, toggleDarkMode } = useTheme();
   const { user: appContextUser } = useApp();
   const {
@@ -69,6 +70,11 @@ function Topbar() {
     year: "numeric",
   });
 
+  const compactDate = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+  });
+
   const getNotificationIcon = (type) => {
     switch (type) {
       case "task":
@@ -83,22 +89,33 @@ function Topbar() {
   };
 
   return (
-    <header className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl px-6 py-4 flex items-center justify-between w-full shadow-sm transition-colors duration-300 mb-6">
-      {/* Left Section - Date Badge */}
-      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm font-bold">
-        <CalendarDays size={16} className="text-indigo-500" />
-        <span>{today}</span>
+    <header className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl px-3.5 sm:px-6 py-3 sm:py-4 flex items-center justify-between w-full shadow-sm transition-colors duration-300 mb-6">
+      {/* Left Section - Hamburger Menu & Date Badge */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          onClick={onOpenSidebar}
+          aria-label="Open navigation menu"
+          className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700 transition cursor-pointer flex-shrink-0"
+        >
+          <Menu size={20} />
+        </button>
+
+        <div className="flex items-center gap-1.5 sm:gap-2 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-bold">
+          <CalendarDays size={16} className="text-indigo-500 flex-shrink-0" />
+          <span className="hidden sm:inline">{today}</span>
+          <span className="sm:hidden">{compactDate}</span>
+        </div>
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Theme Toggle */}
         <button
           onClick={toggleDarkMode}
           title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          className="w-11 h-11 flex items-center justify-center bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-amber-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition rounded-2xl cursor-pointer"
+          className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-amber-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition rounded-xl sm:rounded-2xl cursor-pointer"
         >
-          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
         {/* Notifications Bell Icon Wrapper */}
@@ -106,19 +123,19 @@ function Topbar() {
           {/* Bell Button */}
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className={`relative w-11 h-11 flex items-center justify-center rounded-2xl hover:bg-gray-100 dark:hover:bg-slate-800 transition cursor-pointer text-slate-700 dark:text-slate-200 ${
+            className={`relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl sm:rounded-2xl hover:bg-gray-100 dark:hover:bg-slate-800 transition cursor-pointer text-slate-700 dark:text-slate-200 ${
               notificationsOpen ? "bg-gray-100 dark:bg-slate-800 ring-2 ring-indigo-500" : ""
             }`}
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             {unreadCount > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse ring-2 ring-white dark:ring-slate-900" />
             )}
           </button>
 
-          {/* Dropdown Panel - MUST BE ABSOLUTE TO THIS WRAPPER */}
+          {/* Dropdown Panel */}
           {notificationsOpen && (
-            <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl z-50 p-4 text-white animate-in fade-in slide-in-from-top-3 duration-200">
+            <div className="fixed inset-x-3 top-20 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full mt-3 sm:w-96 max-w-full bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl z-50 p-4 text-white animate-in fade-in slide-in-from-top-3 duration-200">
               
               {/* Header Row */}
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-700/60">
@@ -206,7 +223,7 @@ function Topbar() {
         </div>
 
         {/* Profile Initial */}
-        <div className="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold flex items-center justify-center select-none border border-indigo-200/10 dark:border-indigo-900/30 shadow-inner">
+        <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold flex items-center justify-center select-none border border-indigo-200/10 dark:border-indigo-900/30 shadow-inner text-xs sm:text-base">
           {(appContextUser?.fullName || user?.displayName || "S").charAt(0).toUpperCase()}
         </div>
       </div>

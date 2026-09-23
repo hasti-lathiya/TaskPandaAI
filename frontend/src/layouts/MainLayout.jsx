@@ -1,7 +1,10 @@
+import { useState } from "react";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Topbar from "../components/Topbar/Topbar";
 
 function MainLayout({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="flex h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 transition-colors duration-500 relative overflow-hidden">
 
@@ -16,19 +19,26 @@ function MainLayout({ children }) {
         <div className="absolute bottom-[-10%] right-[-10%] w-[550px] h-[550px] rounded-full bg-purple-500/10 dark:bg-purple-600/4 blur-[140px] animate-blob animation-delay-2000" />
       </div>
 
-      {/* Sidebar */}
-      <div className="relative z-10 flex-shrink-0">
-        <Sidebar />
-      </div>
+      {/* Mobile Backdrop Overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar (Desktop pinned + Mobile slide-in drawer) */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 overflow-y-auto p-6 sm:p-8 relative z-10 flex flex-col justify-start">
+      <main className="flex-1 min-w-0 overflow-y-auto p-3.5 sm:p-6 lg:p-8 relative z-10 flex flex-col justify-start">
 
         {/* Top Navigation */}
-        <Topbar />
+        <Topbar onOpenSidebar={() => setSidebarOpen(true)} />
 
         {/* Page Content with smooth fade-in entry */}
-        <div className="mt-0 flex-grow animate-fade-in">
+        <div className="mt-0 flex-grow animate-fade-in w-full">
           {children}
         </div>
 

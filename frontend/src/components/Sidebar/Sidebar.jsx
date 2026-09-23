@@ -8,12 +8,13 @@ import {
   User,
   Users,
   LogOut,
+  X,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 
-function Sidebar() {
+function Sidebar({ isOpen = false, onClose = () => {} }) {
   const { equippedCompanion } = useTheme();
 
   const menuItems = [
@@ -223,19 +224,33 @@ function Sidebar() {
   };
 
   return (
-    <aside className="w-64 flex-shrink-0 h-screen sticky top-0 flex flex-col justify-between bg-white/70 dark:bg-[#070b14]/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/70 p-4 z-40 pb-6">
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 w-72 lg:w-64 lg:static lg:h-screen flex flex-col justify-between bg-white/95 dark:bg-[#070b14]/95 lg:bg-white/70 lg:dark:bg-[#070b14]/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/70 p-4 pb-6 transition-transform duration-300 ease-in-out flex-shrink-0 ${
+        isOpen ? "translate-x-0 shadow-2xl shadow-black/40" : "-translate-x-full lg:translate-x-0"
+      }`}
+    >
       
       {/* Scrollable upper section */}
       <div className="flex flex-col overflow-y-auto pr-1 scrollbar-none">
-        {/* Logo */}
-        <div className="mb-8 pt-4 px-2">
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
-            <span>🐼</span> TaskPanda
-          </h1>
+        {/* Logo & Mobile Close Button */}
+        <div className="mb-8 pt-4 px-2 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
+              <span>🐼</span> TaskPanda
+            </h1>
 
-          <p className="text-slate-400 dark:text-slate-500 text-xs font-semibold mt-1 tracking-wider uppercase">
-            Productivity Platform
-          </p>
+            <p className="text-slate-400 dark:text-slate-500 text-xs font-semibold mt-1 tracking-wider uppercase">
+              Productivity Platform
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            aria-label="Close sidebar"
+            className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Navigation */}
@@ -244,6 +259,7 @@ function Sidebar() {
             <NavLink
               key={item.name}
               to={item.path}
+              onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 text-sm ${
                   isActive
@@ -262,6 +278,7 @@ function Sidebar() {
         <button
           data-testid="logout-btn"
           onClick={async () => {
+            onClose();
             await signOut(auth);
             localStorage.removeItem("app_user");
             localStorage.removeItem("app_tasks");
