@@ -414,19 +414,19 @@ function Tasks() {
   return (
     <MainLayout>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-4xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
             📋 Task Manager
           </h1>
-          <p className="text-gray-500 dark:text-slate-400 mt-1">
+          <p className="text-gray-500 dark:text-slate-400 mt-1 text-xs sm:text-sm">
             Organize and track your daily productivity.
           </p>
         </div>
 
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-6 py-3.5 rounded-2xl shadow-md hover:shadow-indigo-500/25 dark:hover:shadow-indigo-900/30 transition transform hover:-translate-y-0.5 cursor-pointer text-sm"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl shadow-md hover:shadow-indigo-500/25 dark:hover:shadow-indigo-900/30 transition transform hover:-translate-y-0.5 cursor-pointer text-sm"
         >
           + Add Task
         </button>
@@ -436,42 +436,42 @@ function Tasks() {
         <div
           role="alert"
           aria-live="assertive"
-          className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6 font-bold text-sm text-center shadow-sm"
+          className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 p-3 sm:p-4 rounded-xl sm:rounded-2xl mb-6 font-bold text-xs sm:text-sm text-center shadow-sm"
         >
           {error}
         </div>
       )}
 
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+      {/* Statistics Grid (2x2 on mobile, 4-col on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+              <p className="text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 📋 Total Tasks
               </p>
-              <h2 className="text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-3">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1 sm:mt-3">
                 {tasks.length}
               </h2>
             </div>
           </div>
-          <div className="mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="mt-3 sm:mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div className="h-full bg-indigo-500 rounded-full w-full" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+              <p className="text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 ✅ Completed
               </p>
-              <h2 className="text-4xl font-extrabold text-green-600 dark:text-green-400 mt-3">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-green-600 dark:text-green-400 mt-1 sm:mt-3">
                 {completedTasks}
               </h2>
             </div>
           </div>
-          <div className="mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="mt-3 sm:mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
               className="h-full bg-green-500 rounded-full transition-all duration-500"
               style={{ width: `${tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0}%` }}
@@ -479,18 +479,18 @@ function Tasks() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+              <p className="text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 ⏳ Pending
               </p>
-              <h2 className="text-4xl font-extrabold text-orange-500 dark:text-orange-400 mt-3">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-orange-500 dark:text-orange-400 mt-1 sm:mt-3">
                 {pendingTasks}
               </h2>
             </div>
           </div>
-          <div className="mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="mt-3 sm:mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
               className="h-full bg-orange-500 rounded-full transition-all duration-500"
               style={{ width: `${tasks.length > 0 ? (pendingTasks / tasks.length) * 100 : 0}%` }}
@@ -498,18 +498,18 @@ function Tasks() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                🔥 Completion Rate
+              <p className="text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                🔥 Rate
               </p>
-              <h2 className="text-4xl font-extrabold text-purple-600 dark:text-purple-400 mt-3">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-purple-600 dark:text-purple-400 mt-1 sm:mt-3">
                 {completionRate}%
               </h2>
             </div>
           </div>
-          <div className="mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="mt-3 sm:mt-5 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
               className="h-full bg-purple-500 rounded-full transition-all duration-500"
               style={{ width: `${completionRate}%` }}
@@ -530,14 +530,14 @@ function Tasks() {
           placeholder="🔍 Search tasks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 rounded-2xl p-4 shadow border border-gray-200 dark:border-slate-800 outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base shadow border border-gray-200 dark:border-slate-800 outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
 
-      {/* Category Filter */}
-      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+      {/* Category Filter & Sort */}
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-3 sm:gap-4">
 
-        <div className="flex gap-2.5 flex-wrap items-center">
+        <div className="flex gap-2 sm:gap-2.5 flex-wrap items-center">
 
           {visibleCategories.map((category) => {
             const isBase = ["All", "College", "Internship", "Personal"].includes(category);
@@ -552,7 +552,7 @@ function Tasks() {
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 aria-pressed={isSelected}
-                className={`group px-4 py-2.5 rounded-xl transition cursor-pointer text-sm font-bold border flex items-center gap-1.5 ${
+                className={`group px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl transition cursor-pointer text-xs sm:text-sm font-bold border flex items-center gap-1.5 ${
                   isSelected
                     ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm shadow-indigo-500/10 glow-active"
                     : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -561,7 +561,7 @@ function Tasks() {
                 <span>{category}</span>
                 {category !== "All" && (
                   <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                    className={`text-[11px] sm:text-xs px-1.5 py-0.5 rounded-full font-semibold ${
                       isSelected
                         ? "bg-indigo-500/20 text-indigo-700 dark:text-indigo-300"
                         : "bg-slate-200/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
@@ -595,7 +595,7 @@ function Tasks() {
                 type="button"
                 onClick={() => setMoreOpen((prev) => !prev)}
                 aria-expanded={moreOpen}
-                className={`px-4 py-2.5 rounded-xl transition cursor-pointer text-sm font-bold border flex items-center gap-2 ${
+                className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl transition cursor-pointer text-xs sm:text-sm font-bold border flex items-center gap-2 ${
                   moreOpen
                     ? "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100"
                     : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -603,7 +603,7 @@ function Tasks() {
               >
                 <span>More ({overflowCategories.length})</span>
                 <ChevronDown
-                  size={15}
+                  size={14}
                   className={`transition-transform duration-200 text-slate-400 ${
                     moreOpen ? "rotate-180 text-indigo-500" : ""
                   }`}
@@ -611,7 +611,7 @@ function Tasks() {
               </button>
 
               {moreOpen && (
-                <div className="absolute left-0 top-full mt-2 z-50 w-64 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-1.5 shadow-2xl shadow-slate-900/20 dark:shadow-black/70 backdrop-blur-md scrollbar-thin">
+                <div className="absolute left-0 top-full mt-2 z-50 w-64 max-w-[calc(100vw-2.5rem)] max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-1.5 shadow-2xl shadow-slate-900/20 dark:shadow-black/70 backdrop-blur-md scrollbar-thin">
                   <div className="px-3 py-1.5 text-[11px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">
                     More Categories
                   </div>
@@ -665,7 +665,7 @@ function Tasks() {
 
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
           <CustomSelect
             id="task-sort"
             ariaLabel="Sort tasks by"
@@ -677,8 +677,8 @@ function Tasks() {
               { value: "highPriority", label: "High Priority First" },
               { value: "lowPriority", label: "Low Priority First" },
             ]}
-            className="min-w-[180px]"
-            buttonClassName="!bg-white/40 dark:!bg-slate-900/60 !border-slate-200 dark:!border-slate-800 !rounded-xl !px-4 !py-2.5 !text-sm !font-bold hover:!bg-slate-100 dark:hover:!bg-slate-800"
+            className="w-full sm:w-auto min-w-0 sm:min-w-[180px]"
+            buttonClassName="!w-full sm:!w-auto !bg-white/40 dark:!bg-slate-900/60 !border-slate-200 dark:!border-slate-800 !rounded-xl !px-4 !py-2.5 !text-xs sm:!text-sm !font-bold hover:!bg-slate-100 dark:hover:!bg-slate-800"
           />
         </div>
 
@@ -697,31 +697,31 @@ function Tasks() {
             ))}
           </div>
         ) : tasks.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-10 text-center shadow">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-center shadow">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">
               No Tasks Yet 📭
             </h2>
 
-            <p className="text-gray-500 dark:text-slate-400 mt-2">
+            <p className="text-gray-500 dark:text-slate-400 mt-2 text-sm sm:text-base">
               Click "Add Task" to create your first task.
             </p>
           </div>
         ) : visibleTasks.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-10 text-center shadow">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-center shadow">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">
               No Matching Tasks 🔍
             </h2>
 
-            <p className="text-gray-500 dark:text-slate-400 mt-2">
+            <p className="text-gray-500 dark:text-slate-400 mt-2 text-sm sm:text-base">
               Try a different search term or category.
             </p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
 
             {/* Pending Tasks */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-slate-100">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-800 dark:text-slate-100">
                 📌 Pending Tasks
               </h2>
 
@@ -800,7 +800,7 @@ function Tasks() {
       {taskPendingDelete &&
         createPortal(
           <div
-            className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-task-title"
@@ -810,25 +810,25 @@ function Tasks() {
               onClick={() => !deleting && setTaskPendingDelete(null)}
             />
 
-            <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-md shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10">
+            <div className="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 w-full max-w-sm sm:max-w-md shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10">
 
               <h2
                 id="delete-task-title"
-                className="text-2xl font-bold text-slate-800 dark:text-slate-100"
+                className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100"
               >
                 Delete this task?
               </h2>
 
-              <p className="text-gray-500 dark:text-slate-400 mt-3">
+              <p className="text-gray-500 dark:text-slate-400 mt-2 sm:mt-3 text-xs sm:text-sm">
                 “{taskPendingDelete.title || "Untitled task"}” will be permanently
                 removed. This can't be undone.
               </p>
 
-              <div className="flex gap-3 mt-8">
+              <div className="flex gap-2.5 sm:gap-3 mt-6 sm:mt-8">
                 <button
                   onClick={() => setTaskPendingDelete(null)}
                   disabled={deleting}
-                  className="flex-1 px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed text-xs sm:text-sm"
                 >
                   Cancel
                 </button>
@@ -837,7 +837,7 @@ function Tasks() {
                   onClick={confirmDeleteTask}
                   disabled={deleting}
                   aria-busy={deleting}
-                  className="flex-1 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed text-xs sm:text-sm"
                 >
                   {deleting ? "Deleting..." : "Delete"}
                 </button>

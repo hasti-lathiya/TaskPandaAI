@@ -12,32 +12,34 @@ function CalendarView({ tasks }) {
   );
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl shadow-lg p-6 mt-8 transition-colors duration-300 text-slate-800 dark:text-slate-100">
+    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-lg p-4 sm:p-6 mt-6 sm:mt-8 transition-colors duration-300 text-slate-800 dark:text-slate-100 overflow-hidden">
 
-      <h2 className="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100">
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-slate-800 dark:text-slate-100">
         📅 Task Calendar
       </h2>
 
-      <Calendar
-        onChange={setDate}
-        value={date}
-        className="w-full border-none rounded-2xl dark:bg-slate-900 dark:text-slate-100"
-        tileContent={({ date, view }) => {
-          if (view === "month") {
-            const taskExists = tasks.some(
-              (task) =>
-                task.dueDate ===
-                date.toISOString().split("T")[0]
-            );
+      <div className="w-full overflow-x-auto pb-1">
+        <Calendar
+          onChange={setDate}
+          value={date}
+          className="w-full border-none rounded-2xl dark:bg-slate-900 dark:text-slate-100"
+          tileContent={({ date, view }) => {
+            if (view === "month") {
+              const taskExists = tasks.some(
+                (task) =>
+                  task.dueDate ===
+                  date.toISOString().split("T")[0]
+              );
 
-            return taskExists ? (
-              <div className="text-center text-red-500 text-lg">
-                📌
-              </div>
-            ) : null;
-          }
-        }}
-      />
+              return taskExists ? (
+                <div className="text-center text-red-500 text-lg">
+                  📌
+                </div>
+              ) : null;
+            }
+          }}
+        />
+      </div>
 
       <div className="mt-8">
 

@@ -106,25 +106,25 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 backdrop-blur-md flex justify-center items-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur-md flex justify-center items-center z-50 p-3 sm:p-4">
 
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-8 w-full max-w-lg shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-8 w-full max-w-lg shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 max-h-[92vh] sm:max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
 
         {/* Header */}
 
-        <div className="flex justify-between items-center mb-8 flex-shrink-0">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 flex-shrink-0">
 
           <div>
-            <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+            <h2 className="text-xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
               ➕ Add New Task
             </h2>
 
-            <p className="text-gray-500 dark:text-slate-400 mt-2">
+            <p className="text-gray-500 dark:text-slate-400 mt-1 text-xs sm:text-sm">
               Create a task and keep your productivity moving.
             </p>
           </div>
 
-          <div className="text-5xl">
+          <div className="text-3xl sm:text-5xl">
             🐼
           </div>
 
@@ -143,7 +143,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
             <textarea
               rows="3"
               placeholder="Describe the task..."
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -160,7 +160,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
             <input
               type="text"
               placeholder="Example: Complete Internship Report"
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -178,7 +178,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
               value={priority}
               onChange={(val) => setPriority(val)}
               options={["High", "Medium", "Low"]}
-              buttonClassName="!rounded-2xl !p-4"
+              buttonClassName="!rounded-xl sm:!rounded-2xl !p-3 sm:!p-4 !text-sm sm:!text-base"
             />
           </div>
           
@@ -192,7 +192,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
             value={energyLevel}
             onChange={(val) => setEnergyLevel(val)}
             options={["High", "Medium", "Low"]}
-            buttonClassName="!rounded-2xl !p-4"
+            buttonClassName="!rounded-xl sm:!rounded-2xl !p-3 sm:!p-4 !text-sm sm:!text-base"
           />
         </div>
 
@@ -206,7 +206,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
         type="number"
         min="5"
         step="5"
-        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
         value={estimatedDuration}
         onChange={(e) => setEstimatedDuration(Number(e.target.value))}
         />
@@ -230,7 +230,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
                 }
               }}
               options={categoryOptions}
-              buttonClassName="!rounded-2xl !p-4"
+              buttonClassName="!rounded-xl sm:!rounded-2xl !p-3 sm:!p-4 !text-sm sm:!text-base"
             />
           </div>
 
@@ -246,7 +246,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
                 placeholder="Enter custom category (e.g. Work, Fitness, Freelance)..."
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value)}
-                className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border-2 border-indigo-500/40 dark:border-indigo-500/50 rounded-2xl p-4 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border-2 border-indigo-500/40 dark:border-indigo-500/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
                 autoFocus
               />
               <p className="text-xs text-slate-500 dark:text-slate-400 pl-1">
@@ -265,7 +265,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
             <input
               type="date"
               min={new Date().toLocaleDateString("en-CA")}
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-indigo-500"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
             />
@@ -273,19 +273,19 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
 
           {/* Buttons */}
 
-          <div className="flex justify-end gap-4 pt-4">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 sm:gap-4 pt-4">
 
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 rounded-2xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 font-semibold text-sm sm:text-base transition cursor-pointer"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="px-6 py-3 rounded-2xl bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition cursor-pointer"
+              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 font-semibold text-sm sm:text-base transition cursor-pointer shadow-md hover:shadow-indigo-500/25"
             >
               Save Task
             </button>
