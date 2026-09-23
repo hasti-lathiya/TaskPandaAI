@@ -5,6 +5,7 @@ import MainLayout from "../../layouts/MainLayout";
 import TaskCard from "./TaskCard";
 import AddTaskModal from "./AddTaskModal";
 import EditTaskModal from "./EditTaskModal";
+import CustomSelect from "../../components/Common/CustomSelect";
 
 import { db, auth } from "../../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -433,21 +434,20 @@ function Tasks() {
         </div>
 
         <div>
-          <label htmlFor="task-sort" className="sr-only">
-            Sort tasks by
-          </label>
-
-          <select
+          <CustomSelect
             id="task-sort"
+            ariaLabel="Sort tasks by"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-white/40 dark:bg-slate-900/60 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 shadow-sm outline-none text-sm font-bold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-          >
-            <option value="created">Newest First</option>
-            <option value="dueDate">Due Date</option>
-            <option value="highPriority">High Priority First</option>
-            <option value="lowPriority">Low Priority First</option>
-          </select>
+            onChange={(val) => setSortBy(val)}
+            options={[
+              { value: "created", label: "Newest First" },
+              { value: "dueDate", label: "Due Date" },
+              { value: "highPriority", label: "High Priority First" },
+              { value: "lowPriority", label: "Low Priority First" },
+            ]}
+            className="min-w-[180px]"
+            buttonClassName="!bg-white/40 dark:!bg-slate-900/60 !border-slate-200 dark:!border-slate-800 !rounded-xl !px-4 !py-2.5 !text-sm !font-bold hover:!bg-slate-100 dark:hover:!bg-slate-800"
+          />
         </div>
 
       </div>

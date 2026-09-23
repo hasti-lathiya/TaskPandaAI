@@ -2,6 +2,7 @@ import { useState } from "react";
 import { db } from "../../firebase/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { createPortal } from "react-dom";
+import CustomSelect from "../../components/Common/CustomSelect";
 
 function EditTaskModal({
   isOpen,
@@ -123,17 +124,13 @@ function EditTaskModal({
               Priority
             </label>
 
-            <select
+            <CustomSelect
+              ariaLabel="Priority"
               value={priority}
-              onChange={(e) =>
-                setPriority(e.target.value)
-              }
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option className="dark:bg-slate-800">High</option>
-              <option className="dark:bg-slate-800">Medium</option>
-              <option className="dark:bg-slate-800">Low</option>
-            </select>
+              onChange={(val) => setPriority(val)}
+              options={["High", "Medium", "Low"]}
+              buttonClassName="!rounded-2xl !p-4"
+            />
           </div>
 
           {/* Energy Requirement */}
@@ -143,15 +140,13 @@ function EditTaskModal({
               Energy Requirement
             </label>
 
-            <select
+            <CustomSelect
+              ariaLabel="Energy Requirement"
               value={energyLevel}
-              onChange={(e) => setEnergyLevel(e.target.value)}
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option className="dark:bg-slate-800">High</option>
-              <option className="dark:bg-slate-800">Medium</option>
-              <option className="dark:bg-slate-800">Low</option>
-            </select>
+              onChange={(val) => setEnergyLevel(val)}
+              options={["High", "Medium", "Low"]}
+              buttonClassName="!rounded-2xl !p-4"
+            />
           </div>
 
           {/* Estimated Duration */}
@@ -178,18 +173,13 @@ function EditTaskModal({
               Category
             </label>
 
-            <select
+            <CustomSelect
+              ariaLabel="Category"
               value={category}
-              onChange={(e) =>
-                setCategory(e.target.value)
-              }
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option className="dark:bg-slate-800">College</option>
-              <option className="dark:bg-slate-800">Internship</option>
-              <option className="dark:bg-slate-800">Personal</option>
-              <option className="dark:bg-slate-800">Other</option>
-            </select>
+              onChange={(val) => setCategory(val)}
+              options={["College", "Internship", "Personal", "Other"]}
+              buttonClassName="!rounded-2xl !p-4"
+            />
           </div>
 
           {/* Due Date */}

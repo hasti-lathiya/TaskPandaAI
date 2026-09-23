@@ -7,6 +7,7 @@ import {
 } from "firebase/firestore";
 import { useNotifications } from "../../context/NotificationContext";
 import { createPortal } from "react-dom";
+import CustomSelect from "../../components/Common/CustomSelect";
 
 function AddTaskModal({ isOpen, onClose }) {
 const { addNotification } = useNotifications();
@@ -129,31 +130,27 @@ const [description, setDescription] = useState("");
               Priority
             </label>
 
-            <select
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            <CustomSelect
+              ariaLabel="Priority"
               value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-            >
-              <option className="dark:bg-slate-800">High</option>
-              <option className="dark:bg-slate-800">Medium</option>
-              <option className="dark:bg-slate-800">Low</option>
-            </select>
+              onChange={(val) => setPriority(val)}
+              options={["High", "Medium", "Low"]}
+              buttonClassName="!rounded-2xl !p-4"
+            />
           </div>
           
         <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-          Energy Requirement
-        </label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Energy Requirement
+          </label>
 
-        <select
-          className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
-          value={energyLevel}
-          onChange={(e) => setEnergyLevel(e.target.value)}
-        >
-          <option className="dark:bg-slate-800">High</option>
-          <option className="dark:bg-slate-800">Medium</option>
-          <option className="dark:bg-slate-800">Low</option>
-        </select>
+          <CustomSelect
+            ariaLabel="Energy Requirement"
+            value={energyLevel}
+            onChange={(val) => setEnergyLevel(val)}
+            options={["High", "Medium", "Low"]}
+            buttonClassName="!rounded-2xl !p-4"
+          />
         </div>
 
 
@@ -180,16 +177,13 @@ const [description, setDescription] = useState("");
               Category
             </label>
 
-            <select
-              className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            <CustomSelect
+              ariaLabel="Category"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option className="dark:bg-slate-800">College</option>
-              <option className="dark:bg-slate-800">Internship</option>
-              <option className="dark:bg-slate-800">Personal</option>
-              <option className="dark:bg-slate-800">Other</option>
-            </select>
+              onChange={(val) => setCategory(val)}
+              options={["College", "Internship", "Personal", "Other"]}
+              buttonClassName="!rounded-2xl !p-4"
+            />
           </div>
 
           {/* Due Date */}

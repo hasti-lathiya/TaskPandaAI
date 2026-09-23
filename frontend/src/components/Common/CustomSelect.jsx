@@ -36,8 +36,14 @@ function CustomSelect({
     if (!isOpen && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
-      // If there's less than 150px below the dropdown, open upward
-      setOpenUpward(spaceBelow < 150);
+      const scrollParent = containerRef.current.closest(".overflow-y-auto") || containerRef.current.closest("form");
+      let parentSpaceBelow = spaceBelow;
+      if (scrollParent) {
+        const parentRect = scrollParent.getBoundingClientRect();
+        parentSpaceBelow = parentRect.bottom - rect.bottom;
+      }
+      // If there's limited room below either in viewport or scroll container, open upward
+      setOpenUpward(spaceBelow < 220 || parentSpaceBelow < 190);
     }
     setIsOpen((prev) => !prev);
   };
