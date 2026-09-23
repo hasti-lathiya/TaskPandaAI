@@ -43,6 +43,11 @@ function EditTaskModal({
       return;
     }
 
+    if (dueDate && dueDate < new Date().toLocaleDateString("en-CA")) {
+      alert("Due date cannot be in the past.");
+      return;
+    }
+
     let finalCategory = category;
     if (category === "Other") {
       const trimmed = customCategory.trim();
@@ -257,7 +262,7 @@ function EditTaskModal({
 
             <input
               type="date"
-              min={new Date().toISOString().split("T")[0]}
+              min={new Date().toLocaleDateString("en-CA")}
               value={dueDate}
               onChange={(e) =>
                 setDueDate(e.target.value)

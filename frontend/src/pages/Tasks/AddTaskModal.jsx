@@ -46,6 +46,11 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
       return;
     }
 
+    if (dueDate && dueDate < new Date().toLocaleDateString("en-CA")) {
+      alert("Due date cannot be in the past.");
+      return;
+    }
+
     let finalCategory = category;
     if (category === "Other") {
       const trimmed = customCategory.trim();
@@ -259,7 +264,7 @@ function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
 
             <input
               type="date"
-              min={new Date().toISOString().split("T")[0]}
+              min={new Date().toLocaleDateString("en-CA")}
               className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}

@@ -220,6 +220,11 @@ function TeamDetails() {
       return;
     }
 
+    if (taskDueDate && taskDueDate < new Date().toLocaleDateString("en-CA")) {
+      setActionError("Due date cannot be in the past.");
+      return;
+    }
+
     setActionError("");
     setCreatingTask(true);
 
@@ -1064,6 +1069,7 @@ function TeamDetails() {
                     <input
                       aria-label="Task due date"
                       type="date"
+                      min={new Date().toLocaleDateString("en-CA")}
                       value={taskDueDate}
                       onChange={(e) => setTaskDueDate(e.target.value)}
                       className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
