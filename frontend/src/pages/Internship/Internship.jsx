@@ -278,7 +278,7 @@ function Internship() {
         </div>
 
         {/* 2-Column Split Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* Left Column (2/3 Width) - Work Log and Reports */}
           <div className="lg:col-span-2 space-y-8">
@@ -342,8 +342,8 @@ function Internship() {
             <MonthlyReport />
           </div>
 
-          {/* Right Column (1/3 Width) - Settings and Quick Inputs */}
-          <div className="space-y-8">
+          {/* Right Column (1/3 Width) - Settings and Quick Inputs (Sticky on scroll) */}
+          <div className="space-y-8 lg:sticky lg:top-6 self-start max-h-[calc(100vh-2rem)] overflow-y-auto scrollbar-none pb-4">
             <HoursTracker todayHours={todayHours} setTodayHours={setTodayHours} />
             <InternshipGoals />
             <MentorFeedback />
