@@ -84,49 +84,49 @@ function InternshipGoals() {
   const progress = Math.round((completed / 3) * 100);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 transition-colors duration-300">
+    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-sm p-4 sm:p-6 transition-colors duration-300">
 
-      <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-slate-100">
+      <h2 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6 text-slate-800 dark:text-slate-100">
         🎯 Internship Goals
       </h2>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
 
-        <div className="flex justify-between text-slate-700 dark:text-slate-300">
+        <div className="flex justify-between text-xs sm:text-base text-slate-700 dark:text-slate-300 font-medium">
           <span>Complete 8 Hours</span>
           <span>{goals.hours ? "✅" : "⬜"}</span>
         </div>
 
-        <div className="flex justify-between text-slate-700 dark:text-slate-300">
+        <div className="flex justify-between text-xs sm:text-base text-slate-700 dark:text-slate-300 font-medium">
           <span>Add Daily Work Log</span>
           <span>{goals.workLog ? "✅" : "⬜"}</span>
         </div>
 
-        <div className="flex justify-between text-slate-700 dark:text-slate-300">
+        <div className="flex justify-between text-xs sm:text-base text-slate-700 dark:text-slate-300 font-medium">
           <span>Complete Today's Tasks</span>
           <span>{goals.tasks ? "✅" : "⬜"}</span>
         </div>
 
       </div>
 
-      <div className="mt-6">
+      <div className="mt-5 sm:mt-6">
 
         <div className="flex justify-between mb-2">
 
-          <span className="font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
             Today's Progress
           </span>
 
-          <span className="font-bold text-indigo-600 dark:text-indigo-400">
+          <span className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400">
             {progress}%
           </span>
 
         </div>
 
-        <div className="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-4">
+        <div className="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-3 sm:h-4 overflow-hidden">
 
           <div
-            className="bg-gradient-to-r from-indigo-500 to-purple-600 h-4 rounded-full transition-all duration-700"
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 sm:h-4 rounded-full transition-all duration-700"
             style={{
               width: `${progress}%`,
             }}

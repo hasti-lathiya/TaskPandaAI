@@ -219,50 +219,50 @@ function Internship() {
   
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 transition-all duration-300">
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 transition-all duration-300">
         
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight">
             💼 Internship Tracker
           </h1>
-          <p className="text-slate-500 dark:text-slate-300 mt-1 text-sm font-semibold">
+          <p className="text-slate-500 dark:text-slate-300 mt-1 text-xs sm:text-sm font-semibold">
             Track your internship progress, daily work hours, and generate AI-guided weekly reports.
           </p>
         </div>
 
         {/* Hero Card Banner */}
-        <div className="glass-premium rounded-[32px] p-8 shadow-sm mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+        <div className="glass-premium rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-sm mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 tracking-tight">
                 🚀 Keep Growing Every Day
               </h2>
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 max-w-xl font-medium">
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl font-medium">
                 Small consistent improvements every day lead to a highly successful internship outcome.
               </p>
-              <p className="mt-5 font-bold text-xs text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+              <p className="mt-3 sm:mt-5 font-bold text-[10px] sm:text-xs text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
                 📅 {today}
               </p>
             </div>
-            <div className="w-20 h-20 rounded-3xl bg-indigo-500/10 dark:bg-indigo-950/60 flex items-center justify-center text-4xl shadow-inner border border-indigo-500/10 dark:border-indigo-950/30 flex-shrink-0 select-none">
+            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-indigo-500/10 dark:bg-indigo-950/60 flex items-center justify-center text-2xl sm:text-4xl shadow-inner border border-indigo-500/10 dark:border-indigo-950/30 flex-shrink-0 select-none">
               💼
             </div>
           </div>
         </div>
 
-        {/* Key Metrics Grid (4-Column Layout) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
+        {/* Key Metrics Grid (2x2 on mobile, 4-cols on lg) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="glass-premium glass-hover rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <h3 className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider line-clamp-1">
                 ⏰ Hours Today
               </h3>
-              <p className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-3">
+              <p className="text-xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2 sm:mt-3">
                 {todayHours} / 8
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-3 sm:mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div
                 className="h-1.5 bg-indigo-500 rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${Math.min((todayHours / 8) * 100, 100)}%` }}
@@ -270,62 +270,62 @@ function Internship() {
             </div>
           </div>
 
-          <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
+          <div className="glass-premium glass-hover rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <h3 className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider line-clamp-1">
                 📋 Tasks Completed
               </h3>
-              <p className="text-3xl font-extrabold text-green-600 dark:text-green-400 mt-3">
+              <p className="text-xl sm:text-3xl font-extrabold text-green-600 dark:text-green-400 mt-2 sm:mt-3">
                 {completedTasks}
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-3 sm:mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div className="h-1.5 bg-emerald-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${completedTasks > 0 ? 100 : 0}%` }} />
             </div>
           </div>
 
-          <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
+          <div className="glass-premium glass-hover rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <h3 className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider line-clamp-1">
                 📅 Days Attended
               </h3>
-              <p className="text-3xl font-extrabold text-orange-500 dark:text-orange-400 mt-3">
+              <p className="text-xl sm:text-3xl font-extrabold text-orange-500 dark:text-orange-400 mt-2 sm:mt-3">
                 {daysAttended}
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-3 sm:mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div className="h-1.5 bg-orange-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${daysAttended > 0 ? 100 : 0}%` }} />
             </div>
           </div>
 
-          <div className="glass-premium glass-hover rounded-[24px] p-6 shadow-sm flex flex-col justify-between">
+          <div className="glass-premium glass-hover rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <h3 className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider line-clamp-1">
                 📈 Progress
               </h3>
-              <p className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-3">
+              <p className="text-xl sm:text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-2 sm:mt-3">
                 {progressRate}%
               </p>
             </div>
-            <div className="mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
+            <div className="mt-3 sm:mt-5 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-200/10 dark:border-slate-800/40">
               <div className="h-1.5 bg-purple-500 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progressRate}%` }} />
             </div>
           </div>
         </div>
 
         {/* 2-Column Split Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
           
           {/* Left Column (2/3 Width) - Work Log and Reports */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             <DailyWorkLog />
 
             {/* AI Weekly Report Generator Card */}
-            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm transition-colors duration-300">
-              <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm transition-colors duration-300">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 🤖 AI Weekly Report Generator
               </h2>
-              <p className="text-xs text-gray-500 dark:text-slate-400 mb-4">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mb-3 sm:mb-4">
                 Input your key activities below to generate a formatted weekly status report for your manager or mentor.
               </p>
 
@@ -339,7 +339,7 @@ function Internship() {
                 onChange={(e) => setWeeklyTasks(e.target.value)}
                 aria-invalid={Boolean(reportError)}
                 placeholder="Example:&#10;• Created Login Page&#10;• Integrated Firebase Authentication&#10;• Fixed Sidebar Bugs"
-                className="w-full bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 h-36 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm"
+                className="w-full bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 h-32 sm:h-36 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-xs sm:text-sm"
               />
 
               {reportError && (
@@ -356,17 +356,17 @@ function Internship() {
                 onClick={generateWeeklyReport}
                 disabled={loadingReport}
                 aria-busy={loadingReport}
-                className="mt-4 w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition cursor-pointer text-sm disabled:opacity-50"
+                className="mt-4 w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2.5 sm:py-3 rounded-xl font-bold shadow-md transition cursor-pointer text-xs sm:text-sm disabled:opacity-50"
               >
                 {loadingReport ? "Generating AI report..." : "Generate Weekly Report"}
               </button>
 
               {generatedReport && (
-                <div className="mt-6 bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 border border-gray-100 dark:border-slate-800/80 animate-in fade-in duration-200">
-                  <h3 className="font-extrabold text-sm text-indigo-700 dark:text-indigo-400 mb-3 uppercase tracking-wider">
+                <div className="mt-5 sm:mt-6 bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 sm:p-6 border border-gray-100 dark:border-slate-800/80 animate-in fade-in duration-200">
+                  <h3 className="font-extrabold text-xs sm:text-sm text-indigo-700 dark:text-indigo-400 mb-2 sm:mb-3 uppercase tracking-wider">
                     🐼 Generated Report
                   </h3>
-                  <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line text-sm leading-relaxed">
+                  <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line text-xs sm:text-sm leading-relaxed">
                     {generatedReport}
                   </p>
                 </div>

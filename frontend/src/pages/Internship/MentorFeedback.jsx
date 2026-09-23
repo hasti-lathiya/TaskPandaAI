@@ -51,9 +51,9 @@ function MentorFeedback() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 transition-colors duration-300">
+    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-sm p-4 sm:p-6 transition-colors duration-300">
 
-      <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-slate-100">
+      <h2 className="text-lg sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-800 dark:text-slate-100">
         ⭐ Mentor Feedback
       </h2>
 
@@ -62,12 +62,12 @@ function MentorFeedback() {
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
         placeholder="Write mentor feedback here..."
-        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm"
+        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 border border-gray-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-xs sm:text-sm"
       />
 
       <button
         onClick={saveFeedback}
-        className="mt-4 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-6 py-3 rounded-xl transition cursor-pointer font-medium text-sm"
+        className="mt-3 sm:mt-4 w-full sm:w-auto bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl transition cursor-pointer font-semibold text-xs sm:text-sm shadow-sm"
       >
         Save Feedback
       </button>

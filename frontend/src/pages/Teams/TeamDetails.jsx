@@ -674,55 +674,55 @@ function TeamDetails() {
           </div>
         </div>
       )}
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 p-6 transition-colors duration-300 rounded-3xl">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 p-3.5 sm:p-6 lg:p-8 transition-colors duration-300 rounded-2xl sm:rounded-3xl">
         {/* Back Link */}
         <Link
           to="/teams"
-          className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline mb-6"
+          className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline mb-4 sm:mb-6 text-sm sm:text-base"
         >
           <ArrowLeft size={16} /> Back to Teams
         </Link>
 
         {/* Team Header */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-6 shadow-md mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-colors duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-md mb-6 sm:mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-colors duration-300">
           <div>
-            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+            <span className="text-[10px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
               Team Workspace
             </span>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100 mt-1">
               {team.name}
             </h1>
-            <p className="text-gray-500 dark:text-slate-400 mt-2 max-w-xl">
+            <p className="text-gray-500 dark:text-slate-400 mt-1 sm:mt-2 max-w-xl text-xs sm:text-sm">
               {team.description || "No description provided."}
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 w-full md:w-auto">
             {/* Jitsi Meet Conferencing Button */}
             <a
               href={jitsiMeetLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/60 px-5 py-3 rounded-2xl font-semibold shadow-sm hover:scale-[1.02] transition"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/60 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold shadow-sm hover:scale-[1.02] transition text-xs sm:text-sm"
             >
-              <Video size={18} />
+              <Video size={16} />
               Instant Meeting
             </a>
 
             <button
               onClick={() => setCreateTaskOpen(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-3 rounded-2xl font-semibold shadow-md hover:scale-[1.02] transition cursor-pointer"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold shadow-md hover:scale-[1.02] transition cursor-pointer text-xs sm:text-sm"
             >
-              <Plus size={18} />
+              <Plus size={16} />
               Assign Task
             </button>
 
             {isOwner && (
               <button
                 onClick={handleOpenSettings}
-                className="flex items-center gap-2 bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-gray-200 dark:border-slate-700 px-5 py-3 rounded-2xl font-semibold shadow-sm hover:scale-[1.02] transition cursor-pointer"
+                className="w-full sm:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-gray-200 dark:border-slate-700 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold shadow-sm hover:scale-[1.02] transition cursor-pointer text-xs sm:text-sm"
               >
-                <Settings size={18} />
+                <Settings size={16} />
                 Manage Team
               </button>
             )}
@@ -730,11 +730,11 @@ function TeamDetails() {
         </div>
 
         {/* Navigation Tabs and Progress */}
-        <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between mb-8 border-b border-gray-200 dark:border-slate-800 pb-4">
-          <div className="flex gap-4">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start lg:items-center justify-between mb-6 sm:mb-8 border-b border-gray-200 dark:border-slate-800 pb-4">
+          <div className="flex gap-4 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setActiveTab("tasks")}
-              className={`pb-2 px-1 text-lg font-bold border-b-2 transition ${
+              className={`pb-2 px-1 text-base sm:text-lg font-bold border-b-2 transition whitespace-nowrap ${
                 activeTab === "tasks"
                   ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
                   : "border-transparent text-gray-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
@@ -744,7 +744,7 @@ function TeamDetails() {
             </button>
             <button
               onClick={() => setActiveTab("members")}
-              className={`pb-2 px-1 text-lg font-bold border-b-2 transition ${
+              className={`pb-2 px-1 text-base sm:text-lg font-bold border-b-2 transition whitespace-nowrap ${
                 activeTab === "members"
                   ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
                   : "border-transparent text-gray-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
@@ -755,12 +755,12 @@ function TeamDetails() {
           </div>
 
           <div className="flex items-center gap-4 w-full lg:w-96 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-sm transition-colors duration-300">
-            <span className="text-sm font-semibold whitespace-nowrap">
+            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">
               Progress: {progressRate}%
             </span>
-            <div className="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-3.5 overflow-hidden">
+            <div className="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-3 sm:h-3.5 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-green-500 to-indigo-500 h-3.5 rounded-full transition-all duration-700"
+                className="bg-gradient-to-r from-green-500 to-indigo-500 h-3 sm:h-3.5 rounded-full transition-all duration-700"
                 style={{ width: `${progressRate}%` }}
               />
             </div>
@@ -771,7 +771,7 @@ function TeamDetails() {
         {activeTab === "tasks" ? (
           <>
             {/* Filter Bar */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-4 rounded-3xl shadow-sm transition-colors duration-300">
+            <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-6 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-sm transition-colors duration-300">
               <div className="flex-1">
                 <input
                   aria-label="Search tasks"
@@ -1009,15 +1009,15 @@ function TeamDetails() {
         {/* Assign Task Modal */}
         {createTaskOpen &&
           createPortal(
-            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden">
-              <h2 className="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100 flex-shrink-0">
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-3.5 sm:p-4">
+            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[92vh] flex flex-col overflow-hidden">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-slate-800 dark:text-slate-100 flex-shrink-0">
                 Assign Team Task
               </h2>
 
-              <form onSubmit={handleCreateTask} className="space-y-6 flex-grow overflow-y-auto pr-2 scrollbar-thin text-left">
+              <form onSubmit={handleCreateTask} className="space-y-4 sm:space-y-6 flex-grow overflow-y-auto pr-1 sm:pr-2 scrollbar-thin text-left">
                 <div>
-                  <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
+                  <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Task Title
                   </label>
                   <input
@@ -1027,12 +1027,12 @@ function TeamDetails() {
                     value={taskTitle}
                     onChange={(e) => setTaskTitle(e.target.value)}
                     placeholder="Enter task title"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
+                  <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Description
                   </label>
                   <textarea
@@ -1041,13 +1041,13 @@ function TeamDetails() {
                     value={taskDesc}
                     onChange={(e) => setTaskDesc(e.target.value)}
                     placeholder="Provide details on the assignment"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm sm:text-base"
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                       Assignee
                     </label>
                     <CustomSelect
@@ -1063,7 +1063,7 @@ function TeamDetails() {
                   </div>
 
                   <div>
-                    <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                       Due Date
                     </label>
                     <input
@@ -1072,22 +1072,22 @@ function TeamDetails() {
                       min={new Date().toLocaleDateString("en-CA")}
                       value={taskDueDate}
                       onChange={(e) => setTaskDueDate(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                      className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                     />
                   </div>
                 </div>
 
                 {/* AI Workload Balancer Button */}
-                <div className="bg-slate-50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl p-5">
+                <div className="bg-slate-50 dark:bg-slate-800 border border-transparent dark:border-slate-800 rounded-2xl p-4 sm:p-5">
                   <div className="flex justify-between items-center mb-3">
-                    <span className="font-semibold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
+                    <span className="font-semibold text-xs sm:text-sm text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
                       <Sparkles size={16} /> Workload Suggestion
                     </span>
                     <button
                       type="button"
                       onClick={handleGetAiRecommendation}
                       disabled={aiLoading}
-                      className="text-xs bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-3.5 py-1.5 rounded-lg transition font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="text-xs bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-3 sm:px-3.5 py-1.5 rounded-lg transition font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {aiLoading ? "Thinking..." : "AI Recommend"}
                     </button>
@@ -1100,7 +1100,7 @@ function TeamDetails() {
                   )}
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -1111,7 +1111,7 @@ function TeamDetails() {
                       setTaskDueDate("");
                       setAiRecommendation("");
                     }}
-                    className="px-6 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
+                    className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer font-semibold text-sm"
                   >
                     Cancel
                   </button>
@@ -1119,7 +1119,7 @@ function TeamDetails() {
                     type="submit"
                     disabled={creatingTask}
                     aria-busy={creatingTask}
-                    className="bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-md transition cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {creatingTask ? "Assigning..." : "Assign"}
                   </button>
@@ -1133,8 +1133,8 @@ function TeamDetails() {
         {/* Task Detail / Interaction Modal */}
         {taskModalOpen && selectedTask &&
           createPortal(
-            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-2xl rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-3.5 sm:p-4">
+            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-2xl rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[92vh] flex flex-col overflow-hidden">
               {/* Close Modal Button */}
               <button
                 onClick={() => {
@@ -1142,25 +1142,25 @@ function TeamDetails() {
                   setSelectedTask(null);
                   setFeedbackText("");
                 }}
-                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 text-xl font-bold cursor-pointer z-50"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 text-lg sm:text-xl font-bold cursor-pointer z-50"
               >
                 ✕
               </button>
 
-              <div className="flex-grow overflow-y-auto pr-2 scrollbar-thin text-left">
+              <div className="flex-grow overflow-y-auto pr-1 sm:pr-2 scrollbar-thin text-left">
                 {/* Task Title */}
-                <div className="flex justify-between items-start gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 pr-6 sm:pr-0">
                 <div>
-                  <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+                  <h2 className="text-xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
                     {selectedTask.title}
                   </h2>
-                  <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-400 mt-1">
                     Assigned to: <span className="font-semibold text-slate-700 dark:text-slate-300">{selectedTask.assignedTo}</span>
                   </p>
                 </div>
 
                 {/* Status Dropdown */}
-                <div>
+                <div className="w-full sm:w-auto">
                   <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">
                     Task Status
                   </label>
@@ -1169,7 +1169,7 @@ function TeamDetails() {
                     value={selectedTask.status}
                     onChange={(val) => handleUpdateStatus(selectedTask.id, val)}
                     disabled={Boolean(statusUpdatingId)}
-                    buttonClassName="!py-2 font-semibold !rounded-xl min-w-[160px]"
+                    buttonClassName="!py-2 font-semibold !rounded-xl min-w-[140px] sm:min-w-[160px]"
                     options={[
                       { value: "pending", label: "Pending ⏳" },
                       { value: "in_progress", label: "In Progress 🚀" },
@@ -1180,19 +1180,19 @@ function TeamDetails() {
               </div>
 
               {/* Task Description */}
-              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-transparent dark:border-slate-800 mb-6">
+              <div className="bg-slate-50 dark:bg-slate-800 p-3.5 sm:p-4 rounded-2xl border border-transparent dark:border-slate-800 mb-5 sm:mb-6">
                 <h4 className="font-bold text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                   Task Details
                 </h4>
-                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                   {selectedTask.description || "No description provided."}
                 </p>
               </div>
 
               {/* Rating & Feedback Section (Only for completed tasks) */}
               {selectedTask.status === "completed" && (
-                <div className="bg-amber-50/20 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-5 mb-6">
-                  <h3 className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5 mb-3">
+                <div className="bg-amber-50/20 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6">
+                  <h3 className="font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-400 flex items-center gap-1.5 mb-3">
                     <Award size={18} /> Team Feedback & Rating
                   </h3>
 
@@ -1211,15 +1211,15 @@ function TeamDetails() {
                           />
                         ))}
                       </div>
-                      <p className="text-sm text-slate-700 dark:text-slate-300 italic">
+                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic">
                         "{selectedTask.feedback || "No review feedback entered."}"
                       </p>
                     </div>
                   ) : isOwner ? (
                     /* Leader Review Form */
-                    <form onSubmit={handleSubmitReview} className="space-y-4">
-                      <div className="flex items-center gap-4">
-                        <label className="text-sm font-semibold text-amber-900 dark:text-amber-300">
+                    <form onSubmit={handleSubmitReview} className="space-y-3 sm:space-y-4">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                        <label className="text-xs sm:text-sm font-semibold text-amber-900 dark:text-amber-300">
                           Score contribution:
                         </label>
                         <div className="flex gap-1.5">
@@ -1228,10 +1228,10 @@ function TeamDetails() {
                               key={star}
                               type="button"
                               onClick={() => setRatingScore(star)}
-                              className="text-amber-500 hover:scale-110 transition cursor-pointer"
+                              className="text-amber-500 hover:scale-110 transition cursor-pointer p-0.5"
                             >
                               <Star
-                                size={22}
+                                size={20}
                                 className={star <= ratingScore ? "text-amber-500" : "text-gray-300"}
                                 fill={star <= ratingScore ? "currentColor" : "none"}
                               />
@@ -1240,7 +1240,7 @@ function TeamDetails() {
                         </div>
                       </div>
 
-                      <div className="flex gap-3 items-end">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-end">
                         <input
                           aria-label="Write a comment"
                           type="text"
@@ -1248,13 +1248,13 @@ function TeamDetails() {
                           value={feedbackText}
                           onChange={(e) => setFeedbackText(e.target.value)}
                           placeholder="Give feedback on this work..."
-                          className="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-2 sm:py-2.5 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                         <button
                           type="submit"
                           disabled={savingReview}
                           aria-busy={savingReview}
-                          className="bg-amber-600 hover:bg-amber-700 disabled:hover:bg-amber-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 disabled:hover:bg-amber-600 text-white text-xs sm:text-sm font-bold px-5 py-2 sm:py-2.5 rounded-xl transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           {savingReview ? "Saving..." : "Submit"}
                         </button>
@@ -1270,8 +1270,8 @@ function TeamDetails() {
               )}
 
               {/* Comments Feed */}
-              <div className="border-t border-gray-100 dark:border-slate-800 pt-6">
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 mb-4">
+              <div className="border-t border-gray-100 dark:border-slate-800 pt-5 sm:pt-6">
+                <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 flex items-center gap-1.5 mb-3 sm:mb-4">
                   <MessageSquare size={18} /> Discussion
                 </h3>
 
@@ -1285,9 +1285,9 @@ function TeamDetails() {
                     selectedTask.comments.map((c, i) => (
                       <div
                         key={i}
-                        className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3.5 rounded-xl"
+                        className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-3 rounded-xl"
                       >
-                        <div className="flex justify-between items-center text-xs text-gray-500 dark:text-slate-400 mb-1">
+                        <div className="flex justify-between items-center text-[10px] sm:text-xs text-gray-500 dark:text-slate-400 mb-1">
                           <span className="font-bold text-indigo-600 dark:text-indigo-400">
                             {c.sender}
                           </span>
@@ -1298,7 +1298,7 @@ function TeamDetails() {
                             })}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-800 dark:text-slate-200">
+                        <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200">
                           {c.text}
                         </p>
                       </div>
@@ -1307,7 +1307,7 @@ function TeamDetails() {
                 </div>
 
                 {/* Post Comment Form */}
-                <form onSubmit={handleAddComment} className="flex gap-3">
+                <form onSubmit={handleAddComment} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <input
                     aria-label="Rating out of 5"
                     type="text"
@@ -1315,13 +1315,13 @@ function TeamDetails() {
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Type comments, links or updates..."
-                    className="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-2.5 sm:py-3 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   <button
                     type="submit"
                     disabled={postingComment}
                     aria-busy={postingComment}
-                    className="bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-5 rounded-xl text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {postingComment ? "Posting..." : "Post"}
                   </button>
@@ -1337,11 +1337,11 @@ function TeamDetails() {
         {/* Team Settings / Manage Modal */}
         {settingsModalOpen &&
           createPortal(
-            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-3.5 sm:p-4">
+            <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 w-full max-w-lg rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[92vh] flex flex-col overflow-hidden transition-colors duration-300">
               
               <div className="flex justify-between items-center mb-6 flex-shrink-0">
-                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
                   Manage Team Settings
                 </h2>
                 <button
@@ -1353,9 +1353,9 @@ function TeamDetails() {
                 </button>
               </div>
 
-              <form onSubmit={handleSaveSettings} className="space-y-6 flex-grow overflow-y-auto pr-2 scrollbar-thin">
+              <form onSubmit={handleSaveSettings} className="space-y-4 sm:space-y-6 flex-grow overflow-y-auto pr-1 sm:pr-2 scrollbar-thin">
                 <div>
-                  <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
+                  <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Team Name
                   </label>
                   <input
@@ -1365,12 +1365,12 @@ function TeamDetails() {
                     value={editTeamName}
                     onChange={(e) => setEditTeamName(e.target.value)}
                     placeholder="Enter team name"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300">
+                  <label className="block mb-1.5 sm:mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Description
                   </label>
                   <textarea
@@ -1379,19 +1379,19 @@ function TeamDetails() {
                     value={editTeamDesc}
                     onChange={(e) => setEditTeamDesc(e.target.value)}
                     placeholder="What is this team working on?"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm sm:text-base"
                   />
                 </div>
 
                 {/* Edit Members section */}
-                <div className="border-t border-gray-100 dark:border-slate-800 pt-6">
-                  <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-4">
+                <div className="border-t border-gray-100 dark:border-slate-800 pt-5 sm:pt-6">
+                  <h3 className="font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 mb-3 sm:mb-4">
                     Manage Team Members
                   </h3>
 
-                  <div className="grid grid-cols-[1fr_120px_auto] gap-3 items-end mb-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-[1fr_130px_auto] gap-3 items-stretch sm:items-end mb-4">
                     <div>
-                      <label className="block mb-2 text-xs font-semibold text-gray-500 dark:text-slate-400">
+                      <label className="block mb-1.5 text-xs font-semibold text-gray-500 dark:text-slate-400">
                         Email Address
                       </label>
                       <input
@@ -1400,12 +1400,12 @@ function TeamDetails() {
                         value={newEditMemberEmail}
                         onChange={(e) => setNewEditMemberEmail(e.target.value)}
                         placeholder="collaborator@domain.com"
-                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block mb-2 text-xs font-semibold text-gray-500 dark:text-slate-400">
+                      <label className="block mb-1.5 text-xs font-semibold text-gray-500 dark:text-slate-400">
                         Role
                       </label>
                       <CustomSelect
@@ -1422,9 +1422,10 @@ function TeamDetails() {
                     <button
                       type="button"
                       onClick={handleAddMemberToEdit}
-                      className="bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 p-3.5 rounded-xl border border-transparent dark:border-indigo-900 transition cursor-pointer"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 px-4 py-2.5 sm:p-3.5 rounded-xl border border-transparent dark:border-indigo-900 transition cursor-pointer font-semibold text-sm"
                     >
                       <Plus size={20} />
+                      <span className="sm:hidden">Add Member</span>
                     </button>
                   </div>
 
@@ -1433,10 +1434,10 @@ function TeamDetails() {
                     {editTeamMembers.map((member) => (
                       <div
                         key={member.email}
-                        className="flex justify-between items-center bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 px-4 py-2 rounded-xl"
+                        className="flex justify-between items-center bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 px-3.5 py-2 rounded-xl"
                       >
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                        <div className="flex flex-col min-w-0 pr-2">
+                          <span className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
                             {member.email}
                           </span>
                           <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">
@@ -1447,7 +1448,7 @@ function TeamDetails() {
                           <button
                             type="button"
                             onClick={() => handleRemoveMemberFromEdit(member.email)}
-                            className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
+                            className="text-red-500 hover:text-red-700 p-1 cursor-pointer flex-shrink-0"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -1457,22 +1458,22 @@ function TeamDetails() {
                   </div>
                 </div>
 
-                <div className="flex justify-between gap-3 pt-6 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
+                <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-5 sm:pt-6 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
                   {/* Danger Zone: Delete Team */}
                   <button
                     type="button"
                     onClick={() => setConfirmDeleteOpen(true)}
-                    className="flex items-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-950/60 px-5 py-3 rounded-xl font-semibold transition cursor-pointer text-sm"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-950/60 px-5 py-2.5 sm:py-3 rounded-xl font-semibold transition cursor-pointer text-sm"
                   >
                     <Trash2 size={16} />
                     Delete Team
                   </button>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                     <button
                       type="button"
                       onClick={() => setSettingsModalOpen(false)}
-                      className="px-5 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-sm"
+                      className="flex-1 sm:flex-initial px-5 py-2.5 sm:py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-sm font-semibold"
                     >
                       Cancel
                     </button>
@@ -1480,7 +1481,7 @@ function TeamDetails() {
                       type="submit"
                       disabled={savingSettings}
                       aria-busy={savingSettings}
-                      className="bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-5 py-3 rounded-xl font-semibold shadow-md transition cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="flex-1 sm:flex-initial bg-indigo-600 hover:bg-indigo-700 disabled:hover:bg-indigo-600 text-white px-5 py-2.5 sm:py-3 rounded-xl font-semibold shadow-md transition cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {savingSettings ? "Saving..." : "Save Settings"}
                     </button>

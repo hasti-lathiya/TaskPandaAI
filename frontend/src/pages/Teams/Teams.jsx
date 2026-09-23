@@ -220,23 +220,23 @@ function Teams() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 transition-all duration-300">
+      <div className="max-w-7xl mx-auto py-2 sm:py-4 transition-all duration-300">
         
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight flex items-center gap-2">
-              <Users className="text-indigo-600 dark:text-indigo-400" size={32} />
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight flex items-center gap-2">
+              <Users className="text-indigo-600 dark:text-indigo-400 w-7 h-7 sm:w-8 sm:h-8" />
               Team Collaboration
             </h1>
-            <p className="text-gray-500 dark:text-slate-400 mt-1">
+            <p className="text-gray-500 dark:text-slate-400 mt-1 text-xs sm:text-base">
               Create teams, assign tasks, and collaborate with internal and external members.
             </p>
           </div>
 
           <button
             onClick={() => setCreateModalOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-900/30 transition transform hover:-translate-y-0.5 cursor-pointer text-sm"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-6 py-3 sm:py-3.5 rounded-2xl shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-900/30 transition transform hover:-translate-y-0.5 cursor-pointer text-sm"
           >
             <Plus size={18} />
             Create Team
@@ -441,18 +441,18 @@ function Teams() {
         {/* Create Team Modal */}
         {createModalOpen &&
           createPortal(
-            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-lg rounded-[32px] p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[90vh] flex flex-col overflow-hidden transition-colors duration-300">
-                <div className="flex justify-between items-center mb-8 flex-shrink-0">
+            <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-3.5 sm:p-4">
+              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-lg rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl shadow-slate-900/20 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/10 relative max-h-[92vh] flex flex-col overflow-hidden transition-colors duration-300">
+                <div className="flex justify-between items-center mb-6 sm:mb-8 flex-shrink-0">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
                       👥 Create New Team
                     </h2>
-                    <p className="text-gray-500 dark:text-slate-400 mt-2 text-sm">
+                    <p className="text-gray-500 dark:text-slate-400 mt-1 sm:mt-2 text-xs sm:text-sm">
                       Create a workspace and collaborate with your team.
                     </p>
                   </div>
-                  <div className="text-5xl">
+                  <div className="text-3xl sm:text-5xl">
                     🐼
                   </div>
                 </div>
@@ -467,9 +467,9 @@ function Teams() {
                 </div>
               )}
 
-              <form onSubmit={handleCreateTeam} className="space-y-6 flex-grow overflow-y-auto pr-2 scrollbar-thin">
+              <form onSubmit={handleCreateTeam} className="space-y-5 sm:space-y-6 flex-grow overflow-y-auto pr-1 sm:pr-2 scrollbar-thin">
                 <div>
-                  <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300" htmlFor="team-name">
+                  <label className="block mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="team-name">
                     Team Name
                   </label>
                   <input
@@ -479,12 +479,12 @@ function Teams() {
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder="Enter team name"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold text-slate-700 dark:text-slate-300" htmlFor="team-desc">
+                  <label className="block mb-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="team-desc">
                     Description
                   </label>
                   <textarea
@@ -493,19 +493,19 @@ function Teams() {
                     value={teamDesc}
                     onChange={(e) => setTeamDesc(e.target.value)}
                     placeholder="What is this team working on?"
-                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-slate-800 dark:text-slate-100"
+                    className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm sm:text-base"
                   />
                 </div>
 
                 {/* Add Members section */}
-                <div className="border-t border-gray-100 dark:border-slate-800 pt-6">
-                  <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-4">
+                <div className="border-t border-gray-100 dark:border-slate-800 pt-5 sm:pt-6">
+                  <h3 className="font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 mb-3 sm:mb-4">
                     Invite Team Members
                   </h3>
 
-                  <div className="grid grid-cols-[1fr_120px_auto] gap-3 items-end mb-4">
+                  <div className="flex flex-col sm:grid sm:grid-cols-[1fr_130px_auto] gap-3 items-stretch sm:items-end mb-4">
                     <div>
-                      <label className="block mb-2 text-xs font-semibold text-gray-500 dark:text-slate-400" htmlFor="member-email">
+                      <label className="block mb-1.5 text-xs font-semibold text-gray-500 dark:text-slate-400" htmlFor="member-email">
                         Email Address
                       </label>
                       <input
@@ -514,12 +514,12 @@ function Teams() {
                         value={newMemberEmail}
                         onChange={(e) => setNewMemberEmail(e.target.value)}
                         placeholder="collaborator@domain.com"
-                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-800 dark:text-slate-100"
+                        className="w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block mb-2 text-xs font-semibold text-gray-500 dark:text-slate-400" htmlFor="member-role">
+                      <label className="block mb-1.5 text-xs font-semibold text-gray-500 dark:text-slate-400" htmlFor="member-role">
                         Role
                       </label>
                       <CustomSelect
@@ -538,9 +538,10 @@ function Teams() {
                       type="button"
                       onClick={handleAddMember}
                       aria-label="Add team member"
-                      className="bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 p-3.5 rounded-xl border border-transparent dark:border-indigo-900 transition cursor-pointer"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 px-4 py-2.5 sm:p-3.5 rounded-xl border border-transparent dark:border-indigo-900 transition cursor-pointer font-semibold text-sm"
                     >
                       <PlusCircle size={20} />
+                      <span className="sm:hidden">Add Member</span>
                     </button>
                   </div>
 
@@ -550,10 +551,10 @@ function Teams() {
                       {members.map((member) => (
                         <div
                           key={member.email}
-                          className="flex justify-between items-center bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 px-4 py-2 rounded-xl"
+                          className="flex justify-between items-center bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 px-3.5 py-2 rounded-xl"
                         >
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                          <div className="flex flex-col min-w-0 pr-2">
+                            <span className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
                               {member.email}
                             </span>
                             <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">
@@ -563,7 +564,7 @@ function Teams() {
                           <button
                             type="button"
                             onClick={() => handleRemoveMember(member.email)}
-                            className="text-red-500 hover:text-red-700 p-1 cursor-pointer transition-colors duration-200"
+                            className="text-red-500 hover:text-red-700 p-1 cursor-pointer transition-colors duration-200 flex-shrink-0"
                           >
                             <Trash size={16} />
                           </button>
@@ -573,7 +574,7 @@ function Teams() {
                   )}
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -582,7 +583,7 @@ function Teams() {
                       setTeamDesc("");
                       setMembers([]);
                     }}
-                    className="px-6 py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-sm"
+                    className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-sm font-semibold"
                   >
                     Cancel
                   </button>
@@ -590,7 +591,7 @@ function Teams() {
                     type="submit"
                     disabled={creating}
                     aria-busy={creating}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-md transition cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {creating ? "Creating..." : "Create"}
                   </button>

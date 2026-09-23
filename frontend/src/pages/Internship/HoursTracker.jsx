@@ -65,9 +65,9 @@ function HoursTracker({ todayHours, setTodayHours }) {
   };
 
   return (
-    <div className="glass-premium rounded-[24px] p-6 shadow-sm">
+    <div className="glass-premium rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 shadow-sm">
 
-      <h2 className="text-xl font-bold mb-5 text-slate-800 dark:text-slate-100 tracking-tight">
+      <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-5 text-slate-800 dark:text-slate-100 tracking-tight">
         ⏰ Hours Tracker
       </h2>
 
@@ -75,7 +75,7 @@ function HoursTracker({ todayHours, setTodayHours }) {
         Hours worked today (0 to {MAX_DAILY_HOURS})
       </label>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2.5 sm:gap-4">
 
         <input
           id="today-hours"
@@ -87,14 +87,14 @@ function HoursTracker({ todayHours, setTodayHours }) {
           onChange={(e) => setHours(e.target.value)}
           aria-invalid={Boolean(error)}
           placeholder="Hours Worked"
-          className="bg-white dark:bg-[#0c1222] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-3.5 w-40 outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm font-bold transition shadow-inner"
+          className="flex-1 sm:w-40 sm:flex-initial bg-white dark:bg-[#0c1222] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-2xl px-3.5 sm:px-5 py-2.5 sm:py-3.5 outline-none focus:ring-2 focus:ring-emerald-500/50 text-xs sm:text-sm font-bold transition shadow-inner"
         />
 
         <button
           onClick={saveHours}
           disabled={saving}
           aria-busy={saving}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3.5 rounded-2xl transition cursor-pointer font-bold text-sm flex items-center justify-center shadow-sm hover:shadow-emerald-500/10 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl transition cursor-pointer font-bold text-xs sm:text-sm flex items-center justify-center shadow-sm hover:shadow-emerald-500/10 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {saving ? "Saving..." : "Save"}
         </button>
