@@ -5,8 +5,6 @@ import {
   query,
   where,
   addDoc,
-  orderBy,
-  limit,
   serverTimestamp,
 } from "firebase/firestore";
 
@@ -30,17 +28,23 @@ function AIScheduler() {
         const snapshot = await getDocs(
           query(
             collection(db, "aiSchedules"),
-            where("userId", "==", user.uid),
-            orderBy("createdAt", "desc"),
-            limit(1)
+            where("userId", "==", user.uid)
           )
         );
 
         if (!snapshot.empty) {
-          setSchedule(snapshot.docs[0].data().content || "");
+          const list = snapshot.docs.map((d) => d.data());
+          // Sort descending client-side so no composite index is needed
+          list.sort((a, b) => {
+            const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+            const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+            return timeB - timeA;
+          });
+          if (list[0]?.content) {
+            setSchedule(list[0].content);
+          }
         }
       } catch (err) {
-        // A missing composite index shouldn't break the page.
         console.error("Could not load saved schedule:", err);
       }
     };
