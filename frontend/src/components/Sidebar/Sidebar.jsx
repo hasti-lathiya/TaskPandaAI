@@ -286,20 +286,22 @@ function Sidebar({
 
         {/* Header - Collapsed state (Desktop only) */}
         {isCollapsed && (
-          <div className="mb-6 pt-2 flex flex-col items-center gap-3">
-            <span 
-              className="text-3xl select-none hover:scale-110 transition-transform duration-200 cursor-pointer" 
-              title="TaskPanda AI"
+          <div className="mb-6 pt-2 flex flex-col items-center gap-2.5">
+            <button
+              onClick={onToggleCollapse}
+              className="text-3xl select-none hover:scale-110 transition-transform duration-200 cursor-pointer p-1 rounded-xl"
+              title="Expand sidebar (Ctrl+B)"
+              aria-label="Expand sidebar"
             >
               🐼
-            </span>
+            </button>
             <button
               onClick={onToggleCollapse}
               title="Expand sidebar (Ctrl+B)"
               aria-label="Expand sidebar"
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white transition-all shadow-xs cursor-pointer group"
             >
-              <PanelLeftOpen size={18} />
+              <PanelLeftOpen size={18} className="group-hover:scale-110 transition-transform" />
             </button>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { auth } from "../../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -233,9 +234,14 @@ function Topbar({
         </div>
 
         {/* Profile Initial */}
-        <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold flex items-center justify-center select-none border border-indigo-200/10 dark:border-indigo-900/30 shadow-inner text-xs sm:text-base">
+        <Link
+          to="/profile"
+          title="View Profile"
+          aria-label="View Profile"
+          className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold flex items-center justify-center select-none border border-indigo-200/40 dark:border-indigo-800/50 shadow-inner text-xs sm:text-base cursor-pointer hover:scale-105 transition-all"
+        >
           {(appContextUser?.fullName || user?.displayName || "S").charAt(0).toUpperCase()}
-        </div>
+        </Link>
       </div>
     </header>
   );
