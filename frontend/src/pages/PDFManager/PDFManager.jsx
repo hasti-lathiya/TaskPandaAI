@@ -13,6 +13,7 @@ import {
   Sparkles,
   Trash2,
   Loader2,
+  Check,
 } from "lucide-react";
 import {
   analyzePDFDocument,
@@ -82,6 +83,15 @@ const PRESET_GROUPS = [
   },
 ];
 
+function findCategoryForPreset(presetId) {
+  for (const group of PRESET_GROUPS) {
+    if (group.items.some((item) => item.id === presetId)) {
+      return group.category;
+    }
+  }
+  return "Professional & Business";
+}
+
 function readFileAsArrayBuffer(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -122,6 +132,7 @@ function PDFManager() {
   const [dragActive, setDragActive] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [tagSelection, setTagSelection] = useState("General Document");
+  const [selectedCategory, setSelectedCategory] = useState("Career & Universal");
 
   const [isUploading, setIsUploading] = useState(false);
   const [currentDocId, setCurrentDocId] = useState(null);
@@ -328,6 +339,8 @@ function PDFManager() {
         }
 
         setDocumentType(detectedType);
+        setTagSelection(detectedType);
+        setSelectedCategory(findCategoryForPreset(detectedType));
 
         // Keep the uploaded document's Firestore record linked to this analysis
         const syncDocMeta = async (score) => {
@@ -532,7 +545,7 @@ function PDFManager() {
         </div>
 
         {/* Quick Action Pills (functional document type filters) */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-6 sm:mb-8 border-b border-gray-100 dark:border-slate-800">
+        <div className="flex gap-2 overflow-x-auto pb-2.5 mb-6 sm:mb-8 border-b border-gray-100 dark:border-slate-800/80 scrollbar-none no-scrollbar">
           {FILTERS.map((filter) => (
             <button
               key={filter.value}
@@ -604,56 +617,109 @@ function PDFManager() {
                  </p>
               </div>
 
-              {/* Document Type tagging */}
-              <div className="mt-5 sm:mt-6 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <label className="block text-xs font-extrabold uppercase text-gray-500 dark:text-slate-400 tracking-wider">
-                    Document Category & Preset Type
-                  </label>
-                  <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-xl border border-indigo-500/20 self-start sm:self-auto flex items-center gap-1">
-                    Preset: <span className="font-extrabold text-slate-800 dark:text-slate-100">{tagSelection}</span>
-                  </span>
+              {/* Document Type tagging & Presets */}
+              <div className="mt-6 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
+                      Document Category & Preset Type
+                    </label>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                      Choose a category to apply specialized AI review criteria
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 self-start sm:self-auto shrink-0 shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    Active: <span className="font-extrabold text-slate-800 dark:text-slate-100">{tagSelection}</span>
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  {PRESET_GROUPS.map((group) => (
-                    <div
-                      key={group.category}
-                      className="bg-slate-50/70 dark:bg-slate-800/40 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-800/80"
-                    >
-                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2.5 uppercase tracking-wider">
-                        <span>{group.icon}</span> {group.category}
-                      </span>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {group.items.map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => setTagSelection(item.id)}
-                            className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
-                              tagSelection === item.id
-                                ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/25 scale-[1.01]"
-                                : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-slate-50 dark:hover:bg-slate-850"
+                {/* Category Navigation Tabs */}
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
+                  {PRESET_GROUPS.map((group) => {
+                    const isTabActive = selectedCategory === group.category;
+                    const hasSelectedPreset = group.items.some((item) => item.id === tagSelection);
+                    return (
+                      <button
+                        key={group.category}
+                        type="button"
+                        onClick={() => setSelectedCategory(group.category)}
+                        className={`relative flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isTabActive
+                            ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200/80 dark:border-slate-800 scale-[1.01]"
+                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-850/50"
+                        }`}
+                      >
+                        <span className="text-sm shrink-0">{group.icon}</span>
+                        <span className="truncate hidden sm:inline">{group.category}</span>
+                        <span className="truncate sm:hidden">{group.category.split(" ")[0]}</span>
+                        {hasSelectedPreset && !isTabActive && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 absolute top-2 right-2"></span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Preset Options Grid for Selected Category */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {PRESET_GROUPS.find((g) => g.category === selectedCategory)?.items.map((item) => {
+                    const isSelected = tagSelection === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setTagSelection(item.id)}
+                        className={`p-3 rounded-2xl text-left border transition-all cursor-pointer flex items-center justify-between gap-3 group ${
+                          isSelected
+                            ? "bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-600 dark:border-indigo-500 shadow-sm ring-1 ring-indigo-500/20"
+                            : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/60 hover:bg-slate-50/60 dark:hover:bg-slate-850/60"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 border transition-all ${
+                              isSelected
+                                ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                                : "bg-slate-100 dark:bg-slate-800 border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 group-hover:scale-105"
                             }`}
                           >
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-base shrink-0">{item.emoji}</span>
-                              <span className="text-[11px] sm:text-xs font-bold truncate">{item.label}</span>
-                            </div>
-                            <span
-                              className={`text-[10px] mt-1 line-clamp-1 ${
-                                tagSelection === item.id
-                                  ? "text-indigo-100"
+                            {item.emoji}
+                          </div>
+                          <div className="min-w-0">
+                            <p
+                              className={`text-xs sm:text-sm font-bold truncate ${
+                                isSelected
+                                  ? "text-indigo-600 dark:text-indigo-400"
+                                  : "text-slate-800 dark:text-slate-100"
+                              }`}
+                            >
+                              {item.label}
+                            </p>
+                            <p
+                              className={`text-[11px] truncate mt-0.5 ${
+                                isSelected
+                                  ? "text-indigo-600/80 dark:text-indigo-300/80 font-medium"
                                   : "text-slate-400 dark:text-slate-500"
                               }`}
                             >
                               {item.desc}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0 pl-1">
+                          {isSelected ? (
+                            <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                              <Check size={12} strokeWidth={3} />
+                            </div>
+                          ) : (
+                            <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700 group-hover:border-slate-400 dark:group-hover:border-slate-600 transition" />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
