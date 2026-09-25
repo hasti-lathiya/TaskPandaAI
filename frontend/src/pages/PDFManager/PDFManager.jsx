@@ -16,6 +16,8 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Download,
+  FlaskConical,
 } from "lucide-react";
 import {
   analyzePDFDocument,
@@ -85,6 +87,86 @@ const PRESET_GROUPS = [
   },
 ];
 
+const SAMPLE_DEMO_PDFS = [
+  {
+    type: "Contract / Agreement",
+    emoji: "📜",
+    category: "Professional & Business",
+    fileName: "01_Contract_Agreement_Sample.pdf",
+    label: "Sample Contract (MSA & NDA)",
+  },
+  {
+    type: "Business Proposal",
+    emoji: "📈",
+    category: "Professional & Business",
+    fileName: "02_Business_Proposal_Sample.pdf",
+    label: "Enterprise AI Proposal",
+  },
+  {
+    type: "Invoice / Receipt",
+    emoji: "📑",
+    category: "Professional & Business",
+    fileName: "03_Invoice_Receipt_Sample.pdf",
+    label: "Commercial Tax Invoice",
+  },
+  {
+    type: "Meeting Minutes",
+    emoji: "📝",
+    category: "Professional & Business",
+    fileName: "04_Meeting_Minutes_Sample.pdf",
+    label: "Sprint Planning Minutes",
+  },
+  {
+    type: "Research Paper",
+    emoji: "🔬",
+    category: "Academic & Research",
+    fileName: "05_Research_Paper_Sample.pdf",
+    label: "LLM Agentic Research Paper",
+  },
+  {
+    type: "Study Notes",
+    emoji: "📚",
+    category: "Academic & Research",
+    fileName: "06_Study_Notes_Sample.pdf",
+    label: "DSA Revision Notes",
+  },
+  {
+    type: "Resume",
+    emoji: "🎯",
+    category: "Career & Universal",
+    fileName: "07_Resume_Sample.pdf",
+    label: "Full Stack Engineer Resume",
+  },
+  {
+    type: "Assignment",
+    emoji: "✍️",
+    category: "Academic & Research",
+    fileName: "08_Assignment_Sample.pdf",
+    label: "Deep Learning Assignment",
+  },
+  {
+    type: "Project Report",
+    emoji: "📊",
+    category: "Academic & Research",
+    fileName: "09_Project_Report_Sample.pdf",
+    label: "TaskPanda AI Capstone Report",
+  },
+  {
+    type: "Internship Report",
+    emoji: "🏢",
+    category: "Career & Universal",
+    fileName: "10_Internship_Report_Sample.pdf",
+    label: "CloudScale Internship Report",
+  },
+  {
+    type: "General Document",
+    emoji: "📖",
+    category: "Career & Universal",
+    fileName: "11_General_Document_Sample.pdf",
+    label: "Enterprise Policy & SOP",
+  },
+];
+
 function findCategoryForPreset(presetId) {
   for (const group of PRESET_GROUPS) {
     if (group.items.some((item) => item.id === presetId)) {
@@ -135,6 +217,8 @@ function PDFManager() {
   const [activeTab, setActiveTab] = useState("overview");
   const [tagSelection, setTagSelection] = useState("General Document");
   const [selectedCategory, setSelectedCategory] = useState("Career & Universal");
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [loadingSampleFile, setLoadingSampleFile] = useState(null);
 
   const [isUploading, setIsUploading] = useState(false);
   const [currentDocId, setCurrentDocId] = useState(null);
@@ -286,6 +370,43 @@ function PDFManager() {
     }
   };
 
+  const loadDemoSamplePDF = async (sample) => {
+    if (!userId) {
+      addToast("Please sign in first to test documents.", "error");
+      return;
+    }
+    setLoadingSampleFile(sample.fileName);
+    try {
+      const response = await fetch(`/sample_test_pdfs/${sample.fileName}`);
+      if (!response.ok) {
+        throw new Error("Could not fetch sample test PDF from server.");
+      }
+      const blob = await response.blob();
+      const file = new File([blob], sample.fileName, { type: "application/pdf" });
+      setTagSelection(sample.type);
+      setSelectedCategory(sample.category);
+      await handlePDFUpload(file);
+      setShowDemoModal(false);
+      addToast(`Loaded "${sample.label}"! Click "Analyze with AI" below.`, "success");
+    } catch (err) {
+      console.error("Failed to load demo PDF:", err);
+      addToast("Failed to load demo test PDF.", "error");
+    } finally {
+      setLoadingSampleFile(null);
+    }
+  };
+
+  const downloadSamplePDF = (fileName, e) => {
+    e?.stopPropagation();
+    const link = document.createElement("a");
+    link.href = `/sample_test_pdfs/${fileName}`;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    addToast(`Downloading ${fileName}`, "info");
+  };
+
   const analyzeDocument = async () => {
     if (!selectedFile) {
       addToast("Please upload a PDF document first.", "error");
@@ -317,20 +438,20 @@ function PDFManager() {
 
         // Intelligent auto-detection if text contains strong domain markers
         if (
-          extractedText.includes("invoice") ||
-          (extractedText.includes("amount due") && extractedText.includes("subtotal"))
+          extractedText.includes("meeting minutes") ||
+          (extractedText.includes("attendees") && (extractedText.includes("action items") || extractedText.includes("agenda")))
         ) {
-          detectedType = "Invoice / Receipt";
+          detectedType = "Meeting Minutes";
         } else if (
           (extractedText.includes("agreement") || extractedText.includes("contract")) &&
-          (extractedText.includes("parties") || extractedText.includes("governing law") || extractedText.includes("terms and conditions"))
+          (extractedText.includes("parties") || extractedText.includes("governing law") || extractedText.includes("terms and conditions") || extractedText.includes("non-disclosure"))
         ) {
           detectedType = "Contract / Agreement";
         } else if (
-          extractedText.includes("meeting minutes") ||
-          (extractedText.includes("attendees") && extractedText.includes("action items"))
+          (extractedText.includes("invoice") || extractedText.includes("receipt")) &&
+          (extractedText.includes("amount due") || extractedText.includes("subtotal") || extractedText.includes("billed to") || extractedText.includes("tax invoice"))
         ) {
-          detectedType = "Meeting Minutes";
+          detectedType = "Invoice / Receipt";
         } else if (
           extractedText.includes("abstract") &&
           extractedText.includes("methodology") &&
@@ -338,36 +459,35 @@ function PDFManager() {
         ) {
           detectedType = "Research Paper";
         } else if (
-          (extractedText.includes("proposal") || extractedText.includes("deliverables")) &&
-          (extractedText.includes("budget") || extractedText.includes("timeline"))
-        ) {
-          detectedType = "Business Proposal";
-        } else if (
-          extractedText.includes("education") &&
-          extractedText.includes("skill") &&
-          (extractedText.includes("experience") || extractedText.includes("projects"))
-        ) {
-          detectedType = "Resume";
-        } else if (
-          extractedText.includes("chapter") &&
-          (extractedText.includes("definition") || extractedText.includes("summary"))
-        ) {
-          detectedType = "Study Notes";
-        } else if (
-          extractedText.includes("introduction") &&
-          extractedText.includes("reference")
-        ) {
-          detectedType = "Assignment";
-        } else if (
-          (extractedText.includes("company") || extractedText.includes("internship")) &&
-          extractedText.includes("work done")
+          (extractedText.includes("internship report") || (extractedText.includes("internship") && extractedText.includes("company"))) &&
+          (extractedText.includes("work done") || extractedText.includes("learning milestones"))
         ) {
           detectedType = "Internship Report";
         } else if (
-          extractedText.includes("problem statement") &&
-          extractedText.includes("methodology")
+          extractedText.includes("proposal") &&
+          (extractedText.includes("deliverables") || extractedText.includes("executive summary") || extractedText.includes("budget") || extractedText.includes("pricing"))
+        ) {
+          detectedType = "Business Proposal";
+        } else if (
+          extractedText.includes("project report") ||
+          (extractedText.includes("problem statement") && (extractedText.includes("methodology") || extractedText.includes("system architecture") || extractedText.includes("testing metrics")))
         ) {
           detectedType = "Project Report";
+        } else if (
+          extractedText.includes("curriculum vitae") ||
+          (extractedText.includes("education") && extractedText.includes("skill") && (extractedText.includes("experience") || extractedText.includes("projects")))
+        ) {
+          detectedType = "Resume";
+        } else if (
+          extractedText.includes("study notes") ||
+          (extractedText.includes("chapter") && (extractedText.includes("definition") || extractedText.includes("formulas") || extractedText.includes("review questions")))
+        ) {
+          detectedType = "Study Notes";
+        } else if (
+          extractedText.includes("assignment") &&
+          (extractedText.includes("objectives") || extractedText.includes("findings") || extractedText.includes("introduction") || extractedText.includes("conclusion"))
+        ) {
+          detectedType = "Assignment";
         }
 
         setDocumentType(detectedType);
@@ -641,9 +761,86 @@ function PDFManager() {
 
             {/* Interactive File Upload card */}
             <div ref={uploadZoneRef} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-8 shadow-sm">
-              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-5 text-slate-800 dark:text-slate-100">
-                Upload Document
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
+                    Upload Document
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Drag and drop or test with official pre-verified sample PDFs
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDemoModal(!showDemoModal)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition cursor-pointer self-start sm:self-auto shadow-xs"
+                >
+                  <FlaskConical size={14} />
+                  <span>{showDemoModal ? "Hide Sample Proofs" : "🧪 Try Sample Proof PDFs (11)"}</span>
+                </button>
+              </div>
+
+              {/* Sample Proofs Tray */}
+              {showDemoModal && (
+                <div className="mb-5 p-3.5 sm:p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/60 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        11 Official Test PDFs Ready for Proof & Demonstration
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Click "Load" to instantly test live in AI analyzer, or download the PDF file directly.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1 scrollbar-thin">
+                    {SAMPLE_DEMO_PDFS.map((sample) => (
+                      <div
+                        key={sample.fileName}
+                        className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 shadow-2xs"
+                      >
+                        <div className="min-w-0 flex items-center gap-2">
+                          <span className="text-base shrink-0">{sample.emoji}</span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                              {sample.label}
+                            </p>
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                              {sample.type}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => loadDemoSamplePDF(sample)}
+                            disabled={loadingSampleFile === sample.fileName || isUploading}
+                            className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition flex items-center gap-1 shadow-xs cursor-pointer disabled:opacity-50"
+                            title="Load and analyze this document"
+                          >
+                            {loadingSampleFile === sample.fileName ? (
+                              <Loader2 size={11} className="animate-spin" />
+                            ) : (
+                              <span>Load</span>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => downloadSamplePDF(sample.fileName, e)}
+                            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                            title="Download PDF file"
+                          >
+                            <Download size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Drag and Drop Zone */}
               <div

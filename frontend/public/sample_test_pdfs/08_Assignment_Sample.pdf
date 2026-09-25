@@ -1,0 +1,460 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 5780
+>>
+stream
+0.5670000000000001 w
+0 G
+0.12 0.16 0.23 rg
+0. 841.8899999999999864 595.2799999999999727 -79.3700787401574814 re
+f
+0.39 0.4 0.95 rg
+0. 765.3545669291338527 595.2799999999999727 -5.6692913385826778 re
+f
+BT
+/F2 10 Tf
+11.5 TL
+1. g
+51.0236220472441033 810.7088976377953031 Td
+(TASKPANDA AI • OFFICIAL TEST DOCUMENT) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.796 0.835 0.882 rg
+51.0236220472441033 790.8663779527558972 Td
+(Category: Academic & Research  |  Preset: Assignment) Tj
+ET
+BT
+/F2 15 Tf
+17.25 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 734.1734645669291695 Td
+(COURSEWORK ASSIGNMENT: MACHINE LEARNING & NEURAL) Tj
+T* (NETWORKS) Tj
+ET
+BT
+/F2 9 Tf
+10.3499999999999996 TL
+0.31 0.275 0.898 rg
+51.0236220472441033 694.4884251968503577 Td
+(Course: CS-480 Deep Learning | Assignment 3: Optimization Analysis) Tj
+ET
+0.89 0.91 0.94 RG
+1.1338582677165356 w
+51.0236220472441033 677.480551181102328 m
+544.2563779527558836 677.480551181102328 l
+S
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 660.4726771653542983 Td
+(1. INTRODUCTION & PROBLEM CONTEXT) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 647.7167716535432191 Td
+(Introduction: Training deep multi-layer neural networks involves navigating highly non-convex loss surfaces subject to vanishing) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 635.8112598425195756 Td
+(gradients and local saddle points. This assignment investigates the empirical convergence rates of Stochastic Gradient Descent) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 623.9057480314960458 Td
+(\(SGD\) with Momentum versus adaptive learning rate algorithms \(Adam and RMSProp\) across image recognition benchmarks.) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 599.2443307086613231 Td
+(2. CORE OBJECTIVES & EXPERIMENTAL SETUP) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 586.4884251968503577 Td
+(The primary objectives are:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 574.5829133858267141 Td
+(1. Implement a 5-layer Convolutional Neural Network \(CNN\) from first principles.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 562.6774015748030706 Td
+(2. Evaluate learning rate schedules \(Cosine Annealing vs Step Decay\).) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 550.7718897637794271 Td
+(3. Measure the regularization efficacy of Dropout \(p=0.3\) against L2 weight decay.) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 526.1104724409447044 Td
+(3. DISCUSSION & FINDINGS) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 513.354566929133739 Td
+(Experimental trials were conducted over 100 training epochs on standardized datasets. Key findings indicate:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 501.4490551181100955 Td
+(• Adam optimizer achieved 94.2% test accuracy within 30 epochs, demonstrating rapid initial parameter adaptation.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 489.5435433070865088 Td
+(• SGD with Nesterov momentum \(mu=0.9\) required 75 epochs but reached a marginally superior final test accuracy of 95.1% with) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 477.6380314960628652 Td
+(lower generalization error.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 465.7325196850392786 Td
+(• Incorporating batch normalization before ReLU activations eliminated internal covariate shift and reduced gradient variance by) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 453.8270078740156919 Td
+(58%.) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 429.1655905511810829 Td
+(4. CONCLUSION SUMMARY) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 416.4096850393700606 Td
+(In conclusion, adaptive optimizers like Adam provide superior exploratory trajectories in early training epochs, whereas) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 404.5041732283464739 Td
+(momentum-based SGD excels in fine-grained convergence during later training stages. Hybrid scheduling yields the optimal) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 392.5986614173228304 Td
+(balance between speed and precision.) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 367.9372440944882214 Td
+(5. BIBLIOGRAPHY & REFERENCES) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 355.1813385826771992 Td
+(1. Goodfellow, I., Bengio, Y., & Courville, A. \(2016\). Deep Learning. MIT Press.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 343.2758267716536125 Td
+(2. Kingma, D. P., & Ba, J. \(2014\). Adam: A Method for Stochastic Optimization. arXiv:1412.6980.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 331.3703149606300258 Td
+(3. He, K., Zhang, X., Ren, S., & Sun, J. \(2016\). Deep Residual Learning for Image Recognition. CVPR 2016.) Tj
+ET
+0.89 0.91 0.94 RG
+0.8503937007874016 w
+51.0236220472441033 34.0157480314960665 m
+544.2563779527558836 34.0157480314960665 l
+S
+BT
+/F1 7.5 Tf
+8.625 TL
+0.58 0.639 0.722 rg
+51.0236220472441033 19.8425196850394059 Td
+(TaskPanda AI Document Verification Sample • Assignment) Tj
+ET
+BT
+/F1 7.5 Tf
+8.625 TL
+0.58 0.639 0.722 rg
+493.2327559055117376 19.8425196850394059 Td
+(Page 1 of 1) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R ]
+/Count 1
+>>
+endobj
+5 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+6 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 5 0 R
+/F2 6 0 R
+/F3 7 0 R
+/F4 8 0 R
+/F5 9 0 R
+/F6 10 0 R
+/F7 11 0 R
+/F8 12 0 R
+/F9 13 0 R
+/F10 14 0 R
+/F11 15 0 R
+/F12 16 0 R
+/F13 17 0 R
+/F14 18 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+19 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260925145318+05'30')
+>>
+endobj
+20 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 21
+0000000000 65535 f 
+0000005984 00000 n 
+0000007801 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000006041 00000 n 
+0000006166 00000 n 
+0000006296 00000 n 
+0000006429 00000 n 
+0000006566 00000 n 
+0000006689 00000 n 
+0000006818 00000 n 
+0000006950 00000 n 
+0000007086 00000 n 
+0000007214 00000 n 
+0000007341 00000 n 
+0000007470 00000 n 
+0000007603 00000 n 
+0000007705 00000 n 
+0000008049 00000 n 
+0000008135 00000 n 
+trailer
+<<
+/Size 21
+/Root 20 0 R
+/Info 19 0 R
+/ID [ <DFAEBF6D8B7719DC7F1067411E8F4F54> <DFAEBF6D8B7719DC7F1067411E8F4F54> ]
+>>
+startxref
+8239
+%%EOF

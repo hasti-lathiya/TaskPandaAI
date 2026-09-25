@@ -1,0 +1,473 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 6020
+>>
+stream
+0.5670000000000001 w
+0 G
+0.12 0.16 0.23 rg
+0. 841.8899999999999864 595.2799999999999727 -79.3700787401574814 re
+f
+0.39 0.4 0.95 rg
+0. 765.3545669291338527 595.2799999999999727 -5.6692913385826778 re
+f
+BT
+/F2 10 Tf
+11.5 TL
+1. g
+51.0236220472441033 810.7088976377953031 Td
+(TASKPANDA AI • OFFICIAL TEST DOCUMENT) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.796 0.835 0.882 rg
+51.0236220472441033 790.8663779527558972 Td
+(Category: Career & Universal  |  Preset: Internship Report) Tj
+ET
+BT
+/F2 15 Tf
+17.25 TL
+0.059 0.09 0.165 rg
+51.0236220472441033 734.1734645669291695 Td
+(FINAL INTERNSHIP REPORT: SOFTWARE ENGINEERING) Tj
+ET
+BT
+/F2 9 Tf
+10.3499999999999996 TL
+0.31 0.275 0.898 rg
+51.0236220472441033 711.4962992125983874 Td
+(12-Week Industry Internship at CloudScale Technologies Inc.) Tj
+ET
+0.89 0.91 0.94 RG
+1.1338582677165356 w
+51.0236220472441033 694.4884251968503577 m
+544.2563779527558836 694.4884251968503577 l
+S
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 677.480551181102328 Td
+(1. COMPANY PROFILE & HOST ORGANIZATION) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 664.7246456692912489 Td
+(Company: CloudScale Technologies Inc.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 652.8191338582676053 Td
+(Headquarters: Silicon Valley, CA | Sector: Cloud Observability & Developer Tools) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 640.9136220472440755 Td
+(Supervisor: Marcus Vance \(Senior Director of Engineering\)) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 629.0081102362204319 Td
+(Duration: June 1, 2026 – August 21, 2026 \(12 Weeks\)) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 605.1970866141731449 Td
+(CloudScale Technologies provides cloud performance analytics and automated log monitoring infrastructure for Fortune 500) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 593.2915748031495013 Td
+(enterprises.) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 568.6301574803148924 Td
+(2. LOG OF WORK DONE & ASSIGNED DUTIES) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 555.8742519685038133 Td
+(During the 12-week software engineering internship, work done included:) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 543.9687401574801697 Td
+(• Weeks 1-3: Completed onboarding, environment configuration, and codebase orientation. Resolved 8 backlog UI issues.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 532.0632283464565262 Td
+(• Weeks 4-7: Designed and developed the PDF Intelligence document parsing microservice. Created client-side progress loaders) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 520.1577165354328827 Td
+(and error boundary handlers.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 508.252204724409296 Td
+(• Weeks 8-10: Integrated Firebase authentication, cloud Firestore data models, and team collaboration invitations.) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 496.3466929133856524 Td
+(• Weeks 11-12: Conducted performance optimizations, reduced bundle size by 28%, and documented API endpoints.) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 471.6852755905510435 Td
+(3. TECHNOLOGIES & TOOLINGS UTILIZED) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 458.9293700787400212 Td
+(• Frontend: React 19, JavaScript \(ES2024\), Tailwind CSS, Vite, HTML5 Canvas) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 447.0238582677164345 Td
+(• Backend: Node.js, Express, Firebase Firestore & Cloud Storage, Google Gemini REST API) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 435.1183464566928478 Td
+(• Tooling: Git, GitHub Actions, Docker, ESLint, Playwright, Vercel Platform) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 410.4569291338582389 Td
+(4. LEARNING MILESTONES & PROFESSIONAL GROWTH) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 397.7010236220472166 Td
+(The internship enabled mastery of agile software development methodologies \(Scrum\), sprint retrospectives, and enterprise code) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 385.7955118110236299 Td
+(review protocols. I gained hands-on experience in building fault-tolerant user interfaces and implementing strict security guidelines) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 373.8900000000000432 Td
+(for user document data.) Tj
+ET
+BT
+/F2 10.5 Tf
+12.0749999999999993 TL
+0.118 0.161 0.231 rg
+51.0236220472441033 349.2285826771654342 Td
+(5. REPORT CONCLUSION & ACKNOWLEDGMENTS) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 336.472677165354412 Td
+(In conclusion, the internship experience bridged the gap between academic computer science theory and production-grade) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 324.5671653543307684 Td
+(software engineering. I express sincere gratitude to my mentor Marcus Vance and the CloudScale engineering team for their) Tj
+ET
+BT
+/F1 8.5 Tf
+9.7749999999999986 TL
+0.2 0.255 0.333 rg
+51.0236220472441033 312.6616535433072386 Td
+(mentorship.) Tj
+ET
+0.89 0.91 0.94 RG
+0.8503937007874016 w
+51.0236220472441033 34.0157480314960665 m
+544.2563779527558836 34.0157480314960665 l
+S
+BT
+/F1 7.5 Tf
+8.625 TL
+0.58 0.639 0.722 rg
+51.0236220472441033 19.8425196850394059 Td
+(TaskPanda AI Document Verification Sample • Internship Report) Tj
+ET
+BT
+/F1 7.5 Tf
+8.625 TL
+0.58 0.639 0.722 rg
+493.2327559055117376 19.8425196850394059 Td
+(Page 1 of 1) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R ]
+/Count 1
+>>
+endobj
+5 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+6 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 5 0 R
+/F2 6 0 R
+/F3 7 0 R
+/F4 8 0 R
+/F5 9 0 R
+/F6 10 0 R
+/F7 11 0 R
+/F8 12 0 R
+/F9 13 0 R
+/F10 14 0 R
+/F11 15 0 R
+/F12 16 0 R
+/F13 17 0 R
+/F14 18 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+19 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260925145318+05'30')
+>>
+endobj
+20 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 21
+0000000000 65535 f 
+0000006224 00000 n 
+0000008041 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000006281 00000 n 
+0000006406 00000 n 
+0000006536 00000 n 
+0000006669 00000 n 
+0000006806 00000 n 
+0000006929 00000 n 
+0000007058 00000 n 
+0000007190 00000 n 
+0000007326 00000 n 
+0000007454 00000 n 
+0000007581 00000 n 
+0000007710 00000 n 
+0000007843 00000 n 
+0000007945 00000 n 
+0000008289 00000 n 
+0000008375 00000 n 
+trailer
+<<
+/Size 21
+/Root 20 0 R
+/Info 19 0 R
+/ID [ <E8CDB9D82A8A18AB7E53E7B39AE17254> <E8CDB9D82A8A18AB7E53E7B39AE17254> ]
+>>
+startxref
+8479
+%%EOF
