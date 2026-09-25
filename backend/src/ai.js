@@ -157,15 +157,31 @@ Guidelines:
 
 const PDF_CHECKLISTS = {
   Resume:
-    "- Education Section\n- Skills Summary\n- Project Portfolios\n- Work Experience\n- Certifications",
+    "- Contact Information & Profile\n- Education Section\n- Skills & Technical Proficiencies\n- Work Experience & Achievements\n- Projects Portfolio\n- Certifications & Honors",
   Assignment:
-    "- Introduction Overview\n- Core Objectives\n- Conclusion Summary\n- Bibliography / References",
+    "- Introduction Overview\n- Core Objectives & Analysis\n- Methodology or Discussion\n- Conclusion Summary\n- Bibliography & References",
+  "Project Report":
+    "- Problem Statement\n- Research Objectives\n- Methodology Details\n- Implementation Walkthrough\n- Testing Metrics\n- Future Scope & Limitations",
   "Internship Report":
-    "- Company Profile\n- Log of Work Done\n- Technologies & Toolings\n- Learning Milestones\n- Report Conclusion",
+    "- Company Profile & Background\n- Log of Work Done\n- Technologies & Toolings\n- Key Learning Milestones\n- Conclusions & Recommendations",
+  "Contract / Agreement":
+    "- Parties & Effective Date\n- Scope of Work & Obligations\n- Financial & Payment Terms\n- Term & Termination Clauses\n- Confidentiality & NDA Provisions\n- Governing Law & Signatures",
+  "Business Proposal":
+    "- Executive Summary\n- Client Problem & Solution\n- Scope of Work & Deliverables\n- Pricing & Budget Breakdown\n- Implementation Timeline & Milestones\n- Team Credentials & Next Steps",
+  "Invoice / Receipt":
+    "- Invoice Number & Issue Date\n- Vendor & Customer Information\n- Itemized Services & Quantities\n- Tax, Discounts & Total Balance Due\n- Payment Terms & Due Date",
+  "Meeting Minutes":
+    "- Meeting Date, Time & Attendees\n- Agenda Topics Discussed\n- Decisions Made & Approvals\n- Action Items & Owner Assignees\n- Deadlines & Next Meeting Date",
+  "Research Paper":
+    "- Title & Abstract\n- Literature Review & Background\n- Research Methodology & Hypotheses\n- Findings & Data Analysis\n- Discussion & Theoretical Implications\n- Bibliography & Citations",
+  "Study Notes":
+    "- Core Concepts & Definitions\n- Key Formulas, Rules or Theorems\n- Illustrative Examples or Diagrams\n- Chapter / Module Summary\n- Practice / Review Questions",
+  "General Document":
+    "- Document Title & Executive Overview\n- Core Themes & Main Arguments\n- Supporting Evidence & Data Points\n- Actionable Insights & Takeaways\n- Summary & Final Recommendations",
 };
 
 const DEFAULT_CHECKLIST =
-  "- Problem Statement\n- Research Objectives\n- Methodology Details\n- Implementation Walkthrough\n- Testing Metrics\n- Future Scope Limitations";
+  "- Document Title & Executive Overview\n- Core Themes & Main Arguments\n- Supporting Evidence & Data Points\n- Actionable Insights & Takeaways\n- Summary & Final Recommendations";
 
 router.post(
   "/analyze-pdf",
@@ -177,8 +193,8 @@ router.post(
     const checklist = PDF_CHECKLISTS[docType] || DEFAULT_CHECKLIST;
 
     return `
-You are an expert academic document auditor and assistant.
-Analyze the following text extracted from a ${docType} document.
+You are an expert document auditor, business analyst, and productivity assistant.
+Analyze the following text extracted from a "${docType}" document.
 
 Expected checklist items for "${docType}":
 ${checklist}
@@ -190,12 +206,12 @@ Provide your analysis in EXACTLY the following JSON format:
   ],
   "summary": "Brief 2-3 sentence overview of the document's content and structure.",
   "insights": [
-    "Specific professional insight about the text quality and style.",
+    "Specific professional insight about the text quality, structure, and style.",
     "Another insight...",
     "Another insight..."
   ],
   "tips": [
-    "Specific actionable tip to improve the missing/weak sections.",
+    "Specific actionable tip to improve the missing or weak sections.",
     "Another tip...",
     "Another tip..."
   ]

@@ -53,19 +53,29 @@ export const recommendTeamAssignee = async (
 
 // Checklist titles are duplicated here only to build the offline fallback
 // below; the authoritative prompt copy lives on the server.
-const FALLBACK_CHECKLISTS = {
+export const FALLBACK_CHECKLISTS = {
   Resume: [
+    "Contact Information",
     "Education Section",
     "Skills Summary",
-    "Project Portfolios",
     "Work Experience",
+    "Project Portfolios",
     "Certifications",
   ],
   Assignment: [
     "Introduction Overview",
     "Core Objectives",
+    "Discussion / Findings",
     "Conclusion Summary",
     "Bibliography / References",
+  ],
+  "Project Report": [
+    "Problem Statement",
+    "Research Objectives",
+    "Methodology Details",
+    "Implementation Walkthrough",
+    "Testing Metrics",
+    "Future Scope Limitations",
   ],
   "Internship Report": [
     "Company Profile",
@@ -74,15 +84,65 @@ const FALLBACK_CHECKLISTS = {
     "Learning Milestones",
     "Report Conclusion",
   ],
+  "Contract / Agreement": [
+    "Parties & Effective Date",
+    "Scope of Work & Obligations",
+    "Payment Terms",
+    "Term & Termination Clauses",
+    "Confidentiality & NDA",
+    "Governing Law",
+  ],
+  "Business Proposal": [
+    "Executive Summary",
+    "Problem & Proposed Solution",
+    "Scope & Deliverables",
+    "Pricing & Budget",
+    "Timeline & Milestones",
+  ],
+  "Invoice / Receipt": [
+    "Invoice Number & Date",
+    "Vendor & Customer Details",
+    "Itemized Line Items",
+    "Subtotal & Total Due",
+    "Payment Terms",
+  ],
+  "Meeting Minutes": [
+    "Meeting Date & Attendees",
+    "Agenda Topics",
+    "Decisions & Approvals",
+    "Action Items & Assignees",
+    "Next Meeting Schedule",
+  ],
+  "Research Paper": [
+    "Title & Abstract",
+    "Literature Review",
+    "Methodology",
+    "Results & Analysis",
+    "Discussion & Conclusions",
+    "References",
+  ],
+  "Study Notes": [
+    "Core Concepts & Definitions",
+    "Key Formulas & Rules",
+    "Illustrative Examples",
+    "Chapter Summary",
+    "Review Questions",
+  ],
+  "General Document": [
+    "Document Title & Overview",
+    "Core Themes & Arguments",
+    "Supporting Data Points",
+    "Actionable Takeaways",
+    "Summary & Recommendations",
+  ],
 };
 
-const DEFAULT_FALLBACK_CHECKLIST = [
-  "Problem Statement",
-  "Research Objectives",
-  "Methodology Details",
-  "Implementation Walkthrough",
-  "Testing Metrics",
-  "Future Scope Limitations",
+export const DEFAULT_FALLBACK_CHECKLIST = [
+  "Document Title & Overview",
+  "Core Themes & Arguments",
+  "Supporting Data Points",
+  "Actionable Takeaways",
+  "Summary & Recommendations",
 ];
 
 export const analyzePDFDocument = async (docType, text) => {

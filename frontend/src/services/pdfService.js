@@ -12,7 +12,19 @@ import {
 } from "firebase/firestore";
 
 export const MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
-export const DOCUMENT_TYPES = ["Resume", "Assignment", "Project Report", "Internship Report"];
+export const DOCUMENT_TYPES = [
+  "Contract / Agreement",
+  "Business Proposal",
+  "Invoice / Receipt",
+  "Meeting Minutes",
+  "Research Paper",
+  "Study Notes",
+  "Resume",
+  "Assignment",
+  "Project Report",
+  "Internship Report",
+  "General Document",
+];
 
 /**
  * Validates that a file is a real PDF under the size limit.

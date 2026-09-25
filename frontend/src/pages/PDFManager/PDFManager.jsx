@@ -14,7 +14,11 @@ import {
   Trash2,
   Loader2,
 } from "lucide-react";
-import { analyzePDFDocument } from "../../services/gemini";
+import {
+  analyzePDFDocument,
+  FALLBACK_CHECKLISTS,
+  DEFAULT_FALLBACK_CHECKLIST,
+} from "../../services/gemini";
 import {
   DOCUMENT_TYPES,
   validatePdfFile,
@@ -32,11 +36,50 @@ import { useNotifications } from "../../context/NotificationContext";
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const FILTERS = [
-  { label: "All", value: "All" },
-  { label: "Resumes", value: "Resume" },
-  { label: "Assignments", value: "Assignment" },
-  { label: "Project Reports", value: "Project Report" },
-  { label: "Internship Reports", value: "Internship Report" },
+  { label: "All Documents", value: "All" },
+  { label: "📜 Contracts", value: "Contract / Agreement" },
+  { label: "📈 Proposals", value: "Business Proposal" },
+  { label: "📑 Invoices", value: "Invoice / Receipt" },
+  { label: "📝 Meeting Minutes", value: "Meeting Minutes" },
+  { label: "🔬 Research Papers", value: "Research Paper" },
+  { label: "📚 Study Notes", value: "Study Notes" },
+  { label: "🎯 Resumes", value: "Resume" },
+  { label: "✍️ Assignments", value: "Assignment" },
+  { label: "📊 Project Reports", value: "Project Report" },
+  { label: "🏢 Internship Reports", value: "Internship Report" },
+  { label: "📖 General", value: "General Document" },
+];
+
+const PRESET_GROUPS = [
+  {
+    category: "Professional & Business",
+    icon: "💼",
+    items: [
+      { id: "Contract / Agreement", label: "Contract / Agreement", emoji: "📜", desc: "Terms, obligations & NDA" },
+      { id: "Business Proposal", label: "Business Proposal", emoji: "📈", desc: "Executive summary & budget" },
+      { id: "Invoice / Receipt", label: "Invoice / Receipt", emoji: "📑", desc: "Line items & amounts due" },
+      { id: "Meeting Minutes", label: "Meeting Minutes", emoji: "📝", desc: "Decisions & action items" },
+    ],
+  },
+  {
+    category: "Academic & Research",
+    icon: "🎓",
+    items: [
+      { id: "Research Paper", label: "Research Paper", emoji: "🔬", desc: "Abstract, methodology & data" },
+      { id: "Study Notes", label: "Study Notes", emoji: "📚", desc: "Concepts, definitions & review" },
+      { id: "Assignment", label: "Assignment", emoji: "✍️", desc: "Prompt, analysis & references" },
+      { id: "Project Report", label: "Project Report", emoji: "📊", desc: "Architecture, testing & scope" },
+    ],
+  },
+  {
+    category: "Career & Universal",
+    icon: "📄",
+    items: [
+      { id: "Resume", label: "Resume / CV", emoji: "🎯", desc: "Experience, skills & impact" },
+      { id: "Internship Report", label: "Internship Report", emoji: "🏢", desc: "Company work & learnings" },
+      { id: "General Document", label: "General Document", emoji: "📖", desc: "Universal summary & takeaways" },
+    ],
+  },
 ];
 
 function readFileAsArrayBuffer(file) {
@@ -78,7 +121,7 @@ function PDFManager() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const [tagSelection, setTagSelection] = useState("Resume");
+  const [tagSelection, setTagSelection] = useState("General Document");
 
   const [isUploading, setIsUploading] = useState(false);
   const [currentDocId, setCurrentDocId] = useState(null);
@@ -227,24 +270,53 @@ function PDFManager() {
 
         setWordCount(words);
 
-        let detectedType = "";
+        let detectedType = tagSelection || "General Document";
 
-        // Tag checks
+        // Intelligent auto-detection if text contains strong domain markers
         if (
+          extractedText.includes("invoice") ||
+          (extractedText.includes("amount due") && extractedText.includes("subtotal"))
+        ) {
+          detectedType = "Invoice / Receipt";
+        } else if (
+          (extractedText.includes("agreement") || extractedText.includes("contract")) &&
+          (extractedText.includes("parties") || extractedText.includes("governing law") || extractedText.includes("terms and conditions"))
+        ) {
+          detectedType = "Contract / Agreement";
+        } else if (
+          extractedText.includes("meeting minutes") ||
+          (extractedText.includes("attendees") && extractedText.includes("action items"))
+        ) {
+          detectedType = "Meeting Minutes";
+        } else if (
+          extractedText.includes("abstract") &&
+          extractedText.includes("methodology") &&
+          (extractedText.includes("references") || extractedText.includes("citations"))
+        ) {
+          detectedType = "Research Paper";
+        } else if (
+          (extractedText.includes("proposal") || extractedText.includes("deliverables")) &&
+          (extractedText.includes("budget") || extractedText.includes("timeline"))
+        ) {
+          detectedType = "Business Proposal";
+        } else if (
           extractedText.includes("education") &&
           extractedText.includes("skill") &&
-          extractedText.includes("project")
+          (extractedText.includes("experience") || extractedText.includes("projects"))
         ) {
           detectedType = "Resume";
+        } else if (
+          extractedText.includes("chapter") &&
+          (extractedText.includes("definition") || extractedText.includes("summary"))
+        ) {
+          detectedType = "Study Notes";
         } else if (
           extractedText.includes("introduction") &&
           extractedText.includes("reference")
         ) {
           detectedType = "Assignment";
         } else if (
-          (extractedText.includes("company") ||
-            extractedText.includes("organization") ||
-            extractedText.includes("internship")) &&
+          (extractedText.includes("company") || extractedText.includes("internship")) &&
           extractedText.includes("work done")
         ) {
           detectedType = "Internship Report";
@@ -253,8 +325,6 @@ function PDFManager() {
           extractedText.includes("methodology")
         ) {
           detectedType = "Project Report";
-        } else {
-          detectedType = tagSelection; // Fallback to manual selector tag
         }
 
         setDocumentType(detectedType);
@@ -293,36 +363,15 @@ function PDFManager() {
         } catch (err) {
           console.error("Failed to run Gemini analysis:", err);
           // Graceful fallback to static checklist analysis if Gemini fails
-          const fallbackResults = [];
-          if (detectedType === "Resume") {
-            fallbackResults.push({ title: "Education Section", found: extractedText.includes("education") });
-            fallbackResults.push({ title: "Skills Summary", found: extractedText.includes("skill") });
-            fallbackResults.push({ title: "Project Portfolios", found: extractedText.includes("project") });
-            fallbackResults.push({ title: "Work Experience", found: extractedText.includes("experience") });
-            fallbackResults.push({ title: "Certifications", found: extractedText.includes("certification") });
-          } else if (detectedType === "Assignment") {
-            fallbackResults.push({ title: "Introduction Overview", found: extractedText.includes("introduction") });
-            fallbackResults.push({ title: "Core Objectives", found: extractedText.includes("objective") });
-            fallbackResults.push({ title: "Conclusion Summary", found: extractedText.includes("conclusion") });
-            fallbackResults.push({ title: "Bibliography / References", found: extractedText.includes("reference") });
-          } else if (detectedType === "Internship Report") {
-            fallbackResults.push({ title: "Company Profile", found: extractedText.includes("company") });
-            fallbackResults.push({ title: "Log of Work Done", found: extractedText.includes("work") });
-            fallbackResults.push({ title: "Technologies & Toolings", found: extractedText.includes("technology") || extractedText.includes("tools") });
-            fallbackResults.push({ title: "Learning Milestones", found: extractedText.includes("learning") });
-            fallbackResults.push({ title: "Report Conclusion", found: extractedText.includes("conclusion") });
-          } else {
-            fallbackResults.push({ title: "Problem Statement", found: extractedText.includes("problem statement") });
-            fallbackResults.push({ title: "Research Objectives", found: extractedText.includes("objective") });
-            fallbackResults.push({ title: "Methodology Details", found: extractedText.includes("methodology") });
-            fallbackResults.push({ title: "Implementation Walkthrough", found: extractedText.includes("implementation") });
-            fallbackResults.push({ title: "Testing Metrics", found: extractedText.includes("testing") });
-            fallbackResults.push({ title: "Future Scope Limitations", found: extractedText.includes("future scope") });
-          }
+          const titles = FALLBACK_CHECKLISTS[detectedType] || DEFAULT_FALLBACK_CHECKLIST;
+          const fallbackResults = titles.map((title) => ({
+            title,
+            found: extractedText.includes(title.split(" ")[0].toLowerCase()),
+          }));
           setAnalysisResult(fallbackResults);
-          setAiInsights(["Analysis fallback completed.", "Check documentation margins."]);
-          setAiTips(["Panda AI recommends inserting missing checklist sections."]);
-          setAiSummary("Document parsed. Some features defaulted during offline processing.");
+          setAiInsights(["Analysis completed via structural fallback.", "Ensure margins and formatting follow standard guidelines."]);
+          setAiTips(["Panda AI recommends inserting any missing checklist sections."]);
+          setAiSummary(`Document audited as ${detectedType}. Core sections analyzed.`);
 
           const score = fallbackResults.length > 0 ? Math.round((fallbackResults.filter((item) => item.found).length / fallbackResults.length) * 100) : 0;
           await syncDocMeta(score);
@@ -478,7 +527,7 @@ function PDFManager() {
             📄 PDF Intelligence Manager
           </h1>
           <p className="text-gray-500 dark:text-slate-400 mt-1 text-xs sm:text-base">
-            Upload, analyze, and optimize your academic documents using AI.
+            Upload, analyze, and optimize your business, legal, research, and career documents using AI.
           </p>
         </div>
 
@@ -556,24 +605,54 @@ function PDFManager() {
               </div>
 
               {/* Document Type tagging */}
-              <div className="mt-5 sm:mt-6">
-                <label className="block text-xs font-extrabold uppercase text-gray-500 dark:text-slate-400 tracking-wider mb-2.5 sm:mb-3">
-                  Document Tag / Preset type
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                  {DOCUMENT_TYPES.map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setTagSelection(type)}
-                      className={`px-2.5 sm:px-3 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold border transition cursor-pointer text-center ${
-                        tagSelection === type
-                          ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 glow-active"
-                          : "bg-white/40 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
+              <div className="mt-5 sm:mt-6 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <label className="block text-xs font-extrabold uppercase text-gray-500 dark:text-slate-400 tracking-wider">
+                    Document Category & Preset Type
+                  </label>
+                  <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-xl border border-indigo-500/20 self-start sm:self-auto flex items-center gap-1">
+                    Preset: <span className="font-extrabold text-slate-800 dark:text-slate-100">{tagSelection}</span>
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {PRESET_GROUPS.map((group) => (
+                    <div
+                      key={group.category}
+                      className="bg-slate-50/70 dark:bg-slate-800/40 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-800/80"
                     >
-                      {type}
-                    </button>
+                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2.5 uppercase tracking-wider">
+                        <span>{group.icon}</span> {group.category}
+                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {group.items.map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setTagSelection(item.id)}
+                            className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                              tagSelection === item.id
+                                ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/25 scale-[1.01]"
+                                : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-slate-50 dark:hover:bg-slate-850"
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-base shrink-0">{item.emoji}</span>
+                              <span className="text-[11px] sm:text-xs font-bold truncate">{item.label}</span>
+                            </div>
+                            <span
+                              className={`text-[10px] mt-1 line-clamp-1 ${
+                                tagSelection === item.id
+                                  ? "text-indigo-100"
+                                  : "text-slate-400 dark:text-slate-500"
+                              }`}
+                            >
+                              {item.desc}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -890,25 +969,25 @@ function PDFManager() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition duration-200">
                 <span className="text-3xl mb-3 block">🎯</span>
-                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Resume ATS Checker</h4>
+                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">ATS & Career Auditor</h4>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-2 leading-relaxed">
-                  Extracts raw semantic tokens from resumes to score suitability weights matching active internship roles.
+                  Extracts semantic tokens from resumes, CVs, and portfolios to score ATS suitability, skills density, and role alignment.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition duration-200">
-                <span className="text-3xl mb-3 block">🏗️</span>
-                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Structure Auditor</h4>
+                <span className="text-3xl mb-3 block">📜</span>
+                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Contract & Legal Scanner</h4>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-2 leading-relaxed">
-                  Evaluates formatting structures, cover page margins, citations, and structural flow patterns.
+                  Evaluates contracts, agreements, and invoices for payment terms, confidentiality (NDA), liability clauses, and deadlines.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition duration-200">
-                <span className="text-3xl mb-3 block">✍️</span>
-                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Report Formatter</h4>
+                <span className="text-3xl mb-3 block">📊</span>
+                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Academic & Business Auditor</h4>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-2 leading-relaxed">
-                  Helps restructure internship logs and final reports into beautiful academic compliance frameworks.
+                  Checks proposals, research papers, and assignments for problem statements, methodology, data metrics, and citations.
                 </p>
               </div>
             </div>
