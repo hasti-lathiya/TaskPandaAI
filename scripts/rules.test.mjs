@@ -120,8 +120,10 @@ await check("outsider cannot read a team task",
   assertFails(getDoc(doc(as(MALLORY), "teamTasks/tt1"))));
 await check("owner creates a team task",
   assertSucceeds(setDoc(doc(as(ALICE), "teamTasks/tt2"), { teamId: "team1", title: "New", assignedTo: BOB.email, status: "pending", comments: [] })));
-await check("member CANNOT create a team task",
-  assertFails(setDoc(doc(as(BOB), "teamTasks/tt3"), { teamId: "team1", title: "Nope", assignedTo: BOB.email, status: "pending" })));
+await check("member creates a team task",
+  assertSucceeds(setDoc(doc(as(BOB), "teamTasks/tt3"), { teamId: "team1", title: "Member Task", assignedTo: BOB.email, status: "pending", comments: [] })));
+await check("outsider CANNOT create a team task",
+  assertFails(setDoc(doc(as(MALLORY), "teamTasks/tt4"), { teamId: "team1", title: "Nope", assignedTo: BOB.email, status: "pending" })));
 await check("assignee updates status of their own task",
   assertSucceeds(updateDoc(doc(as(BOB), "teamTasks/tt1"), { status: "completed" })));
 await check("owner updates any task",

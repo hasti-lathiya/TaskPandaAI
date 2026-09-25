@@ -125,7 +125,7 @@ service cloud.firestore {
     // ---------- team tasks ----------
     //
     // Read: any member of the parent team.
-    // Create / delete: the team owner.
+    // Create: any team member. Delete: the team owner.
     // Update: the owner or the assignee for anything; any other member for
     //         comments only, so discussion stays open without letting members
     //         reassign or re-status each other's work.
@@ -133,7 +133,7 @@ service cloud.firestore {
     match /teamTasks/{taskId} {
       allow read: if isTeamMember(resource.data.teamId);
 
-      allow create: if isTeamOwner(request.resource.data.teamId);
+      allow create: if isTeamMember(request.resource.data.teamId);
 
       allow delete: if isTeamOwner(resource.data.teamId);
 
