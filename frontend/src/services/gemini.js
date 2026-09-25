@@ -184,7 +184,6 @@ export const askPdfQuestion = async (question, text, docType) => {
     console.error("Gemini PDF Q&A failed:", error);
     // Provide a smart offline fallback answer if backend AI is unavailable
     const lowerQ = question.toLowerCase();
-    const lowerT = (text || "").toLowerCase();
 
     if (lowerQ.includes("summary") || lowerQ.includes("overview")) {
       return `Based on the document (${docType}): The text spans ${text.split(/\s+/).filter(Boolean).length} words and outlines key themes including ${text.slice(0, 180)}...`;

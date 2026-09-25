@@ -17,7 +17,6 @@ import {
   Mail,
   Bell,
   Volume2,
-  VolumeX,
 } from "lucide-react";
 import { auth } from "../../firebase/firebase";
 import { getAuthErrorMessage } from "../../utils/authErrors";

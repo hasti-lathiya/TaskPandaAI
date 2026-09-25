@@ -103,7 +103,9 @@ export function NotificationProvider({ children }) {
     try {
       const saved = localStorage.getItem("taskpanda_sound_effects");
       if (saved !== null) return JSON.parse(saved);
-    } catch {}
+    } catch {
+      // Ignore localStorage parse errors and fallback to true
+    }
     return true;
   };
 

@@ -17,8 +17,6 @@ import { useApp } from "../../context/AppContext";
 
 function Topbar({ 
   onOpenSidebar = () => {},
-  isCollapsed = false,
-  onToggleCollapse = () => {}
 }) {
   const { darkMode, toggleDarkMode } = useTheme();
   const { user: appContextUser } = useApp();

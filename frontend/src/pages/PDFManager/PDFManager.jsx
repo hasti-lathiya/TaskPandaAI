@@ -20,7 +20,6 @@ import {
   FlaskConical,
   Send,
   MessageSquare,
-  Bot,
 } from "lucide-react";
 import {
   analyzePDFDocument,
@@ -29,7 +28,6 @@ import {
   DEFAULT_FALLBACK_CHECKLIST,
 } from "../../services/gemini";
 import {
-  DOCUMENT_TYPES,
   validatePdfFile,
   createPdfDocumentRecord,
   fetchUserPdfDocuments,
