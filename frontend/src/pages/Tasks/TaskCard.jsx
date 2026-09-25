@@ -56,10 +56,18 @@ function TaskCard({
     }
   };
 
+  const todayStr = (() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  })();
+
   const isOverdue =
     !task.completed &&
-    task.dueDate &&
-    new Date(task.dueDate) < new Date();
+    Boolean(task.dueDate) &&
+    task.dueDate < todayStr;
 
   return (
     <div

@@ -67,6 +67,7 @@ const getCategoryEmoji = (category) => {
 function Tasks() {
   const { addNotification } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
+  const [addModalDueDate, setAddModalDueDate] = useState("");
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -760,8 +761,10 @@ function Tasks() {
       {/* Add Task Modal */}
       <AddTaskModal
         isOpen={isOpen}
+        initialDueDate={addModalDueDate}
         onClose={(newCategory) => {
           setIsOpen(false);
+          setAddModalDueDate("");
           loadTasks();
           if (newCategory && typeof newCategory === "string") {
             if (!["All", "College", "Internship", "Personal", "Other"].includes(newCategory)) {
@@ -848,7 +851,19 @@ function Tasks() {
           document.body
         )}
 
-      <CalendarView tasks={tasks} />
+      <CalendarView
+        tasks={tasks}
+        onComplete={completeTask}
+        onEdit={(selected) => {
+          setSelectedTask(selected);
+          setEditOpen(true);
+        }}
+        onDelete={(task) => setTaskPendingDelete(task)}
+        onOpenAdd={(dateKey) => {
+          setAddModalDueDate(dateKey || "");
+          setIsOpen(true);
+        }}
+      />
     </MainLayout>
   );
 }

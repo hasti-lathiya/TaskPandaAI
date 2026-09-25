@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { db, auth } from "../../firebase/firebase";
 import {
   collection,
@@ -9,17 +9,23 @@ import { useNotifications } from "../../context/NotificationContext";
 import { createPortal } from "react-dom";
 import CustomSelect from "../../components/Common/CustomSelect";
 
-function AddTaskModal({ isOpen, onClose, existingCategories = [] }) {
+function AddTaskModal({ isOpen, onClose, existingCategories = [], initialDueDate = "" }) {
   const { addNotification } = useNotifications();
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Medium");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState(initialDueDate || "");
   const [category, setCategory] = useState("College");
   const [customCategory, setCustomCategory] = useState("");
 
   const [estimatedDuration, setEstimatedDuration] = useState(30);
   const [energyLevel, setEnergyLevel] = useState("Medium");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      setDueDate(initialDueDate || "");
+    }
+  }, [isOpen, initialDueDate]);
 
   const categoryOptions = useMemo(() => {
     const base = ["College", "Internship", "Personal"];
