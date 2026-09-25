@@ -14,6 +14,8 @@ import {
   Trash2,
   Loader2,
   Check,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   analyzePDFDocument,
@@ -143,6 +145,36 @@ function PDFManager() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [deletingId, setDeletingId] = useState(null);
   const [docPendingDelete, setDocPendingDelete] = useState(null);
+
+  // Filter Pills Horizontal Scrolling
+  const filtersScrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkFilterScroll = () => {
+    if (filtersScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = filtersScrollRef.current;
+      setCanScrollLeft(scrollLeft > 6);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 6);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(checkFilterScroll, 120);
+    window.addEventListener("resize", checkFilterScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", checkFilterScroll);
+    };
+  }, []);
+
+  const scrollFilters = (direction) => {
+    if (filtersScrollRef.current) {
+      const scrollAmount = direction === "left" ? -260 : 260;
+      filtersScrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+      setTimeout(checkFilterScroll, 350);
+    }
+  };
 
   const loadHistory = async (uid) => {
     setHistoryLoading(true);
@@ -544,22 +576,61 @@ function PDFManager() {
           </p>
         </div>
 
-        {/* Quick Action Pills (functional document type filters) */}
-        <div className="flex gap-2 overflow-x-auto pb-2.5 mb-6 sm:mb-8 border-b border-gray-100 dark:border-slate-800/80 scrollbar-none no-scrollbar">
-          {FILTERS.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              onClick={() => setActiveFilter(filter.value)}
-              className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-2xl border transition cursor-pointer whitespace-nowrap ${
-                activeFilter === filter.value
-                  ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 glow-active"
-                  : "bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800"
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
+        {/* Quick Action Pills with < > Navigation Arrows */}
+        <div className="relative flex items-center gap-1.5 mb-6 sm:mb-8 pb-2.5 border-b border-gray-100 dark:border-slate-800/80">
+          {/* Scroll Left < Arrow */}
+          <button
+            type="button"
+            onClick={() => scrollFilters("left")}
+            disabled={!canScrollLeft}
+            aria-label="Scroll options left"
+            title="Scroll options left"
+            className={`shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${
+              canScrollLeft
+                ? "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-400 dark:hover:border-indigo-500 shadow-xs cursor-pointer active:scale-95"
+                : "opacity-25 border-transparent text-slate-400 dark:text-slate-600 cursor-not-allowed pointer-events-none"
+            }`}
+          >
+            <ChevronLeft size={16} strokeWidth={2.5} />
+          </button>
+
+          {/* Horizontally scrollable filter pills */}
+          <div
+            ref={filtersScrollRef}
+            onScroll={checkFilterScroll}
+            className="flex-1 flex gap-2 overflow-x-auto scrollbar-none no-scrollbar scroll-smooth py-0.5"
+          >
+            {FILTERS.map((filter) => (
+              <button
+                key={filter.value}
+                type="button"
+                onClick={() => setActiveFilter(filter.value)}
+                className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-2xl border transition cursor-pointer whitespace-nowrap shrink-0 ${
+                  activeFilter === filter.value
+                    ? "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-400 glow-active"
+                    : "bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800"
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Scroll Right > Arrow */}
+          <button
+            type="button"
+            onClick={() => scrollFilters("right")}
+            disabled={!canScrollRight}
+            aria-label="Scroll options right"
+            title="Scroll options right"
+            className={`shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${
+              canScrollRight
+                ? "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-400 dark:hover:border-indigo-500 shadow-xs cursor-pointer active:scale-95"
+                : "opacity-25 border-transparent text-slate-400 dark:text-slate-600 cursor-not-allowed pointer-events-none"
+            }`}
+          >
+            <ChevronRight size={16} strokeWidth={2.5} />
+          </button>
         </div>
 
         {/* Main 2-Column Split layout */}
