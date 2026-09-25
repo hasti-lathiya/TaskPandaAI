@@ -33,7 +33,13 @@ const MIN_PASSWORD_LENGTH = 6;
 function Profile() {
   const { darkMode, toggleDarkMode, equippedCompanion } = useTheme();
   const { user, tasks, coins, streak, xp, studyHours, updateProfile } = useApp();
-  const { desktopPermission, requestDesktopPermission, addNotification, playNotificationSound } = useNotifications();
+  const {
+    desktopPermission,
+    requestDesktopPermission,
+    addNotification,
+    playNotificationSound,
+    addToast,
+  } = useNotifications();
   const userEmail = user?.email || auth.currentUser?.email || "No email linked";
 
   const [isEditing, setIsEditing] = useState(false);
@@ -50,13 +56,11 @@ function Profile() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [toastMessage, setToastMessage] = useState(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
 
   const showToast = (message, type = "success") => {
-    setToastMessage({ text: message, type });
-    setTimeout(() => setToastMessage(null), 4000);
+    addToast(message, type);
   };
 
   function getCompanionEmoji(companion) {
@@ -122,11 +126,10 @@ function Profile() {
     try {
       playNotificationSound("gamification");
       await addNotification(
-        "Notification System Online! 🐼",
+        "Notification Online! 🐼",
         "Audio chime, in-app notification center, and browser push are working seamlessly!",
         "gamification"
       );
-      showToast("Test notification dispatched with sound!", "success");
     } catch (err) {
       console.error("Test notification failed:", err);
     }
@@ -239,7 +242,7 @@ function Profile() {
 
   return (
     <MainLayout>
-      <div className="w-full max-w-7xl mx-auto py-2 sm:py-4 transition-all duration-300">
+      <div className="w-full max-w-7xl mx-auto py-2 sm:py-4 pb-16 sm:pb-20 transition-all duration-300">
         
         {/* Page Header */}
         <div className="mb-6 sm:mb-8">
@@ -250,20 +253,6 @@ function Profile() {
             Manage your account preferences, gamification stats, and productivity dashboard options.
           </p>
         </div>
-
-        {/* Floating Toast Notification */}
-        {toastMessage && (
-          <div
-            className={`fixed bottom-4 sm:bottom-8 right-4 sm:right-8 z-50 px-4 sm:px-6 py-3 sm:py-4 max-w-[calc(100vw-2rem)] rounded-2xl shadow-xl flex items-center gap-2.5 sm:gap-3 border animate-in fade-in slide-in-from-bottom-4 duration-300 ${
-              toastMessage.type === "success"
-                ? "bg-green-50 dark:bg-green-950/60 border-green-200 dark:border-green-900 text-green-700 dark:text-green-300"
-                : "bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300"
-            }`}
-          >
-            <CheckCircle size={18} className="flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-bold">{toastMessage.text}</span>
-          </div>
-        )}
 
         <div className="space-y-6 sm:space-y-8">
           
@@ -679,22 +668,22 @@ function Profile() {
                 </div>
 
                 {/* Audio & Notification Test Card */}
-                <div className="bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-2xl sm:rounded-[32px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl sm:rounded-[32px] p-5 sm:p-7 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                    <div className="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center shrink-0 shadow-sm">
                       <Volume2 size={20} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">Test Sound & Notification</h4>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">Play an audio chime and dispatch a test alert to verify your settings.</p>
+                      <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100">Test Sound & Notification</h4>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Play audio feedback and dispatch a test alert to verify your browser setup.</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={handleTestNotification}
-                    className="w-full sm:w-auto px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-2 shrink-0"
+                    className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs sm:text-sm font-bold rounded-xl transition shadow-sm cursor-pointer flex items-center justify-center gap-2 shrink-0"
                   >
-                    <Bell size={14} /> Send Test Alert
+                    <Bell size={15} /> Send Test Alert
                   </button>
                 </div>
 

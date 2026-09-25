@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
 import { playNotificationSound } from "../utils/soundEffects";
+import { Sparkles, Bell, AlertCircle, X } from "lucide-react";
 
 const NotificationContext = createContext();
 
@@ -138,12 +139,28 @@ export function NotificationProvider({ children }) {
     }
   };
 
-  const addToast = (message, type = "success") => {
+  const addToast = (content, type = "success") => {
     const id = Math.random().toString(36).substr(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
+    let title = "";
+    let message = "";
+    let toastType = type;
+
+    if (typeof content === "object" && content !== null) {
+      title = content.title || "";
+      message = content.message || "";
+      toastType = content.type || type;
+    } else {
+      message = String(content || "");
+    }
+
+    setToasts((prev) => [...prev, { id, title, message, type: toastType }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+    }, 4500);
+  };
+
+  const dismissToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
   const addNotification = async (title, message, type = "system") => {
@@ -153,8 +170,14 @@ export function NotificationProvider({ children }) {
     // Send native desktop push notification if enabled
     sendDesktopNotification(title, message);
 
-    // Add real-time toast alert
-    addToast(`${title}: ${message}`, type === "gamification" ? "success" : "info");
+    // Add real-time toast alert with separate title and message
+    const toastType =
+      type === "gamification"
+        ? "success"
+        : type === "warning" || type === "danger"
+        ? "error"
+        : "info";
+    addToast({ title, message, type: toastType });
 
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -250,6 +273,7 @@ export function NotificationProvider({ children }) {
         toasts,
         addNotification,
         addToast,
+        dismissToast,
         markAsRead,
         markAllAsRead,
         clearAllNotifications,
@@ -260,23 +284,60 @@ export function NotificationProvider({ children }) {
     >
       {children}
       
-      {/* Toast Portal - Bottom Right Container */}
-      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
+      {/* Toast Portal - Top Right Container */}
+      <div className="fixed top-5 right-4 sm:top-6 sm:right-6 z-[99999] flex flex-col gap-2.5 pointer-events-none max-w-sm sm:max-w-md w-[calc(100vw-2rem)]">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto px-5 py-3 rounded-2xl shadow-2xl border flex items-center gap-3 animate-in fade-in slide-in-from-bottom-5 duration-300 ${
-              t.type === "success"
-                ? "bg-green-50 dark:bg-green-950/80 border-green-200 dark:border-green-900 text-green-700 dark:text-green-300"
-                : t.type === "info"
-                ? "bg-indigo-50 dark:bg-indigo-950/80 border-indigo-200 dark:border-indigo-900 text-indigo-700 dark:text-indigo-300"
-                : "bg-amber-50 dark:bg-amber-950/80 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300"
-            }`}
+            className="pointer-events-auto w-full p-3.5 sm:p-4 rounded-2xl shadow-2xl border backdrop-blur-xl flex items-start gap-3 bg-white/95 dark:bg-slate-900/95 border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-slate-900/10 dark:shadow-black/70 transition-all duration-300 animate-in fade-in slide-in-from-top-3"
           >
-            <span className="text-lg">
-              {t.type === "success" ? "🎉" : t.type === "info" ? "🔔" : "💡"}
-            </span>
-            <span className="text-sm font-bold leading-normal">{t.message}</span>
+            {/* Left Icon Badge */}
+            <div
+              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
+                t.type === "success"
+                  ? "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                  : t.type === "error"
+                  ? "bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                  : "bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
+              }`}
+            >
+              {t.type === "success" ? (
+                <Sparkles size={17} />
+              ) : t.type === "error" ? (
+                <AlertCircle size={17} />
+              ) : (
+                <Bell size={17} />
+              )}
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 min-w-0 pr-1 pt-0.5">
+              {t.title ? (
+                <>
+                  <h5 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
+                    {t.title}
+                  </h5>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed break-words">
+                    {t.message}
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug break-words">
+                  {t.message}
+                </p>
+              )}
+            </div>
+
+            {/* Dismiss X button */}
+            <button
+              type="button"
+              onClick={() => dismissToast(t.id)}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+              title="Close"
+              aria-label="Close"
+            >
+              <X size={14} />
+            </button>
           </div>
         ))}
       </div>
