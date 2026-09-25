@@ -226,4 +226,30 @@ ${String(text).slice(0, 6000)}
   })
 );
 
+router.post(
+  "/ask-pdf",
+  aiRoute(({ question, text, docType }) => {
+    if (!question || !text) {
+      return { error: "question and text are required." };
+    }
+
+    return `
+You are an expert AI document assistant and auditor for TaskPanda AI.
+The user is asking a specific question about an uploaded "${docType || "General Document"}".
+
+Document Text:
+${String(text).slice(0, 8000)}
+
+User Question:
+${question}
+
+Instructions:
+1. Answer accurately and directly based on the provided document text.
+2. Cite specific clauses, facts, metrics, or sections from the document whenever applicable.
+3. If the document does not contain the answer, politely state what is missing and provide helpful context.
+4. Keep your answer professional, clear, and well-structured (use short bullet points if listing multiple items).
+`;
+  })
+);
+
 export default router;

@@ -18,9 +18,13 @@ import {
   ChevronRight,
   Download,
   FlaskConical,
+  Send,
+  MessageSquare,
+  Bot,
 } from "lucide-react";
 import {
   analyzePDFDocument,
+  askPdfQuestion,
   FALLBACK_CHECKLISTS,
   DEFAULT_FALLBACK_CHECKLIST,
 } from "../../services/gemini";
@@ -220,6 +224,13 @@ function PDFManager() {
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [loadingSampleFile, setLoadingSampleFile] = useState(null);
 
+  // Document raw text & Q&A Chat
+  const [rawDocumentText, setRawDocumentText] = useState("");
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isAskingAI, setIsAskingAI] = useState(false);
+  const chatScrollRef = useRef(null);
+
   const [isUploading, setIsUploading] = useState(false);
   const [currentDocId, setCurrentDocId] = useState(null);
 
@@ -327,6 +338,9 @@ function PDFManager() {
     setAiTips([]);
     setAiSummary("");
     setDocumentType("");
+    setRawDocumentText("");
+    setChatMessages([]);
+    setChatInput("");
     setCurrentDocId(null);
     setWordCount(0);
     setPageCount(0);
@@ -422,17 +436,20 @@ function PDFManager() {
         const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
 
         let extractedText = "";
+        let originalText = "";
         let words = 0;
 
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           const pageText = textContent.items.map((item) => item.str).join(" ");
-          extractedText += pageText.toLowerCase();
+          originalText += pageText + "\n";
+          extractedText += pageText.toLowerCase() + " ";
           words += pageText.split(/\s+/).filter(Boolean).length;
         }
 
         setWordCount(words);
+        setRawDocumentText(originalText);
 
         let detectedType = tagSelection || "General Document";
 
@@ -493,6 +510,12 @@ function PDFManager() {
         setDocumentType(detectedType);
         setTagSelection(detectedType);
         setSelectedCategory(findCategoryForPreset(detectedType));
+        setChatMessages([
+          {
+            role: "assistant",
+            text: `Hello! I've audited this ${detectedType}. You can ask me any specific question about clauses, obligations, risks, numbers, or key takeaways.`,
+          },
+        ]);
 
         // Keep the uploaded document's Firestore record linked to this analysis
         const syncDocMeta = async (score) => {
@@ -516,7 +539,7 @@ function PDFManager() {
         };
 
         try {
-          const geminiResult = await analyzePDFDocument(detectedType, extractedText);
+          const geminiResult = await analyzePDFDocument(detectedType, originalText || extractedText);
           const results = geminiResult.checklist || [];
           setAnalysisResult(results);
           setAiInsights(geminiResult.insights || []);
@@ -558,6 +581,48 @@ function PDFManager() {
       console.error("Error analyzing PDF:", error);
       addToast("Could not analyse that PDF. Please try again.", "error");
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleSendQuestion = async (presetQuestion) => {
+    const q = (presetQuestion || chatInput).trim();
+    if (!q || isAskingAI) return;
+
+    if (!rawDocumentText) {
+      addToast("Please analyze the document first before asking questions.", "warning");
+      return;
+    }
+
+    const userMsg = { role: "user", text: q };
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput("");
+    setIsAskingAI(true);
+
+    try {
+      const answer = await askPdfQuestion(q, rawDocumentText, documentType || tagSelection);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: answer || "I analyzed the document, but could not locate specific text matching that question.",
+        },
+      ]);
+    } catch (err) {
+      console.error("Failed to answer document question:", err);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: "Sorry, I encountered an error while processing that question. Please try again.",
+        },
+      ]);
+    } finally {
+      setIsAskingAI(false);
+      setTimeout(() => {
+        if (chatScrollRef.current) {
+          chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+        }
+      }, 100);
     }
   };
 
@@ -1046,16 +1111,55 @@ function PDFManager() {
             <div className="glass-premium rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-8 shadow-sm flex flex-col justify-between h-full flex-grow min-h-[420px] sm:min-h-[460px]">
 
               {isAnalyzing ? (
-                <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center flex-1">
-                  <div className="text-4xl sm:text-5xl animate-bounce mb-3 sm:mb-4">🐼</div>
-                  <h3 className="font-extrabold text-indigo-600 dark:text-indigo-400 text-base sm:text-lg">
-                    Analyzing PDF structure
-                  </h3>
-                  <p className="text-gray-500 dark:text-slate-400 text-xs mt-1 max-w-xs leading-relaxed">
-                    Running segment checklist counters, tracking vocabulary vectors, and grading academic compliance indices.
-                  </p>
-                  <div className="w-full max-w-[200px] h-1.5 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden mt-6">
-                    <div className="h-full bg-indigo-500 rounded-full animate-[progress_1s_infinite_linear] w-2/3" />
+                <div className="flex flex-col justify-between h-full flex-1 animate-pulse space-y-5 py-2">
+                  {/* Skeleton Header */}
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <div className="h-5 w-28 bg-indigo-200/60 dark:bg-indigo-900/40 rounded-full" />
+                      <div className="h-6 w-44 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                      <div className="h-3 w-32 bg-slate-100 dark:bg-slate-850 rounded-lg" />
+                    </div>
+                    <div className="flex flex-col items-end space-y-1">
+                      <div className="w-14 h-14 rounded-2xl bg-indigo-100/70 dark:bg-indigo-950/60 border border-indigo-200/50 dark:border-indigo-800/50 flex items-center justify-center">
+                        <Sparkles className="text-indigo-600 dark:text-indigo-400 animate-spin" size={20} />
+                      </div>
+                      <div className="h-2.5 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </div>
+                  </div>
+
+                  {/* Skeleton Tab Bar */}
+                  <div className="flex gap-4 border-b border-gray-100 dark:border-slate-800 pb-2">
+                    <div className="h-4 w-16 bg-slate-200 dark:bg-slate-800 rounded-md" />
+                    <div className="h-4 w-16 bg-slate-100 dark:bg-slate-850 rounded-md" />
+                    <div className="h-4 w-20 bg-slate-100 dark:bg-slate-850 rounded-md" />
+                    <div className="h-4 w-16 bg-slate-100 dark:bg-slate-850 rounded-md" />
+                  </div>
+
+                  {/* Skeleton Checklist & Body Items */}
+                  <div className="space-y-2.5 flex-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-3 rounded-xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/50"
+                      >
+                        <div className="flex items-center gap-2.5 flex-1">
+                          <div className="w-4 h-4 rounded-full bg-slate-300 dark:bg-slate-700 shrink-0" />
+                          <div
+                            className="h-3.5 bg-slate-300 dark:bg-slate-700 rounded-md"
+                            style={{ width: `${55 + (i * 9) % 35}%` }}
+                          />
+                        </div>
+                        <div className="h-4 w-14 bg-indigo-200/60 dark:bg-indigo-950/60 rounded-full" />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Live Status Badge */}
+                  <div className="p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/40 flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+                    <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                      Gemini AI auditing document rubrics & compliance...
+                    </span>
                   </div>
                 </div>
               ) : analysisResult.length === 0 ? (
@@ -1130,6 +1234,19 @@ function PDFManager() {
                         }`}
                       >
                         Improvement Tips
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("ask")}
+                        className={`font-bold transition pb-1 flex items-center gap-1.5 ${
+                          activeTab === "ask"
+                            ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500"
+                            : "text-gray-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                        }`}
+                      >
+                        <MessageSquare size={13} />
+                        <span>Ask AI</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       </button>
                     </div>
 
@@ -1273,6 +1390,102 @@ function PDFManager() {
                         )}
                       </div>
                     )}
+
+                    {activeTab === "ask" && (
+                      <div className="flex flex-col h-[340px] sm:h-[370px]">
+                        {/* Messages Thread */}
+                        <div
+                          ref={chatScrollRef}
+                          className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin pb-2"
+                        >
+                          {chatMessages.map((msg, mIdx) => (
+                            <div
+                              key={mIdx}
+                              className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                            >
+                              {msg.role === "assistant" && (
+                                <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 text-xs shadow-xs">
+                                  🐼
+                                </div>
+                              )}
+                              <div
+                                className={`p-3 rounded-2xl text-xs max-w-[85%] leading-relaxed ${
+                                  msg.role === "user"
+                                    ? "bg-indigo-600 text-white font-medium rounded-br-xs shadow-xs"
+                                    : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/50 rounded-bl-xs whitespace-pre-line"
+                                }`}
+                              >
+                                {msg.text}
+                              </div>
+                            </div>
+                          ))}
+
+                          {isAskingAI && (
+                            <div className="flex gap-2.5 justify-start items-center">
+                              <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 text-xs animate-pulse">
+                                🐼
+                              </div>
+                              <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                                <Loader2 size={13} className="animate-spin text-indigo-500" />
+                                Cross-referencing document text...
+                              </div>
+                            </div>
+                          )}
+
+                          {chatMessages.length <= 1 && (
+                            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                Suggested Quick Questions:
+                              </p>
+                              <div className="flex flex-col gap-1.5">
+                                {[
+                                  "What are the primary obligations & deliverables?",
+                                  "Are there any risks, penalties, or compliance red flags?",
+                                  "Summarize the key takeaways in 3 bullet points",
+                                ].map((prompt, pIdx) => (
+                                  <button
+                                    key={pIdx}
+                                    type="button"
+                                    onClick={() => handleSendQuestion(prompt)}
+                                    disabled={isAskingAI}
+                                    className="p-2 text-left text-xs bg-slate-50 hover:bg-indigo-50 dark:bg-slate-800/80 dark:hover:bg-indigo-950/40 border border-slate-200/70 dark:border-slate-700/60 rounded-xl text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer flex items-center justify-between group"
+                                  >
+                                    <span className="truncate">{prompt}</span>
+                                    <span className="text-indigo-500 opacity-0 group-hover:opacity-100 transition shrink-0 ml-1">➔</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Question Input Form */}
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSendQuestion();
+                          }}
+                          className="mt-2 pt-2 border-t border-gray-100 dark:border-slate-800 flex items-center gap-2"
+                        >
+                          <input
+                            type="text"
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            placeholder={`Ask anything about this ${documentType || "document"}...`}
+                            disabled={isAskingAI}
+                            className="flex-1 px-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition"
+                          />
+                          <button
+                            type="submit"
+                            disabled={!chatInput.trim() || isAskingAI}
+                            className="p-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-xl transition cursor-pointer shadow-xs shrink-0"
+                            title="Send Question"
+                          >
+                            <Send size={14} />
+                          </button>
+                        </form>
+                      </div>
+                    )}
                   </div>
 
                   {/* Action Button */}
@@ -1334,9 +1547,28 @@ function PDFManager() {
             </h3>
 
             {historyLoading ? (
-              <div className="flex items-center justify-center gap-3 py-10 text-gray-500 dark:text-slate-400">
-                <Loader2 className="animate-spin" size={20} />
-                <span className="text-sm font-semibold">Loading your documents...</span>
+              <div className="space-y-3 py-2 animate-pulse">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800/80 gap-3"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700 shrink-0" />
+                      <div className="space-y-1.5 flex-1 max-w-xs">
+                        <div
+                          className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded-md"
+                          style={{ width: `${55 + (i * 12) % 35}%` }}
+                        />
+                        <div className="h-2.5 w-24 bg-slate-100 dark:bg-slate-700/60 rounded" />
+                      </div>
+                    </div>
+                    <div className="hidden sm:block h-6 w-24 bg-indigo-100/70 dark:bg-indigo-950/60 rounded-full" />
+                    <div className="hidden md:block h-3 w-16 bg-slate-200 dark:bg-slate-700/60 rounded" />
+                    <div className="h-6 w-16 bg-slate-200 dark:bg-slate-700/60 rounded-xl" />
+                    <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700/60 shrink-0" />
+                  </div>
+                ))}
               </div>
             ) : filteredHistory.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-10 sm:py-12">
