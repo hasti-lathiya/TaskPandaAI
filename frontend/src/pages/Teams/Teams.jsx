@@ -23,8 +23,10 @@ import { db, auth } from "../../firebase/firebase";
 import MainLayout from "../../layouts/MainLayout";
 import CustomSelect from "../../components/Common/CustomSelect";
 import { isValidEmail } from "../../utils/validation";
+import { useNotifications } from "../../context/NotificationContext";
 
 function Teams() {
+  const { addNotification } = useNotifications();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -187,6 +189,8 @@ function Teams() {
         members: memberList,
         memberEmails: memberEmails,
       });
+
+      await addNotification("Team Created 🚀", `Created team '${teamName.trim()}' with ${memberList.length} members`, "team");
 
       setTeamName("");
       setTeamDesc("");

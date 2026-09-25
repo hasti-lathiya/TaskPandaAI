@@ -189,6 +189,7 @@ function PDFManager() {
         console.error("Achievement check failed:", err)
       );
 
+      await addNotification("PDF Document Added 📄", `"${file.name}" uploaded to your library (+5 XP)`, "system");
       addToast(`"${file.name}" ready to analyse! +5 XP 🪙`, "success");
     } catch (error) {
       console.error("Error uploading PDF:", error);

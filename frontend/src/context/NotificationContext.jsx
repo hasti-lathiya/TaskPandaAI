@@ -12,6 +12,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
+import { playNotificationSound } from "../utils/soundEffects";
 
 const NotificationContext = createContext();
 
@@ -90,6 +91,53 @@ export function NotificationProvider({ children }) {
     };
   }, []);
 
+  const [desktopPermission, setDesktopPermission] = useState(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      return Notification.permission;
+    }
+    return "unsupported";
+  });
+
+  const isSoundEnabled = () => {
+    try {
+      const saved = localStorage.getItem("taskpanda_sound_effects");
+      if (saved !== null) return JSON.parse(saved);
+    } catch {}
+    return true;
+  };
+
+  const requestDesktopPermission = async () => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        setDesktopPermission(perm);
+        if (perm === "granted") {
+          new Notification("Notifications Enabled! 🐼", {
+            body: "You will now receive desktop alerts for deadlines and achievements.",
+            icon: "/favicon.ico",
+          });
+        }
+        return perm;
+      } catch (err) {
+        console.error("Desktop permission error:", err);
+      }
+    }
+    return "unsupported";
+  };
+
+  const sendDesktopNotification = (title, message) => {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        new Notification(title, {
+          body: message,
+          icon: "/favicon.ico",
+        });
+      } catch (e) {
+        console.debug("Desktop notification suppressed:", e);
+      }
+    }
+  };
+
   const addToast = (message, type = "success") => {
     const id = Math.random().toString(36).substr(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
@@ -99,6 +147,12 @@ export function NotificationProvider({ children }) {
   };
 
   const addNotification = async (title, message, type = "system") => {
+    // Play sound effect
+    playNotificationSound(type, isSoundEnabled());
+
+    // Send native desktop push notification if enabled
+    sendDesktopNotification(title, message);
+
     // Add real-time toast alert
     addToast(`${title}: ${message}`, type === "gamification" ? "success" : "info");
 
@@ -199,6 +253,9 @@ export function NotificationProvider({ children }) {
         markAsRead,
         markAllAsRead,
         clearAllNotifications,
+        desktopPermission,
+        requestDesktopPermission,
+        playNotificationSound,
       }}
     >
       {children}

@@ -11,8 +11,10 @@ import {
 import { db, auth } from "../../firebase/firebase";
 import { generateAISchedule } from "../../services/gemini";
 import MainLayout from "../../layouts/MainLayout";
+import { useNotifications } from "../../context/NotificationContext";
 
 function AIScheduler() {
+  const { addNotification } = useNotifications();
   const [schedule, setSchedule] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -96,6 +98,8 @@ function AIScheduler() {
         content: cleanedResult,
         createdAt: serverTimestamp(),
       });
+
+      await addNotification("AI Schedule Ready ⚡", "Your AI schedule has been generated and optimized!", "system");
 
     } catch (err) {
       console.error(err);

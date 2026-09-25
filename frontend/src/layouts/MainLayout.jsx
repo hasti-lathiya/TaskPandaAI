@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Topbar from "../components/Topbar/Topbar";
+import { useTaskReminders } from "../hooks/useTaskReminders";
 
 function MainLayout({ children }) {
+  // Activate global task reminders (Due Today, Due Tomorrow, Overdue)
+  useTaskReminders();
+
   // Mobile drawer slide-in state
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

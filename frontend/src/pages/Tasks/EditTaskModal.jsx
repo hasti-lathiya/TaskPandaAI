@@ -3,6 +3,7 @@ import { db } from "../../firebase/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { createPortal } from "react-dom";
 import CustomSelect from "../../components/Common/CustomSelect";
+import { useNotifications } from "../../context/NotificationContext";
 
 function EditTaskModal({
   isOpen,
@@ -10,6 +11,7 @@ function EditTaskModal({
   task,
   existingCategories = [],
 }) {
+  const { addNotification } = useNotifications();
   const [title, setTitle] = useState(task?.title || "");
   const [priority, setPriority] = useState(task?.priority || "Medium");
   const [category, setCategory] = useState(task?.category || "Other");
@@ -74,6 +76,8 @@ function EditTaskModal({
         estimatedDuration: Number(estimatedDuration),
         energyLevel,
       });
+
+      await addNotification("Task Updated ✏️", `Updated details for: ${title}`, "task");
 
       // Persist custom category locally so it survives future task deletions
       if (finalCategory && !["College", "Internship", "Personal", "Other"].includes(finalCategory)) {

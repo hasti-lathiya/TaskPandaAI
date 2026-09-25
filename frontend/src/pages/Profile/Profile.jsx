@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   updatePassword,
   reauthenticateWithCredential,
@@ -15,11 +15,15 @@ import {
   Flame,
   Coins,
   Mail,
+  Bell,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { auth } from "../../firebase/firebase";
 import { getAuthErrorMessage } from "../../utils/authErrors";
 import { useTheme } from "../../context/ThemeContext";
 import { useApp } from "../../context/AppContext";
+import { useNotifications } from "../../context/NotificationContext";
 import MainLayout from "../../layouts/MainLayout";
 
 const avatars = ["🐼", "🐱", "🐶", "🐻", "🐬", "🦁", "🐅", "🐰", "🦊"];
@@ -29,6 +33,7 @@ const MIN_PASSWORD_LENGTH = 6;
 function Profile() {
   const { darkMode, toggleDarkMode, equippedCompanion } = useTheme();
   const { user, tasks, coins, streak, xp, studyHours, updateProfile } = useApp();
+  const { desktopPermission, requestDesktopPermission, addNotification, playNotificationSound } = useNotifications();
   const userEmail = user?.email || auth.currentUser?.email || "No email linked";
 
   const [isEditing, setIsEditing] = useState(false);
@@ -83,10 +88,24 @@ function Profile() {
   const taskDigest = user?.prefTaskDigest ?? true;
   const soundEffects = user?.prefSoundEffects ?? true;
 
+  useEffect(() => {
+    if (typeof user?.prefSoundEffects === "boolean") {
+      try {
+        localStorage.setItem("taskpanda_sound_effects", JSON.stringify(user.prefSoundEffects));
+      } catch {}
+    }
+  }, [user?.prefSoundEffects]);
+
   const [savingPref, setSavingPref] = useState(null);
 
   const togglePreference = async (key, nextValue) => {
     if (savingPref) return;
+
+    if (key === "prefSoundEffects") {
+      try {
+        localStorage.setItem("taskpanda_sound_effects", JSON.stringify(nextValue));
+      } catch {}
+    }
 
     setSavingPref(key);
     try {
@@ -96,6 +115,29 @@ function Profile() {
       showToast("Could not save that preference.", "error");
     } finally {
       setSavingPref(null);
+    }
+  };
+
+  const handleTestNotification = async () => {
+    try {
+      playNotificationSound("gamification");
+      await addNotification(
+        "Notification System Online! 🐼",
+        "Audio chime, in-app notification center, and browser push are working seamlessly!",
+        "gamification"
+      );
+      showToast("Test notification dispatched with sound!", "success");
+    } catch (err) {
+      console.error("Test notification failed:", err);
+    }
+  };
+
+  const handleEnablePush = async () => {
+    const perm = await requestDesktopPermission();
+    if (perm === "granted") {
+      showToast("Desktop push notifications enabled! 🎉", "success");
+    } else if (perm === "denied") {
+      showToast("Notifications are blocked in your browser settings.", "error");
     }
   };
 
@@ -578,7 +620,7 @@ function Profile() {
                       <div className="flex-1 min-w-0 pr-2">
                         <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 block">Sound Effects</span>
                         <span className="text-[11px] sm:text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
-                          Play audio feedback when earning coins or leveling up.
+                          Play audio feedback when earning coins, completing tasks, or receiving notifications.
                         </span>
                       </div>
                       <div className="flex-shrink-0 flex justify-end">
@@ -602,7 +644,58 @@ function Profile() {
                       </div>
                     </div>
 
+                    {/* Desktop Push Notifications Row */}
+                    <div className="flex items-center justify-between py-3.5 sm:py-4 gap-3 last:border-0">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                          <Bell size={14} className="text-indigo-600 dark:text-indigo-400" /> Desktop Push Notifications
+                        </span>
+                        <span className="text-[11px] sm:text-xs text-gray-400 dark:text-slate-500 mt-0.5 block leading-relaxed">
+                          Receive browser push alerts for overdue tasks, due dates, and companion rewards even when in background.
+                        </span>
+                      </div>
+                      <div className="flex-shrink-0 flex items-center gap-2">
+                        {desktopPermission === "granted" ? (
+                          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
+                            <CheckCircle size={12} /> Active
+                          </span>
+                        ) : desktopPermission === "denied" ? (
+                          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                            Blocked in Browser
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleEnablePush}
+                            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer"
+                          >
+                            Enable Alerts
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                   </div>
+                </div>
+
+                {/* Audio & Notification Test Card */}
+                <div className="bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-2xl sm:rounded-[32px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                      <Volume2 size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">Test Sound & Notification</h4>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">Play an audio chime and dispatch a test alert to verify your settings.</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleTestNotification}
+                    className="w-full sm:w-auto px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-2 shrink-0"
+                  >
+                    <Bell size={14} /> Send Test Alert
+                  </button>
                 </div>
 
               </div>

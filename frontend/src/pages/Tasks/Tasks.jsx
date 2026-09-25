@@ -373,7 +373,9 @@ function Tasks() {
     setDeleting(true);
 
     try {
+      const deletedTitle = taskPendingDelete.title || "Task";
       await deleteDoc(doc(db, "tasks", taskPendingDelete.id));
+      await addNotification("Task Deleted 🗑️", `Removed task: ${deletedTitle}`, "task");
       setTaskPendingDelete(null);
       loadTasks();
     } catch (err) {

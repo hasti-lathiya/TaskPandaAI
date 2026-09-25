@@ -240,6 +240,8 @@ function TeamDetails() {
         comments: [],
       });
 
+      await addNotification("Team Task Created 📋", `Task "${taskTitle.trim()}" created for ${team?.name || "team"}`, "team");
+
       showBanner("🎉 Team task created.");
       setTaskTitle("");
       setTaskDesc("");
@@ -283,6 +285,11 @@ function TeamDetails() {
       setSelectedTask(updatedTask);
       setTasks(tasks.map((t) => (t.id === selectedTask.id ? updatedTask : t)));
       setNewComment("");
+      addNotification(
+        "Comment Added 💬",
+        `Comment posted on "${selectedTask?.title || "team task"}"`,
+        "team"
+      ).catch(() => {});
     } catch (error) {
       console.error("Error adding comment:", error);
       setActionError("Your comment couldn't be posted. Please try again.");
@@ -310,6 +317,20 @@ function TeamDetails() {
       setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)));
       if (selectedTask && selectedTask.id === taskId) {
         setSelectedTask({ ...selectedTask, status: newStatus });
+      }
+
+      if (newStatus === "completed") {
+        addNotification(
+          "Team Task Completed! 🎉",
+          `Completed "${taskObj?.title || "Team Task"}" (+20 XP)`,
+          "gamification"
+        ).catch(() => {});
+      } else {
+        addNotification(
+          "Task Status Updated 🔄",
+          `"${taskObj?.title || "Team Task"}" moved to ${newStatus}`,
+          "team"
+        ).catch(() => {});
       }
 
       if (newStatus !== "completed") return;
@@ -408,6 +429,7 @@ function TeamDetails() {
       setTasks(tasks.map((t) => (t.id === selectedTask.id ? updatedTask : t)));
       showBanner("⭐ Feedback and rating saved.");
       setFeedbackText("");
+      addNotification("Review Submitted ⭐", `Rated "${selectedTask?.title || "Task"}" (${ratingScore}/5 stars)`, "team").catch(() => {});
     } catch (error) {
       console.error("Error submitting review:", error);
       setActionError("Could not save your review. Please try again.");
@@ -493,6 +515,7 @@ function TeamDetails() {
 
       showBanner("🎉 Team settings updated.");
       setSettingsModalOpen(false);
+      addNotification("Team Updated ⚙️", `Settings saved for team "${editTeamName.trim()}"`, "team").catch(() => {});
     } catch (err) {
       console.error("Error saving team settings:", err);
       setActionError("Could not update team settings. Please try again.");
@@ -542,6 +565,8 @@ function TeamDetails() {
         batch.delete(doc(db, "teams", teamId));
         await batch.commit();
       }
+
+      addNotification("Team Deleted 🗑️", `Team "${team?.name || "Team"}" has been deleted`, "team").catch(() => {});
 
       navigate("/teams", {
         replace: true,
