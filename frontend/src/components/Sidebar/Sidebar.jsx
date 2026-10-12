@@ -233,7 +233,7 @@ function Sidebar({
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-50 lg:static lg:h-screen flex flex-col justify-between bg-white dark:bg-[#0B0F19] border-r border-slate-200 dark:border-slate-800 p-3 sm:p-4 pb-6 transition-all duration-300 ease-in-out flex-shrink-0 shadow-[1px_0_3px_0_rgba(0,0,0,0.02)] ${
-        isCollapsed ? "lg:w-20 w-72 max-w-[85vw]" : "lg:w-64 w-72 max-w-[85vw]"
+        isCollapsed ? "lg:w-20 w-72 max-w-[85vw]" : "lg:w-[272px] w-72 max-w-[85vw]"
       } ${
         isOpen ? "translate-x-0 shadow-2xl shadow-black/40" : "-translate-x-full lg:translate-x-0"
       }`}
@@ -244,20 +244,20 @@ function Sidebar({
         
         {/* Header - Expanded state */}
         {!isCollapsed && (
-          <div className="mb-6 pt-2 px-1 flex items-center justify-between">
-            <div className="flex items-center gap-2.5 min-w-0">
+          <div className="mb-6 pt-2 px-1 flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <span className="text-2xl sm:text-3xl flex-shrink-0 select-none">🐼</span>
-              <div className="min-w-0">
-                <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                   TaskPanda
                 </h1>
-                <p className="text-slate-500 dark:text-slate-400 text-[10.5px] font-bold tracking-wider uppercase whitespace-nowrap">
+                <p className="text-slate-500 dark:text-slate-400 text-[10px] font-bold tracking-wider uppercase truncate mt-0.5">
                   Productivity Platform
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0 ml-1">
+            <div className="flex items-center gap-1 shrink-0 pt-0.5">
               {/* Desktop Collapse Button */}
               <button
                 onClick={onToggleCollapse}
