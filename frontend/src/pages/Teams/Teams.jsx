@@ -511,27 +511,15 @@ function Teams() {
                         >
                           <div className="flex-grow">
                             <div className="flex items-center gap-3.5 mb-4">
-                              <div
-                                className={`w-12 h-12 rounded-2xl ${
-                                  isOwner
-                                    ? "bg-gradient-to-br from-indigo-500 to-purple-600"
-                                    : "bg-gradient-to-br from-purple-500 to-pink-600"
-                                } text-white flex items-center justify-center text-xl font-black shadow-md shadow-indigo-500/10 select-none`}
-                              >
+                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-xl font-black shadow-md shadow-indigo-500/10 select-none">
                                 {team.name.charAt(0).toUpperCase()}
                               </div>
                               <div>
                                 <h4 className="font-bold text-slate-800 dark:text-slate-100 leading-snug tracking-tight">
                                   {formatTeamName(team.name)}
                                 </h4>
-                                <span
-                                  className={`text-[10px] ${
-                                    isOwner
-                                      ? "text-indigo-600 dark:text-indigo-400"
-                                      : "text-purple-600 dark:text-purple-400"
-                                  } font-extrabold uppercase tracking-widest mt-0.5 block`}
-                                >
-                                  {userRole}
+                                <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-extrabold uppercase tracking-widest mt-0.5 block">
+                                  {isOwner ? "Owner" : "Collaborator"}
                                 </span>
                               </div>
                             </div>
