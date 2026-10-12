@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
   query,
   where,
   addDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
   onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
@@ -26,6 +30,7 @@ import { isValidEmail } from "../../utils/validation";
 import { useNotifications } from "../../context/NotificationContext";
 
 function Teams() {
+  const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,15 +42,25 @@ function Teams() {
   const [newMemberRole, setNewMemberRole] = useState("internal");
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState("");
+  const [joiningTeamId, setJoiningTeamId] = useState(null);
+  const [workspaceFilter, setWorkspaceFilter] = useState("all"); // "all" | "created" | "joined"
 
-  // Live subscriptions for the current user's teams. A one-shot read meant a
-  // teammate adding you didn't show up until a manual reload.
+  // Local & Firestore synced joined workspace IDs
+  const [joinedTeamIds, setJoinedTeamIds] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`taskpanda_joined_teams_${auth.currentUser?.uid}`);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Live subscriptions for the current user's teams and user profile
   useEffect(() => {
     let unsubCreated = null;
     let unsubMember = null;
+    let unsubUser = null;
 
-    // Two queries feed one list, so each keeps its own results and they are
-    // merged on every update — otherwise one snapshot would clobber the other.
     let createdTeams = [];
     let memberTeams = [];
 
@@ -66,16 +81,41 @@ function Teams() {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (unsubCreated) unsubCreated();
       if (unsubMember) unsubMember();
+      if (unsubUser) unsubUser();
       createdTeams = [];
       memberTeams = [];
 
       if (!user) {
         setTeams([]);
+        setJoinedTeamIds([]);
         setLoading(false);
         return;
       }
 
       setLoading(true);
+
+      // Listen to user document for joinedTeamIds
+      const userRef = doc(db, "users", user.uid);
+      unsubUser = onSnapshot(
+        userRef,
+        (userSnap) => {
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            if (userData.joinedTeamIds !== undefined && Array.isArray(userData.joinedTeamIds)) {
+              setJoinedTeamIds(userData.joinedTeamIds);
+              try {
+                localStorage.setItem(
+                  `taskpanda_joined_teams_${user.uid}`,
+                  JSON.stringify(userData.joinedTeamIds)
+                );
+              } catch (e) {
+                console.warn("Could not write joined teams to localStorage:", e);
+              }
+            }
+          }
+        },
+        (err) => console.warn("User doc listener error:", err)
+      );
 
       unsubCreated = onSnapshot(
         query(collection(db, "teams"), where("createdBy", "==", user.uid)),
@@ -103,8 +143,46 @@ function Teams() {
       unsubscribeAuth();
       if (unsubCreated) unsubCreated();
       if (unsubMember) unsubMember();
+      if (unsubUser) unsubUser();
     };
   }, []);
+
+  // Seamless migration for existing users:
+  // If the user already belongs to collaborator teams but joinedTeamIds has not been initialized in their profile,
+  // automatically mark all their existing collaborator teams as joined so they appear in "My Workspaces" immediately.
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user || loading || teams.length === 0) return;
+
+    const userRef = doc(db, "users", user.uid);
+    getDoc(userRef)
+      .then((snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.joinedTeamIds === undefined) {
+            const existingCollaborations = teams
+              .filter((t) => t.createdBy !== user.uid)
+              .map((t) => t.id);
+
+            if (existingCollaborations.length > 0) {
+              setJoinedTeamIds((prev) => Array.from(new Set([...prev, ...existingCollaborations])));
+              try {
+                localStorage.setItem(
+                  `taskpanda_joined_teams_${user.uid}`,
+                  JSON.stringify(existingCollaborations)
+                );
+              } catch (e) {
+                console.warn("Could not save initial joined teams to localStorage:", e);
+              }
+              updateDoc(userRef, {
+                joinedTeamIds: existingCollaborations,
+              }).catch((err) => console.warn("Failed to set initial joinedTeamIds:", err));
+            }
+          }
+        }
+      })
+      .catch((err) => console.warn("Could not fetch user doc for joined teams check:", err));
+  }, [loading, teams]);
 
   const handleAddMember = () => {
     if (!newMemberEmail.trim()) return;
@@ -212,11 +290,70 @@ function Teams() {
       .join(", ");
   };
 
+  const getUserRoleInTeam = (team) => {
+    if (team.createdBy === auth.currentUser?.uid) return "Owner";
+    const myMember = team.members?.find(
+      (m) => m.email?.toLowerCase() === auth.currentUser?.email?.toLowerCase()
+    );
+    if (myMember?.role) {
+      return myMember.role.charAt(0).toUpperCase() + myMember.role.slice(1);
+    }
+    return "Collaborator";
+  };
+
+  const handleJoinWorkspace = async (team) => {
+    const user = auth.currentUser;
+    if (!user) return;
+    setJoiningTeamId(team.id);
+
+    try {
+      const updated = Array.from(new Set([...joinedTeamIds, team.id]));
+      setJoinedTeamIds(updated);
+      try {
+        localStorage.setItem(`taskpanda_joined_teams_${user.uid}`, JSON.stringify(updated));
+      } catch (e) {
+        console.warn("Could not update local joined teams:", e);
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        joinedTeamIds: arrayUnion(team.id),
+      });
+
+      await addNotification(
+        "Workspace Joined 🚀",
+        `You joined the '${team.name}' workspace`,
+        "team"
+      );
+
+      navigate(`/teams/${team.id}`);
+    } catch (error) {
+      console.error("Error joining workspace:", error);
+      // Fallback navigation
+      navigate(`/teams/${team.id}`);
+    } finally {
+      setJoiningTeamId(null);
+    }
+  };
+
   const myCreatedTeams = teams.filter((t) => t.createdBy === auth.currentUser?.uid);
-  const myJoinedInvites = teams.filter((t) => t.createdBy !== auth.currentUser?.uid);
+  const myJoinedWorkspaces = teams.filter(
+    (t) => t.createdBy !== auth.currentUser?.uid && joinedTeamIds.includes(t.id)
+  );
+  const myWorkspaces = [...myCreatedTeams, ...myJoinedWorkspaces];
+  const pendingInvites = teams.filter(
+    (t) => t.createdBy !== auth.currentUser?.uid && !joinedTeamIds.includes(t.id)
+  );
+
+  const displayedWorkspaces =
+    workspaceFilter === "created"
+      ? myCreatedTeams
+      : workspaceFilter === "joined"
+      ? myJoinedWorkspaces
+      : myWorkspaces;
 
   // Platform statistics calculation
-  const totalWorkspaces = teams.length;
+  const totalWorkspaces = myWorkspaces.length;
   const avgTeamSize =
     teams.length > 0
       ? Math.round(teams.reduce((acc, t) => acc + (t.members?.length || 0), 0) / teams.length)
@@ -261,7 +398,7 @@ function Teams() {
             
             {/* Left Column (8/12 width) - Primary Workspaces */}
             <div className="lg:col-span-8 space-y-8">
-              {myCreatedTeams.length === 0 && myJoinedInvites.length === 0 ? (
+              {myWorkspaces.length === 0 && pendingInvites.length === 0 ? (
                 /* Premium Redesigned Empty State Experience */
                 <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[32px] p-8 md:p-12 shadow-sm text-center">
                   <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
@@ -317,49 +454,107 @@ function Teams() {
               ) : (
                 /* Workspaces Grid list */
                 <div className="space-y-6">
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 border-b border-gray-100 dark:border-slate-800/80 pb-2">
-                    My Workspaces ({myCreatedTeams.length})
-                  </h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-slate-800/80 pb-3">
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                      My Workspaces ({displayedWorkspaces.length})
+                    </h3>
+
+                    {/* Filter Pills when user has both created and joined teams */}
+                    {myJoinedWorkspaces.length > 0 && (
+                      <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-xs font-semibold">
+                        <button
+                          type="button"
+                          onClick={() => setWorkspaceFilter("all")}
+                          className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                            workspaceFilter === "all"
+                              ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold"
+                              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                          }`}
+                        >
+                          All ({myWorkspaces.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWorkspaceFilter("created")}
+                          className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                            workspaceFilter === "created"
+                              ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold"
+                              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                          }`}
+                        >
+                          Created ({myCreatedTeams.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWorkspaceFilter("joined")}
+                          className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                            workspaceFilter === "joined"
+                              ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold"
+                              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                          }`}
+                        >
+                          Joined ({myJoinedWorkspaces.length})
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {myCreatedTeams.map((team) => (
-                       <div
-                         key={team.id}
-                         className="glass-premium rounded-[24px] p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col items-stretch h-full"
-                       >
-                         <div className="flex-grow">
-                           <div className="flex items-center gap-3.5 mb-4">
-                             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-xl font-black shadow-md shadow-indigo-500/10 select-none">
-                               {team.name.charAt(0).toUpperCase()}
-                             </div>
-                             <div>
-                               <h4 className="font-bold text-slate-800 dark:text-slate-100 leading-snug tracking-tight">
-                                 {formatTeamName(team.name)}
-                               </h4>
-                               <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-extrabold uppercase tracking-widest mt-0.5 block">
-                                 Owner
-                               </span>
-                             </div>
-                           </div>
-                           <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-3 mb-6 leading-relaxed">
-                             {team.description || "No description provided."}
-                           </p>
-                         </div>
+                    {displayedWorkspaces.map((team) => {
+                      const isOwner = team.createdBy === auth.currentUser?.uid;
+                      const userRole = getUserRoleInTeam(team);
 
-                         <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-800/60 pt-4 mt-auto">
-                           <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-bold">
-                             <Users size={14} />
-                             {team.members?.length || 0} members
-                           </span>
-                           <Link
-                             to={`/teams/${team.id}`}
-                             className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold text-xs flex items-center gap-1"
-                           >
-                             Enter Workspace <ArrowRight size={12} />
-                           </Link>
-                         </div>
-                       </div>
-                    ))}
+                      return (
+                        <div
+                          key={team.id}
+                          className="glass-premium rounded-[24px] p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col items-stretch h-full"
+                        >
+                          <div className="flex-grow">
+                            <div className="flex items-center gap-3.5 mb-4">
+                              <div
+                                className={`w-12 h-12 rounded-2xl ${
+                                  isOwner
+                                    ? "bg-gradient-to-br from-indigo-500 to-purple-600"
+                                    : "bg-gradient-to-br from-purple-500 to-pink-600"
+                                } text-white flex items-center justify-center text-xl font-black shadow-md shadow-indigo-500/10 select-none`}
+                              >
+                                {team.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-slate-800 dark:text-slate-100 leading-snug tracking-tight">
+                                  {formatTeamName(team.name)}
+                                </h4>
+                                <span
+                                  className={`text-[10px] ${
+                                    isOwner
+                                      ? "text-indigo-600 dark:text-indigo-400"
+                                      : "text-purple-600 dark:text-purple-400"
+                                  } font-extrabold uppercase tracking-widest mt-0.5 block`}
+                                >
+                                  {userRole}
+                                </span>
+                              </div>
+                            </div>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-3 mb-6 leading-relaxed">
+                              {team.description || "No description provided."}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-800/60 pt-4 mt-auto">
+                            <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-bold">
+                              <Users size={14} />
+                              {team.members?.length || 0} members
+                            </span>
+                            <Link
+                              to={`/teams/${team.id}`}
+                              className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold text-xs flex items-center gap-1"
+                            >
+                              Enter Workspace <ArrowRight size={12} />
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -370,12 +565,19 @@ function Teams() {
               
               {/* Workspace Invites Panel */}
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[32px] p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4">
-                  <MailOpen size={18} className="text-indigo-600 dark:text-indigo-400" />
-                  My Team Invites
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <MailOpen size={18} className="text-indigo-600 dark:text-indigo-400" />
+                    My Team Invites
+                  </h3>
+                  {pendingInvites.length > 0 && (
+                    <span className="text-xs bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-0.5 rounded-full">
+                      {pendingInvites.length} new
+                    </span>
+                  )}
+                </div>
 
-                {myJoinedInvites.length === 0 ? (
+                {pendingInvites.length === 0 ? (
                   <div className="text-center py-8 bg-slate-50/50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-2xl flex flex-col items-center justify-center p-4">
                     <MailOpen className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2 opacity-50 select-none" />
                     <p className="text-xs text-[#9CA3AF] dark:text-slate-400 font-bold italic">
@@ -384,7 +586,7 @@ function Teams() {
                   </div>
                 ) : (
                   <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-                    {myJoinedInvites.map((team) => (
+                    {pendingInvites.map((team) => (
                       <div
                         key={team.id}
                         className="bg-slate-50/50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 rounded-2xl p-4 transition hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -397,14 +599,16 @@ function Teams() {
                         </p>
                         <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-gray-100 dark:border-slate-800/40">
                           <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">
-                            Collaborator
+                            {getUserRoleInTeam(team)}
                           </span>
-                          <Link
-                            to={`/teams/${team.id}`}
-                            className="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+                          <button
+                            type="button"
+                            onClick={() => handleJoinWorkspace(team)}
+                            disabled={joiningTeamId === team.id}
+                            className="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline cursor-pointer disabled:opacity-50"
                           >
-                            Join Workspace →
-                          </Link>
+                            {joiningTeamId === team.id ? "Joining..." : "Join Workspace →"}
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -429,6 +633,13 @@ function Teams() {
                     <span className="text-xs text-gray-500 dark:text-slate-400">Created by Me</span>
                     <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">{myCreatedTeams.length}</span>
                   </div>
+
+                  {myJoinedWorkspaces.length > 0 && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-slate-800/50">
+                      <span className="text-xs text-gray-500 dark:text-slate-400">Joined as Collaborator</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">{myJoinedWorkspaces.length}</span>
+                    </div>
+                  )}
 
                   <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-slate-800/50">
                     <span className="text-xs text-gray-500 dark:text-slate-400">Average Team Size</span>

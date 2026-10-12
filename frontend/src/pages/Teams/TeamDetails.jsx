@@ -140,6 +140,22 @@ function TeamDetails() {
 
           setTeam({ id: teamSnap.id, ...teamData });
           setLoading(false);
+
+          // Ensure collaborator workspaces are recorded as joined
+          if (teamData.createdBy !== user.uid) {
+            try {
+              const localKey = `taskpanda_joined_teams_${user.uid}`;
+              const stored = JSON.parse(localStorage.getItem(localKey) || "[]");
+              if (!stored.includes(teamSnap.id)) {
+                localStorage.setItem(localKey, JSON.stringify([...stored, teamSnap.id]));
+              }
+              updateDoc(doc(db, "users", user.uid), {
+                joinedTeamIds: arrayUnion(teamSnap.id),
+              }).catch((e) => console.warn("Could not sync joined team:", e));
+            } catch (e) {
+              console.warn("Could not update local joined teams:", e);
+            }
+          }
         },
         (err) => {
           console.error("Error loading team:", err);
